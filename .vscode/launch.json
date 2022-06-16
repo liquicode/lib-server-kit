@@ -33,7 +33,7 @@
 			"args": [
 				"-u",
 				"bdd",
-				"tests/020*.js",
+				"tests/010*.js",
 				"--timeout",
 				"0",
 			],

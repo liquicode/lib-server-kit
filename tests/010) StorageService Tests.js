@@ -32,7 +32,7 @@ describe( `010) StorageService Tests`,
 				Server.Initialize( settings );
 				return;
 			}
-		)
+		);
 
 
 		//---------------------------------------------------------------------
@@ -62,24 +62,23 @@ describe( `010) StorageService Tests`,
 
 			// Create an object definition.
 			storage.ObjectDefinition = {
-				ServiceTitle: 'Test Objects',
-				ServiceName: 'TestObjects',
-				ObjectTitle: 'Test Object',
-				ObjectName: 'TestObject',
-				Fields: [
-					{
+				Name: 'TestObject',
+				Title: 'Test Object',
+				Titles: 'Test Objects',
+				Fields: {
+					Name: {
+						name: 'name',
 						title: 'Name',
 						description: 'A silly name.',
-						member: 'name',
 						type: 'string',
 					},
-					{
+					Number: {
+						name: 'number',
 						title: 'Number',
 						description: 'A silly number.',
-						member: 'number',
 						type: 'number',
 					},
-				],
+				},
 			};
 
 			// Return the storage.
@@ -107,7 +106,7 @@ describe( `010) StorageService Tests`,
 				LIB_ASSERT.ok( storage );
 
 				// Create an empty object.
-				let managed_object = await storage.ServiceDefinition.Endpoints.CreateOne.invoke( OwnerUser, {} );
+				let managed_object = await storage.StorageCreateOne( OwnerUser, {} );
 				LIB_ASSERT.ok( managed_object );
 				LIB_ASSERT.ok( managed_object._m.id );
 				LIB_ASSERT.strictEqual( managed_object._m.owner_id, OwnerUser.user_id );
@@ -128,7 +127,7 @@ describe( `010) StorageService Tests`,
 
 				// Create a test object.
 				let test_object = { name: "Test Name", number: 3.14 };
-				let managed_object = await storage.ServiceDefinition.Endpoints.CreateOne.invoke( OwnerUser, test_object );
+				let managed_object = await storage.StorageCreateOne( OwnerUser, test_object );
 				LIB_ASSERT.ok( managed_object );
 				LIB_ASSERT.ok( managed_object._m.id );
 				LIB_ASSERT.strictEqual( managed_object._m.owner_id, OwnerUser.user_id );
@@ -136,11 +135,11 @@ describe( `010) StorageService Tests`,
 				LIB_ASSERT.strictEqual( managed_object._o.number, 3.14 );
 
 				// Delete the object.
-				let count = await storage.ServiceDefinition.Endpoints.DeleteOne.invoke( OwnerUser, managed_object._m.id );
+				let count = await storage.StorageDeleteOne( OwnerUser, managed_object._m.id );
 				LIB_ASSERT.strictEqual( count, 1 );
 
 				// Count all objects.
-				count = await storage.ServiceDefinition.Endpoints.Count.invoke( OwnerUser );
+				count = await storage.StorageCount( OwnerUser );
 				LIB_ASSERT.strictEqual( count, 0 );
 
 				return;
