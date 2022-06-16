@@ -14,7 +14,7 @@ describe( `020) WebServer Tests`,
 
 		//---------------------------------------------------------------------
 		before(
-			function()
+			async function()
 			{
 				Server = LIB_SERVER_KIT.NewServer( LIB_PATH.resolve( __dirname, 'test-app' ) );
 				let settings = { Log: { Console: { enabled: true }, Shell: { enabled: false } } };

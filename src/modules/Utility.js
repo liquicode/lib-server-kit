@@ -12,6 +12,7 @@
 
 //---------------------------------------------------------------------
 const LIB_FS = require( 'fs' );
+const LIB_HTTP = require( 'http' );
 const LIB_HTTPS = require( 'https' );
 const LIB_CRYPTO = require( 'crypto' );
 const LIB_JSON = require( '@liquicode/lib-json' );
@@ -45,6 +46,7 @@ exports.merge_objects = merge_objects;
 exports.format_timestamp = format_timestamp;
 exports.string_compare = string_compare;
 exports.zulu_timestamp = zulu_timestamp;
+exports.async_make_get_request = async_make_get_request;
 exports.async_download_file = async_download_file;
 exports.get_safe_filename = get_safe_filename;
 
@@ -306,19 +308,55 @@ function zulu_timestamp()
 
 
 //---------------------------------------------------------------------
-async function async_download_file( url, filename )
+async function async_make_get_request( url )
 {
+	let http_engine = null;
+	if ( url.toLowerCase().startsWith( 'http:' ) ) { http_engine = LIB_HTTP; }
+	else if ( url.toLowerCase().startsWith( 'https:' ) ) { http_engine = LIB_HTTPS; }
+	else { throw new Error( `Unsupported protocol. Must be http or https.` ); }
+
 	return new Promise(
 		( resolve, reject ) =>
 		{
 			try
 			{
-				LIB_HTTPS.get(
+				http_engine.get(
 					url,
-					function ( res ) 
+					function ( response ) 
+					{
+						response.on( 'data', data =>
+						{
+							resolve( data );
+						} );
+					} );
+			}
+			catch ( error )
+			{
+				reject( error );
+			}
+		} );
+}
+
+
+//---------------------------------------------------------------------
+async function async_download_file( url, filename )
+{
+	let http_engine = null;
+	if ( url.toLowerCase().startsWith( 'http:' ) ) { http_engine = LIB_HTTP; }
+	else if ( url.toLowerCase().startsWith( 'https:' ) ) { http_engine = LIB_HTTPS; }
+	else { throw new Error( `Unsupported protocol. Must be http or https.` ); }
+
+	return new Promise(
+		( resolve, reject ) =>
+		{
+			try
+			{
+				http_engine.get(
+					url,
+					function ( response ) 
 					{
 						const file_stream = LIB_FS.createWriteStream( filename );
-						res.pipe( file_stream );
+						response.pipe( file_stream );
 						file_stream.on(
 							'finish',
 							function ()

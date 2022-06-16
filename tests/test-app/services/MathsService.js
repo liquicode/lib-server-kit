@@ -56,7 +56,12 @@ exports.Construct =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'A', 'B' ],
-			invoke: async function ( User, A, B ) { return ( A + B ); },
+			invoke: async function ( User, A, B )
+			{
+				A = Number( A );
+				B = Number( B );
+				return ( A + B );
+			},
 		};
 
 		//---------------------------------------------------------------------
@@ -67,7 +72,12 @@ exports.Construct =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'A', 'B' ],
-			invoke: async function ( User, A, B ) { return ( A - B ); },
+			invoke: async function ( User, A, B )
+			{
+				A = Number( A );
+				B = Number( B );
+				return ( A - B );
+			},
 		};
 
 		//---------------------------------------------------------------------
@@ -78,7 +88,12 @@ exports.Construct =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'A', 'B' ],
-			invoke: async function ( User, A, B ) { return ( A * B ); },
+			invoke: async function ( User, A, B )
+			{
+				A = Number( A );
+				B = Number( B );
+				return ( A * B );
+			},
 		};
 
 		//---------------------------------------------------------------------
@@ -89,7 +104,12 @@ exports.Construct =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'A', 'B' ],
-			invoke: async function ( User, A, B ) { return ( A / B ); },
+			invoke: async function ( User, A, B )
+			{
+				A = Number( A );
+				B = Number( B );
+				return ( A / B );
+			},
 		};
 
 

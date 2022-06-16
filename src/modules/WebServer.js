@@ -45,7 +45,7 @@ exports.Construct =
 	{
 		let module = MODULE_BASE.NewModule();
 
-		module.http_server = null;
+		module.HttpServer = null;
 
 
 		//---------------------------------------------------------------------
@@ -200,7 +200,7 @@ exports.Construct =
 		module.StartWebServer =
 			async function StartWebServer( Address = null, Port = null )
 			{
-				if ( module.http_server !== null ) { throw new Error( `WebServer is already running.` ); }
+				if ( module.HttpServer !== null ) { throw new Error( `WebServer is already running.` ); }
 
 				//==========================================
 				// Create an Express router.
@@ -518,10 +518,14 @@ exports.Construct =
 							{
 								// Get the endpoint parameters.
 								let parameters = [];
-								for ( let parameter_index = 0; parameter_index < endpoint.params; parameter_index++ )
+								for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
 								{
-									let parameter_name = endpoint.params[ parameter_index ];
+									let parameter_name = endpoint.parameters[ parameter_index ];
 									let value = request.params[ parameter_name ];
+									if ( typeof value === 'undefined' )
+									{
+										value = request.query[ parameter_name ];
+									}
 									if ( typeof value === 'undefined' )
 									{
 										value = request.body[ parameter_name ];
@@ -548,7 +552,7 @@ exports.Construct =
 								{
 									let api_result = {
 										ok: true,
-										origin: `${Service.ServiceName}/${endpoint.name}`,
+										origin: `${Service.ServiceDefinition.Name}/${endpoint.name}`,
 										result: await endpoint.invoke( request.user, ...parameters ),
 									};
 									response.send( api_result );
@@ -557,7 +561,7 @@ exports.Construct =
 								{
 									let api_result = {
 										ok: false,
-										origin: `${Service.ServiceName}/${endpoint.name}`,
+										origin: `${Service.ServiceDefinition.Name}/${endpoint.name}`,
 										error: error.message,
 									};
 									Server.WebServer.ReportApiError( api_result, response );
@@ -685,7 +689,7 @@ exports.Construct =
 
 
 				// Create the HTTP server.
-				module.http_server = LIB_HTTP.createServer( express_router );
+				module.HttpServer = LIB_HTTP.createServer( express_router );
 
 				// Report the server routes.
 				let stack = express_router._router.stack;
@@ -695,10 +699,10 @@ exports.Construct =
 						if ( r.route && r.route.path )
 						{
 							let verbs = [];
-							if ( r.route.methods.get ) { verbs.push( 'GET' ); }
-							if ( r.route.methods.put ) { verbs.push( 'PUT' ); }
+							if ( r.route.methods.get ) { verbs.push( 'GET ' ); }
+							if ( r.route.methods.put ) { verbs.push( 'PUT ' ); }
 							if ( r.route.methods.post ) { verbs.push( 'POST' ); }
-							if ( r.route.methods.del ) { verbs.push( 'DEL' ); }
+							if ( r.route.methods.del ) { verbs.push( 'DEL ' ); }
 							let text = verbs.join( '|' );
 							text += ' ' + r.route.path;
 							Server.Log.debug( 'Added route: ' + text );
@@ -711,7 +715,7 @@ exports.Construct =
 				await new Promise(
 					function ( resolve, reject )
 					{
-						module.http_server.listen(
+						module.HttpServer.listen(
 							service_port,
 							service_address,
 							function ( err ) 
@@ -720,7 +724,7 @@ exports.Construct =
 								else { resolve( true ); }
 							} );
 					} );
-				let address = module.http_server.address();
+				let address = module.HttpServer.address();
 				Server.Log.trace( `WebServer is listening at [${address.address}:${address.port}].` );
 
 				// Return
@@ -732,13 +736,13 @@ exports.Construct =
 		module.StopWebServer =
 			async function StopWebServer()
 			{
-				if ( module.http_server === null ) { return { ok: true }; }
-				if ( module.http_server.listening ) 
+				if ( module.HttpServer === null ) { return { ok: true }; }
+				if ( module.HttpServer.listening ) 
 				{
 					await new Promise(
 						function ( resolve, reject )
 						{
-							module.http_server.close(
+							module.HttpServer.close(
 								function ( err ) 
 								{
 									if ( err ) { reject( err ); }
@@ -746,7 +750,7 @@ exports.Construct =
 								} );
 						} );
 				}
-				module.http_server = null;
+				module.HttpServer = null;
 				Server.Log.trace( `WebServer has stopped listening.` );
 				return { ok: true };
 			};
