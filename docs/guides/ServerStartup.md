@@ -60,6 +60,9 @@ The return value of `NewServer` is a `Server` object which will have the followi
 
 ```javascript
 Server = {
+	NewModule: function () { /* creates a new module object */ },
+	NewService: function () { /* creates a new service object */ },
+	NewStorageService: function () { /* creates a new storage service object */ },
 	Utility: { /* miscellaneous utility functions */ },
 	Config: {
 		Defaults: { /* Default settings for this server and all of its services */ },

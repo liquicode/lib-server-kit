@@ -41,9 +41,11 @@ const LIB_PASSPORT_AUTH0 = require( 'passport-auth0' );
 
 //---------------------------------------------------------------------
 exports.Construct =
-	function Construct_WebServer( App )
+	function Construct_WebServer( Server )
 	{
 		let module = MODULE_BASE.NewModule();
+
+		module.http_server = null;
 
 
 		//---------------------------------------------------------------------
@@ -69,7 +71,7 @@ exports.Construct =
 						domain: 'auth0-domain',
 						client_id: 'auth0-client-id',
 						client_secret: 'auth0-client-secret',
-						callbackURL: 'auth0-callback-url',
+						callback_url: 'auth0-callback-url',
 					},
 					temp_path: '~temp',
 				};
@@ -105,7 +107,7 @@ exports.Construct =
 				{
 					error_text = error.toString();
 				}
-				App.Log.error( error_text );
+				Server.Log.error( error_text );
 				response.render( 'error', error_text );
 				return;
 			};
@@ -116,7 +118,7 @@ exports.Construct =
 			async function ReportApiError( api_result, response )
 			{
 				let error_text = 'Error in [' + api_result.origin + ']: ' + api_result.error;
-				App.Log.error( error_text );
+				Server.Log.error( error_text );
 				// response.render( 'error', { error: error_text } );
 				response.send( api_result );
 				return;
@@ -138,7 +140,7 @@ exports.Construct =
 					error_text = error.message;
 					if ( do_render_error )
 					{
-						response.render( 'error', { App: App, User: request.user, Error: error } );
+						response.render( 'error', { App: Server, User: request.user, Error: error } );
 					}
 					else
 					{
@@ -158,13 +160,13 @@ exports.Construct =
 					{
 						log_text += ` (by: ${request.user._m.owner.email})`;
 					}
-					App.Log.info( log_text );;
+					Server.Log.info( log_text );;
 					if ( error_text )
 					{
 						log_text += `*** Error! ***`;
 						log_text += `\n${error_text}`;
 						log_text += `\n${JSON.stringify( request.query )}`;
-						App.Log.error( log_text );
+						Server.Log.error( log_text );
 					}
 				}
 			};
@@ -181,9 +183,24 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
+		module.NotRequiresLogin =
+			function not_requires_login( request, response, next )
+			{
+				request.user = {
+					user_id: 'anonymous@internal',
+					user_role: 'public',
+					user_name: 'Anonymous',
+					image_url: '',
+				};
+				return next();
+			};
+
+
+		//---------------------------------------------------------------------
 		module.StartWebServer =
 			async function StartWebServer( Address = null, Port = null )
 			{
+				if ( module.http_server !== null ) { throw new Error( `WebServer is already running.` ); }
 
 				//==========================================
 				// Create an Express router.
@@ -231,7 +248,7 @@ exports.Construct =
 						resave: false,
 						saveUninitialized: true
 					};
-					if ( App.Config.Settings.AppInfo.environment === 'production' )
+					if ( Server.Config.Settings.AppInfo.environment === 'production' )
 					{
 						// Use secure cookies in production (requires SSL/TLS)
 						session.cookie.secure = true;
@@ -279,12 +296,12 @@ exports.Construct =
 							try
 							{
 								// Find or create this user.
-								let user = App.SystemUsers.NewServiceObject();
+								let user = Server.SystemUsers.NewServiceObject();
 								user.user_id = profile.emails[ 0 ].value.toLowerCase().trim();
 								user.user_role = 'user';
 								user.user_name = profile.displayName;
 								user.image_url = profile.picture;
-								let api_result = await App.SystemUsers.FindOrCreateUser( user );
+								let api_result = await Server.SystemUsers.FindOrCreateUser( user );
 								if ( api_result.error ) { throw new Error( api_result.error ); }
 								return done( null, api_result.object );
 							}
@@ -411,7 +428,7 @@ exports.Construct =
 						{
 							log_text += ` (by: ${request.user._m.owner.email})`;
 						}
-						App.Log.debug( log_text );;
+						Server.Log.debug( log_text );;
 						return;
 					}
 
@@ -431,11 +448,11 @@ exports.Construct =
 						// App.WebServer.RequiresLogin,
 						async function ( request, response, next ) 
 						{
-							await App.WebServer.RequestProcessor( request, response, next,
+							await Server.WebServer.RequestProcessor( request, response, next,
 								async function ( request, response, next )
 								{
 									log_request( request );
-									response.render( 'home', { App: App, User: request.user } );
+									response.render( 'home', { App: Server, User: request.user } );
 									return;
 								}
 								, true );
@@ -448,11 +465,11 @@ exports.Construct =
 						// App.WebServer.RequiresLogin,
 						async function ( request, response, next ) 
 						{
-							await App.WebServer.RequestProcessor( request, response, next,
+							await Server.WebServer.RequestProcessor( request, response, next,
 								async function ( request, response, next )
 								{
 									log_request( request );
-									response.render( 'home', { App: App, User: request.user } );
+									response.render( 'home', { App: Server, User: request.user } );
 									return;
 								}
 								, true );
@@ -462,10 +479,10 @@ exports.Construct =
 					//---------------------------------------------------------------------
 					// Default user route.
 					express_router.get( `${ParentPath}/user`,
-						App.WebServer.RequiresLogin,
+						Server.WebServer.RequiresLogin,
 						async function ( request, response, next ) 
 						{
-							await App.WebServer.RequestProcessor( request, response, next,
+							await Server.WebServer.RequestProcessor( request, response, next,
 								async function ( request, response, next )
 								{
 									log_request( request );
@@ -543,7 +560,7 @@ exports.Construct =
 										origin: `${Service.ServiceName}/${endpoint.name}`,
 										error: error.message,
 									};
-									App.WebServer.ReportApiError( api_result, response );
+									Server.WebServer.ReportApiError( api_result, response );
 									return;
 								}
 								return;
@@ -553,13 +570,13 @@ exports.Construct =
 							if ( endpoint.http_verbs.includes( 'get' ) )
 							{
 								Router.get( `${ParentPath}/${endpoint.name}`,
-									( endpoint.requires_login ? App.WebServer.RequiresLogin : null ),
+									( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
 									request_handler );
 							}
 							if ( endpoint.http_verbs.includes( 'post' ) )
 							{
 								Router.post( `${ParentPath}/${endpoint.name}`,
-									( endpoint.requires_login ? App.WebServer.RequiresLogin : null ),
+									( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
 									request_handler );
 							}
 
@@ -573,14 +590,14 @@ exports.Construct =
 					function add_managed_list_page( Service, FunctionRoute )
 					{
 						express_router.get( `${ParentPath}/${Service.ServiceName}/${FunctionRoute}`,
-							( Service.ServiceDefinition.Endpoints[ FunctionRoute ].requires_login ? App.WebServer.RequiresLogin : null ),
+							( Service.ServiceDefinition.Endpoints[ FunctionRoute ].requires_login ? Server.WebServer.RequiresLogin : null ),
 							async function ( request, response, next ) 
 							{
 								log_request( request );
 								response.render(
 									'managed-list',
 									{
-										App: App, User: request.user,
+										Server: Server, User: request.user,
 										ServiceDefinition: Service.ServiceDefinition,
 										ObjectDefinition: Service.ObjectDefinition,
 										FunctionRoute: FunctionRoute,
@@ -594,14 +611,14 @@ exports.Construct =
 					function add_managed_object_page( Service, FunctionRoute )
 					{
 						express_router.get( `${ParentPath}/${Service.ServiceName}/${FunctionRoute}/:object_id`,
-							( Service.ServiceDefinition.Endpoints[ FunctionRoute ].requires_login ? App.WebServer.RequiresLogin : null ),
+							( Service.ServiceDefinition.Endpoints[ FunctionRoute ].requires_login ? Server.WebServer.RequiresLogin : null ),
 							async function ( request, response, next ) 
 							{
 								log_request( request );
 								response.render(
 									'managed-object',
 									{
-										App: App, User: request.user,
+										Server: Server, User: request.user,
 										ServiceDefinition: Service.ServiceDefinition,
 										ObjectDefinition: Service.ObjectDefinition,
 										FunctionRoute: FunctionRoute,
@@ -613,30 +630,29 @@ exports.Construct =
 
 
 					//---------------------------------------------------------------------
-					// Add application service ui routes.
+					// Add service endpoints.
 					{
-						let service_names = Object.keys( App.Services );
+						let service_names = Object.keys( Server.Services );
 						for ( let index = 0; index < service_names.length; index++ )
 						{
 							let service_name = service_names[ index ];
-							let service = App[ service_name ];
+							let service = Server[ service_name ];
 
 							// Add the service API
-							add_service_endpoints( service, express_router, `/api/${service.ServiceName}` );
-							// App[ service_name ].GetManagedService( express_router, `/api/${service_name}` );
+							add_service_endpoints( service, express_router, `/api/${service.ServiceDefinition.Name}` );
 
-							// Add the service UI
-							add_managed_list_page( service, 'ListAll' );		// /{{service_name}}/ListAll
-							add_managed_list_page( service, 'ListMine' );		// /{{service_name}}/ListMine
-							add_managed_object_page( service, 'CreateOne' );	// /{{service_name}}/CreateOne
-							add_managed_object_page( service, 'ReadOne' );		// /{{service_name}}/ReadOne
-							add_managed_object_page( service, 'WriteOne' );		// /{{service_name}}/WriteOne
-							add_managed_object_page( service, 'DeleteOne' );	// /{{service_name}}/DeleteOne
-							add_managed_list_page( service, 'DeleteMine' );		// /{{service_name}}/DeleteMine
-							add_managed_list_page( service, 'DeleteAll' );		// /{{service_name}}/DeleteAll
+							// // Add the service UI
+							// add_managed_list_page( service, 'ListAll' );		// /{{service_name}}/ListAll
+							// add_managed_list_page( service, 'ListMine' );		// /{{service_name}}/ListMine
+							// add_managed_object_page( service, 'CreateOne' );	// /{{service_name}}/CreateOne
+							// add_managed_object_page( service, 'ReadOne' );		// /{{service_name}}/ReadOne
+							// add_managed_object_page( service, 'WriteOne' );		// /{{service_name}}/WriteOne
+							// add_managed_object_page( service, 'DeleteOne' );	// /{{service_name}}/DeleteOne
+							// add_managed_list_page( service, 'DeleteMine' );		// /{{service_name}}/DeleteMine
+							// add_managed_list_page( service, 'DeleteAll' );		// /{{service_name}}/DeleteAll
 
 							// Report
-							App.Log.trace( `Added service routes for [${service_name}].` );
+							Server.Log.trace( `Added service routes for [${service_name}].` );
 						}
 					}
 
@@ -669,7 +685,7 @@ exports.Construct =
 
 
 				// Create the HTTP server.
-				let http_server = LIB_HTTP.createServer( express_router );
+				module.http_server = LIB_HTTP.createServer( express_router );
 
 				// Report the server routes.
 				let stack = express_router._router.stack;
@@ -685,22 +701,53 @@ exports.Construct =
 							if ( r.route.methods.del ) { verbs.push( 'DEL' ); }
 							let text = verbs.join( '|' );
 							text += ' ' + r.route.path;
-							App.Log.debug( 'Added route: ' + text );
+							Server.Log.debug( 'Added route: ' + text );
 						}
 					} );
 
 				// Begin accepting connections.
 				let service_address = Address || module.Settings.address;
 				let service_port = Port || module.Settings.port;
-				http_server.listen(
-					service_port, service_address,
-					function ()
+				await new Promise(
+					function ( resolve, reject )
 					{
-						var addr = http_server.address();
-						App.Log.trace( `Service is listening at [${addr.address}:${addr.port}]` );
+						module.http_server.listen(
+							service_port,
+							service_address,
+							function ( err ) 
+							{
+								if ( err ) { reject( err ); }
+								else { resolve( true ); }
+							} );
 					} );
+				let address = module.http_server.address();
+				Server.Log.trace( `WebServer is listening at [${address.address}:${address.port}].` );
 
 				// Return
+				return { ok: true };
+			};
+
+
+		//---------------------------------------------------------------------
+		module.StopWebServer =
+			async function StopWebServer()
+			{
+				if ( module.http_server === null ) { return { ok: true }; }
+				if ( module.http_server.listening ) 
+				{
+					await new Promise(
+						function ( resolve, reject )
+						{
+							module.http_server.close(
+								function ( err ) 
+								{
+									if ( err ) { reject( err ); }
+									else { resolve( true ); }
+								} );
+						} );
+				}
+				module.http_server = null;
+				Server.Log.trace( `WebServer has stopped listening.` );
 				return { ok: true };
 			};
 
