@@ -1,0 +1,29 @@
+extends index.pug
+
+block content
+
+	script( type='text/javascript' src='/home.js' )
+
+	div( ng-controller='Home_Controller' )
+
+		script
+			!= `window.SERVER_DATA = {};\n`
+			if( locals.User )
+				!= `window.SERVER_DATA.User = ${JSON.stringify( locals.User )};\n`
+
+		.w3-container 
+
+			if( !locals.User )
+
+				.w3-cell-row
+
+					.w3-cell.w3-cell-middle
+						.w3-panel.w3-border.w3-round-large.w3-sand.w3-center
+							h3 Login or Signup to get started! 
+
+			if( locals.User )
+
+					.w3-cell.w3-cell-middle
+						.w3-panel.w3-border.w3-round-large.w3-sand.w3-center
+							h3= "Welcome, " + locals.User._m.owner.name + "!"
+

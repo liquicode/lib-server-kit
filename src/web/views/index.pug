@@ -1,0 +1,80 @@
+doctype html
+html
+	head
+		title='SimTrader'
+
+		meta( name="viewport" content="width=device-width, initial-scale=1" )
+
+		//- Fonts
+		link( rel='stylesheet' href='https://fonts.googleapis.com/css?family=Righteous|Roboto' )
+		link( rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css' )
+
+		//- link(rel='shortcut icon' href='//cdn2.auth0.com/styleguide/latest/lib/logos/img/favicon.png')
+
+		//- JQuery
+		script( type='text/javascript' src='https://code.jquery.com/jquery-3.5.1.min.js' )
+
+		//- AngularJS
+		script( type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js' )
+		script( type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-cookies.js' )
+		script( type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-resource.js' )
+		script( type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-sanitize.js' )
+		script( type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-touch.js' )
+
+		//- Bootstrap
+		//- link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css')
+		//- script(type='text/javascript' src='https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js')
+		link( rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css' )
+
+		//- Moment
+		script( type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js' )
+
+		//- //- Golden Layout
+		//- script( type='text/javascript' src='https://golden-layout.com/files/latest/js/goldenlayout.min.js' )
+		//- link( rel='stylesheet' href='https://golden-layout.com/files/latest/css/goldenlayout-base.css' )
+		//- //- link( rel='stylesheet' href='https://golden-layout.com/files/latest/css/goldenlayout-dark-theme.css' )
+		//- link( rel='stylesheet' href='https://golden-layout.com/files/latest/css/goldenlayout-light-theme.css' )
+
+		//- Auth0
+		//- script(type='text/javascript' src='https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js')
+
+		//- Application Source
+		script( type='text/javascript' src='/server-api.js' )
+		script( type='text/javascript' src='/app.js' )
+		link( rel='stylesheet' href='/application.css' )
+
+
+body
+
+	div( ng-app='Application_Module', ng-cloak )
+
+		nav.w3-bar.w3-border.w3-light-grey( role="navigation" )
+			img.w3-bar-item.w3-image.w3-responsive.w3-opacity( src='/images/logo-24x24.png' )
+			.w3-bar-item.w3-text-grey Server
+			a.w3-bar-item.w3-button( href="/" ) Home
+
+			if locals.user
+
+				//- a.w3-bar-item.w3-button( href="/SimAccounts/ListMine" ) Accounts
+				//- a.w3-bar-item.w3-button( href="/SimInstruments/ListMine" ) Instruments
+				//- a.w3-bar-item.w3-button( href="/SimTools/ListMine" ) Tools
+				//- a.w3-bar-item.w3-button( href="/SimSessions/ListMine" ) Sessions
+
+				.w3-dropdown-hover.w3-right.w3-mobile
+					button.w3-button
+						img.w3-round( src=`${locals.User.image_url}` style='width:24px; height:24px' )
+						span.w3-margin= locals.User._m.owner.name
+						i.fa.fa-caret-down
+					.w3-dropdown-content.w3-bar-block.w3-dark-grey
+						a.w3-bar-item.w3-button.w3-mobile( href="/user" ) User Account
+						a.w3-bar-item.w3-button.w3-mobile( href="/logout" ) Log Out
+
+						if ( locals.User.role === 'admin' ) || ( locals.User.role === 'super' )
+							.w3-bar-item.w3-border-bottom
+							a.w3-bar-item.w3-button.no-wrap( href="/SystemUsers/ListAll" ) System Users
+
+			else
+
+				a( id="qsLoginBtn" href="/login" ).w3-bar-item.w3-button Log In
+
+		block content

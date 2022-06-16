@@ -1,0 +1,137 @@
+{
+	"AppInfo": {
+		"name": "simtrader",
+		"version": "0.0.1",
+		"description": "Server to manage users, scores, and historical data.",
+		"homepage": "",
+		"environment": "development"
+	},
+	"Log": {
+		"Console": {
+			"enabled": false,
+			"DeviceName": "console",
+			"LogLevels": "TDIWEF",
+			"OutputGroup": false,
+			"OutputDate": false,
+			"OutputTime": true,
+			"OutputMilliseconds": true,
+			"OutputTimezone": false,
+			"OutputSeverity": true,
+			"OutputSeverityWords": true
+		},
+		"Shell": {
+			"enabled": true,
+			"DeviceName": "shell",
+			"LogLevels": "TDIWEF",
+			"OutputGroup": false,
+			"OutputDate": false,
+			"OutputTime": true,
+			"OutputMilliseconds": true,
+			"OutputTimezone": false,
+			"OutputSeverity": true,
+			"OutputSeverityWords": true,
+			"Shell": {
+				"ColorizeEntireLine": true,
+				"TraceColors": {
+					"Forecolor": 90,
+					"Effect": 2
+				},
+				"DebugColors": {
+					"Forecolor": 90,
+					"Effect": 1
+				},
+				"InfoColors": {
+					"Forecolor": 97,
+					"Effect": ""
+				},
+				"WarnColors": {
+					"Forecolor": 33,
+					"Effect": ""
+				},
+				"ErrorColors": {
+					"Forecolor": 31,
+					"Effect": ""
+				},
+				"FatalColors": {
+					"Forecolor": 31,
+					"Effect": 7
+				}
+			}
+		},
+		"File": {
+			"enabled": false,
+			"DeviceName": "file",
+			"LogLevels": "IWEF",
+			"OutputGroup": false,
+			"OutputDate": true,
+			"OutputTime": true,
+			"OutputMilliseconds": true,
+			"OutputTimezone": true,
+			"OutputSeverity": true,
+			"OutputSeverityWords": true,
+			"File": {
+				"log_path": "",
+				"log_filename": "simtrader",
+				"log_extension": "log",
+				"use_hourly_logfiles": false,
+				"use_daily_logfiles": false
+			}
+		}
+	},
+	"UserAccountsManager": {
+		"mongodb": {
+			"database_name": "simtrader",
+			"collection_name": "user-accounts",
+			"connection_string": "mongodb://user:password@server"
+		}
+	},
+	"SimAccountsManager": {
+		"mongodb": {
+			"database_name": "simtrader",
+			"collection_name": "sim-accounts",
+			"connection_string": "mongodb://user:password@server"
+		}
+	},
+	"SimToolsManager": {
+		"mongodb": {
+			"database_name": "simtrader",
+			"collection_name": "sim-tools",
+			"connection_string": "mongodb://user:password@server"
+		}
+	},
+	"SimTicksManager": {
+		"mongodb": {
+			"database_name": "simtrader",
+			"collection_name": "sim-ticks",
+			"connection_string": "mongodb://user:password@server"
+		},
+		"ticks_path": "data/ticks"
+	},
+	"SimInstrumentsManager": {
+		"mongodb": {
+			"database_name": "simtrader",
+			"collection_name": "sim-instruments",
+			"connection_string": "mongodb://user:password@server"
+		}
+	},
+	"SimSessionsManager": {
+		"mongodb": {
+			"database_name": "simtrader",
+			"collection_name": "sim-sessions",
+			"connection_string": "mongodb://user:password@server"
+		}
+	},
+	"WebServer": {
+		"address": "localhost",
+		"port": 4200,
+		"users": [],
+		"session_key": "random key",
+		"auth0": {
+			"domain": "auth0 domain",
+			"client_id": "auth0 client id",
+			"client_secret": "auth0 client secret",
+			"callback_url": "http://localhost:4200/auth0_callback"
+		},
+		"temp_path": "~temp"
+	}
+}

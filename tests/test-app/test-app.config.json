@@ -1,0 +1,110 @@
+{
+	"AppInfo": {
+		"name": "test-app",
+		"version": "0.0.1",
+		"description": "A test application using lib-server-kit.",
+		"homepage": "",
+		"environment": "development"
+	},
+	"Log": {
+		"Console": {
+			"enabled": true,
+			"DeviceName": "console",
+			"LogLevels": "TDIWEF",
+			"OutputGroup": false,
+			"OutputDate": false,
+			"OutputTime": true,
+			"OutputMilliseconds": true,
+			"OutputTimezone": false,
+			"OutputSeverity": true,
+			"OutputSeverityWords": true
+		},
+		"Shell": {
+			"enabled": false,
+			"DeviceName": "shell",
+			"LogLevels": "TDIWEF",
+			"OutputGroup": false,
+			"OutputDate": false,
+			"OutputTime": true,
+			"OutputMilliseconds": true,
+			"OutputTimezone": false,
+			"OutputSeverity": true,
+			"OutputSeverityWords": true,
+			"Shell": {
+				"ColorizeEntireLine": true,
+				"TraceColors": {
+					"Forecolor": 90,
+					"Effect": 2
+				},
+				"DebugColors": {
+					"Forecolor": 90,
+					"Effect": 1
+				},
+				"InfoColors": {
+					"Forecolor": 97,
+					"Effect": ""
+				},
+				"WarnColors": {
+					"Forecolor": 33,
+					"Effect": ""
+				},
+				"ErrorColors": {
+					"Forecolor": 31,
+					"Effect": ""
+				},
+				"FatalColors": {
+					"Forecolor": 31,
+					"Effect": 7
+				}
+			}
+		},
+		"File": {
+			"enabled": false,
+			"DeviceName": "file",
+			"LogLevels": "IWEF",
+			"OutputGroup": false,
+			"OutputDate": true,
+			"OutputTime": true,
+			"OutputMilliseconds": true,
+			"OutputTimezone": true,
+			"OutputSeverity": true,
+			"OutputSeverityWords": true,
+			"File": {
+				"log_path": "",
+				"log_filename": "test-app",
+				"log_extension": "log",
+				"use_hourly_logfiles": false,
+				"use_daily_logfiles": false
+			}
+		}
+	},
+	"WebServer": {
+		"address": "localhost",
+		"port": 80,
+		"session_key": "CHANGE THIS TO A RANDOM SECRET",
+		"auth0": {
+			"domain": "auth0-domain",
+			"client_id": "auth0-client-id",
+			"client_secret": "auth0-client-secret",
+			"callbackURL": "auth0-callback-url"
+		},
+		"temp_path": "~temp"
+	},
+	"SystemUsers": {
+		"throw_permission_errors": false,
+		"mongo_provider": {
+			"enabled": false,
+			"collection_name": "Collection-Name",
+			"database_name": "Database-Name",
+			"connection_string": "mongodb://<username>:<password>@<server-address"
+		},
+		"json_provider": {
+			"enabled": false,
+			"collection_name": "Collection-Name",
+			"database_name": "/path/to/store/collections",
+			"clear_collection_on_start": false,
+			"flush_on_update": false,
+			"flush_every_ms": 0
+		}
+	}
+}

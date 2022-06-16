@@ -1,0 +1,38 @@
+extends index.pug
+
+block content
+
+	.w3-container.w3-blue-grey.w3-xlarge= `User Account: ${locals.User._m.owner.name}`
+
+	.w3-container
+
+		.w3-row.w3-margin
+
+			.w3-col.s1.w3-container
+
+			.w3-col.s10.w3-card-4.w3-white.w3-border.w3-round-large
+
+				table.w3-table
+					tr 
+						th.w3-right-align Name:
+						td= locals.User._m.owner.name
+					tr 
+						th.w3-right-align Email:
+						td= locals.User._m.owner.email
+					tr 
+						th.w3-right-align Image:
+						td
+							if locals.User.image_url
+								img( src=`${locals.User.image_url}`, width="50px" height="auto" ).w3-image
+							else 
+								h5.w3-text-red This account has no image.
+					tr 
+						th.w3-right-align Role:
+						td= locals.User.role
+					tr 
+						th.w3-right-align Credits:
+						td= locals.User.credits
+
+			.w3-col.s1.w3-container
+
+		//- pre= JSON.stringify( locals.user, null, '    ' )
