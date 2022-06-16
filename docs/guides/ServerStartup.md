@@ -1,8 +1,9 @@
-
 # Server Startup
 
-Your application will use code like the following to include `lib-server-kit`
-and instantiate a new `Server` object:
+Source file: [lib-server-kit.js](https://github.com/liquicode/lib-server-kit/blob/main/src/lib-server-kit.js)
+
+Your application will use code like the following to include `lib-server-kit`,
+instantiate a new `Server` object, and then initialize it:
 
 ```javascript
 const LIB_SERVER_KIT = require( '@liquicode/lib-server-kit' );
@@ -22,6 +23,9 @@ takes a path to your application's root folder.
 This folder contains all of your application's configuration files and any custom services.
 
 During the call to `NewServer`, the following initialization takes place:
+
+- Load the base modules and export their construction functions:
+	`Server.NewModule`, `Server.NewService`, and `Server.NewStorageService`
 
 - Load the `package.json` file residing at the given application path.
 	If this file does not exist, then an error is thrown.

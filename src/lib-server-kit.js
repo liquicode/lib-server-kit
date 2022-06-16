@@ -14,8 +14,22 @@ exports.NewServer =
 
 
 		//---------------------------------------------------------------------
+		// Load Base Modules
+		//---------------------------------------------------------------------
+
+
+		// Wire up some functions
+		{
+			server.NewModule = require( LIB_PATH.join( __dirname, 'base', 'ModuleBase.js' ) ).NewModule;
+			server.NewService = require( LIB_PATH.join( __dirname, 'base', 'ServiceBase.js' ) ).NewService;
+			server.NewStorageService = require( LIB_PATH.join( __dirname, 'base', 'StorageService.js' ) ).NewStorageService;
+		}
+
+
+		//---------------------------------------------------------------------
 		// Load Modules
 		//---------------------------------------------------------------------
+
 
 		let modules_path = LIB_PATH.join( __dirname, 'modules' );
 
@@ -64,7 +78,7 @@ exports.NewServer =
 				let file_ext = LIB_PATH.extname( filename );
 				if ( file_ext !== '.js' ) { continue; }
 				// Load the service.
-				let service = require( LIB_PATH.join( ServicesPath  , filename ) ).Construct( server );
+				let service = require( LIB_PATH.join( ServicesPath, filename ) ).Construct( server );
 				let service_name = service.ServiceDefinition.Name;
 				server[ service_name ] = service;
 				server.Services[ service_name ] = service;
@@ -81,6 +95,7 @@ exports.NewServer =
 		// Initialize Config Module.
 		server.Config.ResetSettings();
 
+
 		//---------------------------------------------------------------------
 		// Initialize
 		//---------------------------------------------------------------------
@@ -95,8 +110,7 @@ exports.NewServer =
 
 				// Load the application's config file.
 				{
-					let filename = `${server.Package.name}.config.json`;
-					filename = LIB_PATH.join( ApplicationPath, filename );
+					let filename = LIB_PATH.join( ApplicationPath, `${server.Package.name}.settings.json` );
 					if ( LIB_FS.existsSync( filename ) ) 
 					{
 						let content = LIB_FS.readFileSync( filename, 'utf8' );
@@ -106,6 +120,7 @@ exports.NewServer =
 					}
 					else
 					{
+						let filename = LIB_PATH.join( ApplicationPath, `${server.Package.name}.defaults.json` );
 						server.Config.SaveDefaults( filename );
 					}
 				}

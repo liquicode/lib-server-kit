@@ -1,20 +1,20 @@
 'use strict';
 
-// const LIB_UUID = require( 'uuid' );
+
+//---------------------------------------------------------------------
 const LIB_MANAGED_STORAGE = require( '@liquicode/lib-managed-storage' );
-const SRC_SERVICE_PROVIDER = require( './ServiceProvider.js' );
 
 
 //---------------------------------------------------------------------
 exports.NewStorageService =
-	function NewStorageService( App )
+	function NewStorageService( Server )
 	{
-		if ( !App ) { throw App.Utility.missing_parameter_error( 'App' ); }
+		if ( !Server ) { throw Server.Utility.missing_parameter_error( 'App' ); }
 
 
 		//---------------------------------------------------------------------
 		// The Storage Service.
-		let service = SRC_SERVICE_PROVIDER.NewServiceProvider( App );
+		let service = Server.NewService( Server );
 
 
 		//---------------------------------------------------------------------

@@ -1,17 +1,16 @@
 'use strict';
 
-const MODULE_BASE = require( '../base/ModuleBase.js' );
 
 //---------------------------------------------------------------------
-exports.NewServiceProvider =
-	function NewServiceProvider( App )
+exports.NewService =
+	function NewService( Server )
 	{
-		if ( !App ) { throw App.Utility.missing_parameter_error( 'App' ); }
+		if ( !Server ) { throw Server.Utility.missing_parameter_error( 'App' ); }
 
 
 		//---------------------------------------------------------------------
 		// The Service object.
-		let service = MODULE_BASE.NewModule();
+		let service = Server.NewModule();
 
 
 		//---------------------------------------------------------------------

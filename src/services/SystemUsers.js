@@ -3,17 +3,16 @@
 
 //---------------------------------------------------------------------
 const LIB_MANAGED_STORAGE = require( '@liquicode/lib-managed-storage' );
-const SRC_STORAGE_SERVICE = require( '../base/StorageService.js' );
 
 
 //---------------------------------------------------------------------
 exports.Construct =
-	function Construct_SystemUsers( App )
+	function Construct( Server )
 	{
-		if ( !App ) { throw App.Utility.missing_parameter_error( 'App' ); }
+		if ( !Server ) { throw Server.Utility.missing_parameter_error( 'App' ); }
 
 		// Create the storage service.
-		let service = SRC_STORAGE_SERVICE.NewStorageService( App );
+		let service = Server.NewStorageService( Server );
 
 
 		//---------------------------------------------------------------------
@@ -36,7 +35,7 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		// Initialize trhe service.
+		// Initialize this service.
 		service.InitializeService =
 			function InitializeService()
 			{
@@ -140,10 +139,10 @@ exports.Construct =
 				// Validate inputs.
 				try
 				{
-					if ( App.Utility.value_missing_null_empty( service.storage ) ) { throw new Error( `Service has not been initialized.` ); }
-					if ( App.Utility.value_missing_null_empty( UserInfo ) ) { throw new Error( `Missing Parameter: UserInfo` ); }
-					if ( App.Utility.value_missing_null_empty( UserInfo.user_email ) ) { throw new Error( `Missing Parameter: UserInfo.user_email` ); }
-					if ( App.Utility.value_missing_null_empty( UserInfo.user_role ) ) { throw new Error( `Missing Parameter: UserInfo.user_role` ); }
+					if ( Server.Utility.value_missing_null_empty( service.storage ) ) { throw new Error( `Service has not been initialized.` ); }
+					if ( Server.Utility.value_missing_null_empty( UserInfo ) ) { throw new Error( `Missing Parameter: UserInfo` ); }
+					if ( Server.Utility.value_missing_null_empty( UserInfo.user_email ) ) { throw new Error( `Missing Parameter: UserInfo.user_email` ); }
+					if ( Server.Utility.value_missing_null_empty( UserInfo.user_role ) ) { throw new Error( `Missing Parameter: UserInfo.user_role` ); }
 				}
 				catch ( error )
 				{
