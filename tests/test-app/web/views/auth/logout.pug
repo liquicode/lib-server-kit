@@ -1,0 +1,35 @@
+extends ../index.pug
+
+block content
+
+	script( type='text/javascript' src='/auth/logout.js' )
+
+	div( ng-controller='Logout_Controller' )
+
+		script
+			!= `window.SERVER_DATA = {};\n`
+			!= `window.SERVER_DATA.User = ${JSON.stringify( locals.User )};\n`
+
+		.w3-container.w3-blue-grey.w3-xlarge= Login
+
+		.w3-container
+
+			.w3-row.w3-margin
+
+				.w3-col.s1.w3-container
+
+				.w3-col.s10.w3-card-4.w3-white.w3-border.w3-round-large
+
+					table.w3-table
+						tr 
+							th.w3-right-align
+								a.w3-btn.w3-deep-orange.w3-border.w3-round-large(
+									ng-click="Page.Logout()"
+								) Logout
+							td
+								p.w3-panel.w3-border.w3-round-large.w3-sand.w3-center {{Page.message}}
+
+
+				.w3-col.s1.w3-container
+
+			//- pre= JSON.stringify( locals.User, null, '    ' )

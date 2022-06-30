@@ -2,10 +2,6 @@
 
 
 //---------------------------------------------------------------------
-const LIB_MANAGED_STORAGE = require( '@liquicode/lib-managed-storage' );
-
-
-//---------------------------------------------------------------------
 exports.Construct =
 	function Construct( Server )
 	{

@@ -2,7 +2,7 @@
 
 <hr>
 
-- lib-managed-storage Docs
+- lib-server-kit Docs
 
 	- [About](external/readme.md)
 	- [API](api/api.md)
@@ -12,16 +12,12 @@
 - Concepts
 
 	- [Configuration](guides/Configuration.md)
-	- [Managed Object](guides/ManagedObject.md)
-	- [Managed Storage](guides/ManagedStorage.md)
-	- [Storage Providers](guides/StorageProviders.md)
+	- [Server Startup](guides/ServerStartup.md)
+	- [Webserver Configuration](guides/Webserver-Configuration.md)
 
 <hr>
 
 - Examples
-
-	- [Basic Storage](examples/Basic-Storage-Example.md)
-	- [Object Sharing](examples/Object-Sharing-Example.md)
 
 
 <hr>

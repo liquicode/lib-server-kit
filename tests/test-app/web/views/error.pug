@@ -12,11 +12,11 @@ block content
 
 			.w3-col.s10.w3-card-4.w3-white.w3-border.w3-round-large
 
-				if ( (locals.User.role === 'admin') || (locals.User.role === 'super') )
+				if ( (locals.User.user_role === 'admin') || (locals.User.user_role === 'super') )
 					h5.w3-text-red= `${locals.Error.message}`
 				else 
 					h5.w3-text-red An internal error occured.
 
 			.w3-col.s1.w3-container
 
-		//- pre= JSON.stringify( locals.user, null, '    ' )
+		//- pre= JSON.stringify( locals.User, null, '    ' )

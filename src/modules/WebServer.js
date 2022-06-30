@@ -1,12 +1,4 @@
 'use strict';
-/*
-	#@type		Module
-	#@parent	
-	#@name		WebServer
-	#@desc		Functions to control the web server.
-
-	The WebServer host a number of services found in the `services` folder.
-*/
 
 
 //=====================================================================
@@ -21,22 +13,13 @@
 //---------------------------------------------------------------------
 const MODULE_BASE = require( '../base/ModuleBase.js' );
 
-// const LIB_PATH = require( 'path' );
-
-const LIB_URL = require( 'url' );
+const LIB_FS = require( 'fs' );
+const LIB_PATH = require( 'path' );
 const LIB_HTTP = require( 'http' );
 const LIB_EXPRESS = require( 'express' );
 const LIB_EXPRESS_SESSION = require( 'express-session' );
 const LIB_CORS = require( 'cors' );
-const LIB_QUERYSTRING = require( 'querystring' );
-// const LIB_BODY_PARSER = require( 'body-parser' );
 const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
-
-const LIB_PASSPORT = require( 'passport' );
-// const LIB_PASSPORT_BASIC = require( 'passport-http' );
-const LIB_PASSPORT_AUTH0 = require( 'passport-auth0' );
-
-// const LIB_UUID = require( 'uuid' );
 
 
 //---------------------------------------------------------------------
@@ -45,7 +28,8 @@ exports.Construct =
 	{
 		let module = MODULE_BASE.NewModule();
 
-		module.HttpServer = null;
+		module.ExpressRouter = null;	// Initialized during Initialize()
+		module.HttpServer = null;		// Initialized during StartWebServer()
 
 
 		//---------------------------------------------------------------------
@@ -62,20 +46,40 @@ exports.Construct =
 			function GetDefaults() 
 			{
 				return {
+					// Listen
 					address: 'localhost',
 					port: 80,
-					// users: [],				// Currently has no implementation/effect.
+					// Static website files
+					website_files: 'web/files',
+					website_views: 'web/views',
+					website_api_client: 'web/files/_server-api.js',
+					// Session
+					session_enabled: false,
 					session_key: 'CHANGE THIS TO A RANDOM SECRET',
-					auth0: {
-						// enabled: false,		// Currently has no implementation/effect.
+					// Authentication urls
+					home_url: '/home',
+					login_url: '/auth/login',
+					logout_url: '/auth/logout',
+					signup_url: '/auth/signup',
+					user_url: '/auth/user',
+					// Authentication: Auth0
+					passport_auth0: {
+						enabled: false,
 						domain: 'auth0-domain',
 						client_id: 'auth0-client-id',
 						client_secret: 'auth0-client-secret',
 						callback_url: 'auth0-callback-url',
 					},
+					// Authentication: email and password
+					passport_local: {
+						enabled: false,
+						users: [ { user_email: 'admin@internal', password: 'password' } ],
+					},
+					// Temp folder for file uploads.
 					temp_path: '~temp',
 				};
 			};
+
 
 		//---------------------------------------------------------------------
 		module.Initialize =
@@ -92,6 +96,31 @@ exports.Construct =
 		//
 		//---------------------------------------------------------------------
 		//---------------------------------------------------------------------
+
+
+		//---------------------------------------------------------------------
+		module.RequiresLogin =
+			function requires_login( request, response, next )
+			{
+				if ( request.user ) { return next(); }
+				request.session.returnTo = request.originalUrl;
+				response.redirect( Server.Config.Settings.WebServer.login_url );
+			};
+
+
+		//---------------------------------------------------------------------
+		module.NotRequiresLogin =
+			function not_requires_login( request, response, next )
+			{
+				if ( request.user ) { return next(); }
+				request.user = {
+					user_id: 'anonymous@internal',
+					user_role: 'public',
+					user_name: 'Anonymous',
+					image_url: '',
+				};
+				return next();
+			};
 
 
 		//---------------------------------------------------------------------
@@ -158,7 +187,7 @@ exports.Construct =
 					log_text += ' | ' + request.method.padEnd( 7 ) + request.url;
 					if ( request.user )
 					{
-						log_text += ` (by: ${request.user._m.owner.email})`;
+						log_text += ` (by: ${request.user.user_id})`;
 					}
 					Server.Log.info( log_text );;
 					if ( error_text )
@@ -173,30 +202,6 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		module.RequiresLogin =
-			function requires_login( request, response, next )
-			{
-				if ( request.user ) { return next(); }
-				request.session.returnTo = request.originalUrl;
-				response.redirect( '/login' );
-			};
-
-
-		//---------------------------------------------------------------------
-		module.NotRequiresLogin =
-			function not_requires_login( request, response, next )
-			{
-				request.user = {
-					user_id: 'anonymous@internal',
-					user_role: 'public',
-					user_name: 'Anonymous',
-					image_url: '',
-				};
-				return next();
-			};
-
-
-		//---------------------------------------------------------------------
 		module.StartWebServer =
 			async function StartWebServer( Address = null, Port = null )
 			{
@@ -204,28 +209,33 @@ exports.Construct =
 
 				//==========================================
 				// Create an Express router.
-				let express_router = LIB_EXPRESS();
+				module.ExpressRouter = LIB_EXPRESS();
 
 
 				//---------------------------------------------------------------------
 				// Configure express cors.
 				// - Enable CORS (see: https://medium.com/@alexishevia/using-cors-in-express-cac7e29b005b)
-				express_router.use( LIB_CORS( { origin: '*' } ) );
+				module.ExpressRouter.use( LIB_CORS( { origin: '*' } ) );
+				Server.Log.trace( `WebServer - initialized CORS` );
 
 
 				//---------------------------------------------------------------------
 				// Configure body parser.
-				// express_router.use( LIB_BODY_PARSER.json() );
-				// express_router.use( LIB_BODY_PARSER.urlencoded( { extended: true } ) ); // for parsing application/x-www-form-urlencoded
-				express_router.use( LIB_EXPRESS.json( { limit: '50mb' } ) );
-				express_router.use( LIB_EXPRESS.urlencoded( { extended: true, limit: '50mb' } ) );
+				// module.ExpressRouter.use( LIB_BODY_PARSER.json() );
+				// module.ExpressRouter.use( LIB_BODY_PARSER.urlencoded( { extended: true } ) ); // for parsing application/x-www-form-urlencoded
+				module.ExpressRouter.use( LIB_EXPRESS.json( { limit: '50mb' } ) );
+				Server.Log.trace( `WebServer - initialized json body parser (limit: 50mb)` );
+
+				module.ExpressRouter.use( LIB_EXPRESS.urlencoded( { extended: true, limit: '50 MB' } ) );
+				Server.Log.trace( `WebServer - initialized urlencoded body parser (limit: 50 MB)` );
+
 				{
 					let options = {
 						// debug: true,
 						// File Size Limits
 						limits: { fileSize: 500 * 1024 * 1024 /* 500 MB */ },
 						abortOnLimit: true,
-						responseOnLimit: 'Images cannot be larger than 500MB.',
+						responseOnLimit: 'Uploads cannot be larger than 500MB.',
 					};
 					if ( module.Settings.temp_path )
 					{
@@ -233,17 +243,19 @@ exports.Construct =
 						options.useTempFiles = true;
 						options.tempFileDir = module.Settings.temp_path;
 					}
-					express_router.use( LIB_EXPRESS_FILEUPLOAD( options ) );
+					module.ExpressRouter.use( LIB_EXPRESS_FILEUPLOAD( options ) );
+					Server.Log.trace( `WebServer - initialized file upload (limit: 500 MB)` );
 				}
 
 
 				//---------------------------------------------------------------------
 				// Configure express session.
 				// https://auth0.com/docs/quickstart/webapp/nodejs#configure-auth0
+				if ( Server.Config.Settings.WebServer.session_enabled )
 				{
 					let session =
 					{
-						secret: module.Settings.session_key,
+						secret: Server.Config.Settings.WebServer.session_key,
 						cookie: {},
 						resave: false,
 						saveUninitialized: true
@@ -252,150 +264,65 @@ exports.Construct =
 					{
 						// Use secure cookies in production (requires SSL/TLS)
 						session.cookie.secure = true;
-
 						// Uncomment the line below if your application is behind a proxy (like on Heroku)
 						// or if you're encountering the error message:
 						// "Unable to verify authorization request state"
+						// session.proxy = true;
 						session.proxy = true;
-						express_router.set( 'trust proxy', 1 );
+						module.ExpressRouter.set( 'trust proxy', 1 );
 					}
-					express_router.use( LIB_EXPRESS_SESSION( session ) );
+					module.ExpressRouter.use( LIB_EXPRESS_SESSION( session ) );
+					Server.Log.trace( `WebServer - initialized sessions` );
 				}
 
 
 				//---------------------------------------------------------------------
 				// Configure passport.
+				if ( Server.Config.Settings.WebServer.passport_local &&
+					Server.Config.Settings.WebServer.passport_local.enabled )
 				{
-					// Implement the passport serialization functions.
-					LIB_PASSPORT.serializeUser(
-						function ( user, done )
-						{
-							done( null, user );
-						} );
-
-					LIB_PASSPORT.deserializeUser(
-						function ( user, done )
-						{
-							done( null, user );
-						} );
-
-					// Construct the authentication strategy.
-					let strategy = new LIB_PASSPORT_AUTH0(
-						{
-							domain: module.Settings.auth0.domain,
-							clientID: module.Settings.auth0.client_id,
-							clientSecret: module.Settings.auth0.client_secret,
-							callbackURL: module.Settings.auth0.callback_url,
-						},
-						async function ( accessToken, refreshToken, extraParams, profile, done )
-						{
-							// accessToken is the token to call Auth0 API (not needed in the most cases).
-							// extraParams.id_token has the JSON Web Token.
-							// profile has all the information from the user.
-							// done is the completion function.
-							try
-							{
-								// Find or create this user.
-								let user = Server.SystemUsers.NewServiceObject();
-								user.user_id = profile.emails[ 0 ].value.toLowerCase().trim();
-								user.user_role = 'user';
-								user.user_name = profile.displayName;
-								user.image_url = profile.picture;
-								let api_result = await Server.SystemUsers.FindOrCreateUser( user );
-								if ( api_result.error ) { throw new Error( api_result.error ); }
-								return done( null, api_result.object );
-							}
-							catch ( error )
-							{
-								return done( error, null );
-							}
-						}
-					);
-
-					// Configure the router.
-					LIB_PASSPORT.use( strategy );
-					express_router.use( LIB_PASSPORT.initialize() );
-					express_router.use( LIB_PASSPORT.session() );
+					require( './WebServer-Passport-Local.js' ).Use( Server, module.ExpressRouter );
+					Server.Log.trace( `WebServer - initialized passport local` );
 				}
-				// LIB_PASSPORT.use( passport_basic_strategy );
-				// express_router.use( LIB_PASSPORT.initialize() );
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Auth0 Authentication Service
-				//
-				//=====================================================================
-				//=====================================================================
-
-
+				else if ( Server.Config.Settings.WebServer.passport_auth0 &&
+					Server.Config.Settings.WebServer.passport_auth0.enabled )
 				{
+					require( './WebServer-Passport-Auth0.js' ).Use( Server, module.ExpressRouter );
+					Server.Log.trace( `WebServer - initialized passport auth0` );
+				}
 
-					//---------------------------------------------------------------------
-					express_router.get( '/login',
-						LIB_PASSPORT.authenticate( 'auth0',
-							{
-								scope: 'openid email profile'
-							} ),
-						async function ( request, response ) 
-						{
-							response.redirect( '/' );
-						} );
 
-					//---------------------------------------------------------------------
-					express_router.get( '/auth0_callback',
-						async function ( request, response, next )
-						{
-							LIB_PASSPORT.authenticate( 'auth0',
-								function ( error, user, info )
-								{
-									if ( error ) { return next( error ); }
-									if ( !user ) { return response.redirect( '/login' ); }
-									request.logIn( user,
-										function ( error )
-										{
-											if ( error ) { return next( error ); }
-											const returnTo = request.session.returnTo;
-											delete request.session.returnTo;
-											response.redirect( returnTo || '/' );
-										} );
-								} )( request, response, next );
-						} );
+				//---------------------------------------------------------------------
+				// Make user object available within pug files.
+				module.ExpressRouter.use(
+					function ( request, response, next )
+					{
+						response.locals.User = request.user;
+						next();
+					}
+				);
 
-					//---------------------------------------------------------------------
-					express_router.get( '/logout',
-						async function ( request, response ) 
-						{
-							request.logout();
-							var returnTo = request.protocol + '://' + request.hostname;
-							var port = request.socket.localPort;
-							if ( port !== undefined && port !== 80 && port !== 443 )
-							{
-								returnTo += ':' + port;
-							}
-							var logoutURL = new LIB_URL.URL( `https://${module.Settings.auth0.domain}/v2/logout` );
-							var searchString = LIB_QUERYSTRING.stringify(
-								{
-									client_id: module.Settings.auth0.client_id,
-									returnTo: returnTo
-								} );
-							logoutURL.search = searchString;
 
-							response.redirect( logoutURL );
-						}
-					);
+				//---------------------------------------------------------------------
+				// Serve views.
+				if ( Server.Config.Settings.WebServer.website_views )
+				{
+					module.ExpressRouter.set( 'view engine', 'pug' );
+					// module.ExpressRouter.set( 'views', 'src/web/views' );
+					let path = Server.ResolveApplicationPath( Server.Config.Settings.WebServer.website_views );
+					module.ExpressRouter.set( 'views', path );
+					Server.Log.trace( `WebServer - initialized pug views [${path}]` );
+				}
 
-					//---------------------------------------------------------------------
-					// Make user object available within pug files.
-					express_router.use(
-						function ( request, response, next )
-						{
-							response.locals.user = request.user;
-							next();
-						}
-					);
 
+				//---------------------------------------------------------------------
+				// Serve a static folder.
+				if ( Server.Config.Settings.WebServer.website_files )
+				{
+					// module.ExpressRouter.use( '/', LIB_EXPRESS.static( 'src/web/files' ) );
+					let path = Server.ResolveApplicationPath( Server.Config.Settings.WebServer.website_files );
+					module.ExpressRouter.use( '/', LIB_EXPRESS.static( path ) );
+					Server.Log.trace( `WebServer - initialized static folder [${path}]` );
 				}
 
 
@@ -417,7 +344,7 @@ exports.Construct =
 				//=====================================================================
 
 				{
-					let ParentPath = '';
+					let ParentPath = '/';
 
 
 					//---------------------------------------------------------------------
@@ -426,7 +353,7 @@ exports.Construct =
 						let log_text = ' --- uiservice --- | ' + request.method.padEnd( 7 ) + request.url;;
 						if ( request.user )
 						{
-							log_text += ` (by: ${request.user._m.owner.email})`;
+							log_text += ` (by: ${request.user.user_id})`;
 						}
 						Server.Log.debug( log_text );;
 						return;
@@ -444,15 +371,17 @@ exports.Construct =
 
 					//---------------------------------------------------------------------
 					// Default root route.
-					express_router.get( `${ParentPath}/`,
-						// App.WebServer.RequiresLogin,
+					module.ExpressRouter.get( `${ParentPath}`,
+						// Server.WebServer.RequiresLogin,
 						async function ( request, response, next ) 
 						{
 							await Server.WebServer.RequestProcessor( request, response, next,
 								async function ( request, response, next )
 								{
-									log_request( request );
-									response.render( 'home', { App: Server, User: request.user } );
+									// log_request( request );
+									response.render(
+										Server.Config.Settings.WebServer.home_url,
+										{ App: Server, User: request.user } );
 									return;
 								}
 								, true );
@@ -461,15 +390,83 @@ exports.Construct =
 
 					//---------------------------------------------------------------------
 					// Default home route.
-					express_router.get( `${ParentPath}/home`,
-						// App.WebServer.RequiresLogin,
+					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.home_url}`,
+						Server.WebServer.NotRequiresLogin,
 						async function ( request, response, next ) 
 						{
 							await Server.WebServer.RequestProcessor( request, response, next,
 								async function ( request, response, next )
 								{
-									log_request( request );
-									response.render( 'home', { App: Server, User: request.user } );
+									// log_request( request );
+									response.render(
+										Server.Config.Settings.WebServer.home_url,
+										{ App: Server, User: request.user } );
+									return;
+								}
+								, true );
+						} );
+
+
+					//=====================================================================
+					//=====================================================================
+					//
+					//		Authentication Routes
+					//
+					//=====================================================================
+					//=====================================================================
+
+
+					//---------------------------------------------------------------------
+					// Login route.
+					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.login_url}`,
+						Server.WebServer.NotRequiresLogin,
+						async function ( request, response, next ) 
+						{
+							await Server.WebServer.RequestProcessor( request, response, next,
+								async function ( request, response, next )
+								{
+									// log_request( request );
+									response.render(
+										Server.Config.Settings.WebServer.login_url,
+										{ App: Server, User: request.user } );
+									return;
+								}
+								, true );
+						} );
+
+
+					//---------------------------------------------------------------------
+					// Logout route.
+					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.logout_url}`,
+						Server.WebServer.NotRequiresLogin,
+						async function ( request, response, next ) 
+						{
+							await Server.WebServer.RequestProcessor( request, response, next,
+								async function ( request, response, next )
+								{
+									// log_request( request );
+									response.render(
+										Server.Config.Settings.WebServer.logout_url,
+										{ App: Server, User: request.user } );
+									return;
+								}
+								, true );
+						} );
+
+
+					//---------------------------------------------------------------------
+					// Signup route.
+					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.signup_url}`,
+						Server.WebServer.NotRequiresLogin,
+						async function ( request, response, next ) 
+						{
+							await Server.WebServer.RequestProcessor( request, response, next,
+								async function ( request, response, next )
+								{
+									// log_request( request );
+									response.render(
+										Server.Config.Settings.WebServer.signup_url,
+										{ App: Server, User: request.user } );
 									return;
 								}
 								, true );
@@ -478,16 +475,19 @@ exports.Construct =
 
 					//---------------------------------------------------------------------
 					// Default user route.
-					express_router.get( `${ParentPath}/user`,
+					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.user_url}`,
 						Server.WebServer.RequiresLogin,
 						async function ( request, response, next ) 
 						{
 							await Server.WebServer.RequestProcessor( request, response, next,
 								async function ( request, response, next )
 								{
-									log_request( request );
+									// log_request( request );
 									// response.render( 'user', { App: App, User: request.user } );
-									response.redirect( '/SystemUsers/ReadOne/' + request.user._m.id );
+									// response.redirect( '/SystemUsers/ReadOne/' + request.user._m.id );
+									response.render(
+										Server.Config.Settings.WebServer.user_url,
+										{ App: Server, User: request.user } );
 								}
 								, true );
 							return;
@@ -503,180 +503,10 @@ exports.Construct =
 					//=====================================================================
 
 
-					//---------------------------------------------------------------------
-					function add_service_endpoints( Service, Router, ParentPath )
-					{
-						// Add endpoints for this service.
-						let endpoint_names = Object.keys( Service.ServiceDefinition.Endpoints );
-						for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
-						{
-							let endpoint_name = endpoint_names[ endpoint_index ];
-							let endpoint = Service.ServiceDefinition.Endpoints[ endpoint_name ];
+					require( './WebServer-Application-Services.js' ).Use( Server, module.ExpressRouter );
 
-							// This is the actual request handler that services this endpoint.
-							async function request_handler( request, response, next ) 
-							{
-								// Get the endpoint parameters.
-								let parameters = [];
-								for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
-								{
-									let parameter_name = endpoint.parameters[ parameter_index ];
-									let value = request.params[ parameter_name ];
-									if ( typeof value === 'undefined' )
-									{
-										value = request.query[ parameter_name ];
-									}
-									if ( typeof value === 'undefined' )
-									{
-										value = request.body[ parameter_name ];
-									}
-									if ( typeof value === 'undefined' )
-									{
-										value = null;
-									}
-									// let value = null;
-									// let method = request.method.toLowerCase();
-									// if ( method === 'get' )
-									// {
-									// 	value = request.params[ parameter_name ];
-									// }
-									// else if ( method === 'post' )
-									// {
-									// 	value = request.body[ parameter_name ];
-									// }
-									parameters.push( value );
-								}
-
-								// Invoke the endpoint function.
-								try
-								{
-									let api_result = {
-										ok: true,
-										origin: `${Service.ServiceDefinition.Name}/${endpoint.name}`,
-										result: await endpoint.invoke( request.user, ...parameters ),
-									};
-									response.send( api_result );
-								}
-								catch ( error )
-								{
-									let api_result = {
-										ok: false,
-										origin: `${Service.ServiceDefinition.Name}/${endpoint.name}`,
-										error: error.message,
-									};
-									Server.WebServer.ReportApiError( api_result, response );
-									return;
-								}
-								return;
-							}
-
-							// Add endpoints for each http verb.
-							if ( endpoint.http_verbs.includes( 'get' ) )
-							{
-								Router.get( `${ParentPath}/${endpoint.name}`,
-									( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-									request_handler );
-							}
-							if ( endpoint.http_verbs.includes( 'post' ) )
-							{
-								Router.post( `${ParentPath}/${endpoint.name}`,
-									( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-									request_handler );
-							}
-
-						}
-
-						return;
-					};
-
-
-					//---------------------------------------------------------------------
-					function add_managed_list_page( Service, FunctionRoute )
-					{
-						express_router.get( `${ParentPath}/${Service.ServiceName}/${FunctionRoute}`,
-							( Service.ServiceDefinition.Endpoints[ FunctionRoute ].requires_login ? Server.WebServer.RequiresLogin : null ),
-							async function ( request, response, next ) 
-							{
-								log_request( request );
-								response.render(
-									'managed-list',
-									{
-										Server: Server, User: request.user,
-										ServiceDefinition: Service.ServiceDefinition,
-										ObjectDefinition: Service.ObjectDefinition,
-										FunctionRoute: FunctionRoute,
-									} );
-								return;
-							} );
-					}
-
-
-					//---------------------------------------------------------------------
-					function add_managed_object_page( Service, FunctionRoute )
-					{
-						express_router.get( `${ParentPath}/${Service.ServiceName}/${FunctionRoute}/:object_id`,
-							( Service.ServiceDefinition.Endpoints[ FunctionRoute ].requires_login ? Server.WebServer.RequiresLogin : null ),
-							async function ( request, response, next ) 
-							{
-								log_request( request );
-								response.render(
-									'managed-object',
-									{
-										Server: Server, User: request.user,
-										ServiceDefinition: Service.ServiceDefinition,
-										ObjectDefinition: Service.ObjectDefinition,
-										FunctionRoute: FunctionRoute,
-										ObjectID: request.params.object_id,
-									} );
-								return;
-							} );
-					}
-
-
-					//---------------------------------------------------------------------
-					// Add service endpoints.
-					{
-						let service_names = Object.keys( Server.Services );
-						for ( let index = 0; index < service_names.length; index++ )
-						{
-							let service_name = service_names[ index ];
-							let service = Server[ service_name ];
-
-							// Add the service API
-							add_service_endpoints( service, express_router, `/api/${service.ServiceDefinition.Name}` );
-
-							// // Add the service UI
-							// add_managed_list_page( service, 'ListAll' );		// /{{service_name}}/ListAll
-							// add_managed_list_page( service, 'ListMine' );		// /{{service_name}}/ListMine
-							// add_managed_object_page( service, 'CreateOne' );	// /{{service_name}}/CreateOne
-							// add_managed_object_page( service, 'ReadOne' );		// /{{service_name}}/ReadOne
-							// add_managed_object_page( service, 'WriteOne' );		// /{{service_name}}/WriteOne
-							// add_managed_object_page( service, 'DeleteOne' );	// /{{service_name}}/DeleteOne
-							// add_managed_list_page( service, 'DeleteMine' );		// /{{service_name}}/DeleteMine
-							// add_managed_list_page( service, 'DeleteAll' );		// /{{service_name}}/DeleteAll
-
-							// Report
-							Server.Log.trace( `Added service routes for [${service_name}].` );
-						}
-					}
 
 				}
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Configure view engine
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				express_router.set( 'view engine', 'pug' );
-				express_router.set( 'views', 'src/web/views' );
-
-				// Web root.
-				express_router.use( '/', LIB_EXPRESS.static( 'src/web/files' ) );
 
 
 				//=====================================================================
@@ -688,11 +518,23 @@ exports.Construct =
 				//=====================================================================
 
 
+				if ( Server.Config.Settings.WebServer.website_api_client )
+				{
+					// Generate the api client for javascript.
+					const SRC_GENERATE_SERVICE_CLIENT = require( '../processes/Generate_ServiceClient.js' );
+					let code = SRC_GENERATE_SERVICE_CLIENT.Generate_HttpClient( Server );
+					let filename = Server.ResolveApplicationPath( Server.Config.Settings.WebServer.website_api_client );
+					LIB_FS.writeFileSync( filename, code );
+					Server.Log.trace( `WebServer - generated api client: [${filename}]` );
+				}
+
+
 				// Create the HTTP server.
-				module.HttpServer = LIB_HTTP.createServer( express_router );
+				module.HttpServer = LIB_HTTP.createServer( module.ExpressRouter );
+				Server.Log.trace( `WebServer - server initialized` );
 
 				// Report the server routes.
-				let stack = express_router._router.stack;
+				let stack = module.ExpressRouter._router.stack;
 				stack.forEach(
 					function ( r )
 					{

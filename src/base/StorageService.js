@@ -2,7 +2,7 @@
 
 
 //---------------------------------------------------------------------
-const LIB_MANAGED_STORAGE = require( '@liquicode/lib-managed-storage' );
+const LIB_USER_STORAGE = require( '@liquicode/lib-user-storage' );
 
 
 //---------------------------------------------------------------------
@@ -18,8 +18,8 @@ exports.NewStorageService =
 
 
 		//---------------------------------------------------------------------
-		// Storage object which holds a managed storage from LIB_MANAGED_STORAGE.
-		service.storage = null;
+		// Storage object which holds a managed storage from LIB_USER_STORAGE.
+		service.Storage = null;
 
 
 		//---------------------------------------------------------------------
@@ -36,7 +36,7 @@ exports.NewStorageService =
 		service.GetDefaults =
 			function GetDefaults()
 			{
-				let config = LIB_MANAGED_STORAGE.DefaultConfiguration();
+				let config = LIB_USER_STORAGE.DefaultConfiguration();
 				return config;
 			};
 
@@ -46,7 +46,7 @@ exports.NewStorageService =
 		service.InitializeService =
 			function InitializeService()
 			{
-				service.storage = LIB_MANAGED_STORAGE.NewManagedStorage( service.Settings );
+				service.Storage = LIB_USER_STORAGE.NewUserStorage( service.Settings );
 				return;
 			};
 
@@ -60,36 +60,68 @@ exports.NewStorageService =
 		//---------------------------------------------------------------------
 
 		//---------------------------------------------------------------------
-		service.StorageCount = async function ( User, Criteria ) { return await service.storage.Count( User, Criteria ); };
+		service.StorageCount =
+			async function ( User, Criteria )
+			{
+				return await service.Storage.Count( User, Criteria );
+			};
 
 		//---------------------------------------------------------------------
-		service.StorageFindOne = async function ( User, Criteria ) { return await service.storage.FindOne( User, Criteria ); };
+		service.StorageFindOne =
+			async function ( User, Criteria )
+			{
+				return await service.Storage.FindOne( User, Criteria );
+			};
 
 		//---------------------------------------------------------------------
-		service.StorageFindMany = async function ( User, Criteria ) { return await service.storage.FindMany( User, Criteria ); };
+		service.StorageFindMany =
+			async function ( User, Criteria ) 
+			{
+				return await service.Storage.FindMany( User, Criteria );
+			};
 
 		//---------------------------------------------------------------------
 		service.StorageCreateOne =
 			async function ( User, Prototype )
 			{
 				let data_object = service.NewServiceObject( Prototype );
-				return await service.storage.CreateOne( User, data_object );
+				return await service.Storage.CreateOne( User, data_object );
 			};
 
 		//---------------------------------------------------------------------
-		service.StorageWriteOne = async function ( User, Criteria, DataObject ) { return await service.storage.WriteOne( User, Criteria, DataObject ); };
+		service.StorageWriteOne =
+			async function ( User, Criteria, DataObject ) 
+			{
+				return await service.Storage.WriteOne( User, Criteria, DataObject );
+			};
 
 		//---------------------------------------------------------------------
-		service.StorageDeleteOne = async function ( User, Criteria ) { return await service.storage.DeleteOne( User, Criteria ); };
+		service.StorageDeleteOne =
+			async function ( User, Criteria )
+			{
+				return await service.Storage.DeleteOne( User, Criteria );
+			};
 
 		//---------------------------------------------------------------------
-		service.StorageDeleteMany = async function ( User, Criteria ) { return await service.storage.DeleteMany( User, Criteria ); };
+		service.StorageDeleteMany =
+			async function ( User, Criteria )
+			{
+				return await service.Storage.DeleteMany( User, Criteria );
+			};
 
 		//---------------------------------------------------------------------
-		service.StorageShare = async function ( User, Criteria, Readers, Writers, MakePublic ) { return await service.storage.Share( User, Criteria, Readers, Writers, MakePublic ); };
+		service.StorageShare =
+			async function ( User, Criteria, Readers, Writers, MakePublic )
+			{
+				return await service.Storage.Share( User, Criteria, Readers, Writers, MakePublic );
+			};
 
 		//---------------------------------------------------------------------
-		service.StorageUnshare = async function ( User, Criteria, NotReaders, NotWriters, MakeUnpublic ) { return await service.storage.Unshare( User, Criteria, NotReaders, NotWriters, MakeUnpublic ); };
+		service.StorageUnshare =
+			async function ( User, Criteria, NotReaders, NotWriters, MakeUnpublic ) 
+			{
+				return await service.Storage.Unshare( User, Criteria, NotReaders, NotWriters, MakeUnpublic );
+			};
 
 		//---------------------------------------------------------------------
 		//---------------------------------------------------------------------
@@ -113,7 +145,8 @@ exports.NewStorageService =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'Criteria' ],
-			invoke: async function ( User, Criteria ) { return await service.StorageCount( User, Criteria ); },
+			// invoke: async function ( User, Criteria ) { return await service.StorageCount( User, Criteria ); },
+			invoke: service.StorageCount,
 		};
 
 		//---------------------------------------------------------------------
@@ -124,7 +157,8 @@ exports.NewStorageService =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'Criteria' ],
-			invoke: async function ( User, Criteria ) { return await service.StorageFindOne( User, Criteria ); },
+			// invoke: async function ( User, Criteria ) { return await service.StorageFindOne( User, Criteria ); },
+			invoke: service.StorageFindOne,
 		};
 
 		//---------------------------------------------------------------------
@@ -135,7 +169,8 @@ exports.NewStorageService =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'Criteria' ],
-			invoke: async function ( User, Criteria ) { return await service.StorageFindMany( User, Criteria ); },
+			// invoke: async function ( User, Criteria ) { return await service.StorageFindMany( User, Criteria ); },
+			invoke: service.StorageFindMany,
 		};
 
 		//---------------------------------------------------------------------
@@ -146,7 +181,8 @@ exports.NewStorageService =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'Prototype' ],
-			invoke: async function ( User, Prototype ) { return await service.StorageCreateOne( User, Prototype ); },
+			// invoke: async function ( User, Prototype ) { return await service.StorageCreateOne( User, Prototype ); },
+			invoke: service.StorageCreateOne,
 		};
 
 		//---------------------------------------------------------------------
@@ -157,7 +193,8 @@ exports.NewStorageService =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'Criteria', 'DataObject' ],
-			invoke: async function ( User, Criteria, DataObject ) { return await service.StorageWriteOne( User, Criteria, DataObject ); },
+			// invoke: async function ( User, Criteria, DataObject ) { return await service.StorageWriteOne( User, Criteria, DataObject ); },
+			invoke: service.StorageWriteOne,
 		};
 
 		//---------------------------------------------------------------------
@@ -168,7 +205,8 @@ exports.NewStorageService =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'Criteria' ],
-			invoke: async function ( User, Criteria ) { return await service.StorageDeleteOne( User, Criteria ); },
+			// invoke: async function ( User, Criteria ) { return await service.StorageDeleteOne( User, Criteria ); },
+			invoke: service.StorageDeleteOne,
 		};
 
 		//---------------------------------------------------------------------
@@ -179,7 +217,8 @@ exports.NewStorageService =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'Criteria' ],
-			invoke: async function ( User, Criteria ) { return await service.StorageDeleteMany( User, Criteria ); },
+			// invoke: async function ( User, Criteria ) { return await service.StorageDeleteMany( User, Criteria ); },
+			invoke: service.StorageDeleteMany,
 		};
 
 		//---------------------------------------------------------------------
@@ -190,7 +229,8 @@ exports.NewStorageService =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'Criteria', 'Readers', 'Writers', 'MakePublic' ],
-			invoke: async function ( User, Criteria, Readers, Writers, MakePublic ) { return await StorageShare( User, Criteria, Readers, Writers, MakePublic ); },
+			// invoke: async function ( User, Criteria, Readers, Writers, MakePublic ) { return await StorageShare( User, Criteria, Readers, Writers, MakePublic ); },
+			invoke: service.StorageShare,
 		};
 
 		//---------------------------------------------------------------------
@@ -201,7 +241,8 @@ exports.NewStorageService =
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			http_verbs: [ 'get', 'post' ],
 			parameters: [ 'Criteria', 'NotReaders', 'NotWriters', 'MakeUnpublic' ],
-			invoke: async function ( User, Criteria, NotReaders, NotWriters, MakeUnpublic ) { return await service.StorageUnshare( User, Criteria, NotReaders, NotWriters, MakeUnpublic ); },
+			// invoke: async function ( User, Criteria, NotReaders, NotWriters, MakeUnpublic ) { return await service.StorageUnshare( User, Criteria, NotReaders, NotWriters, MakeUnpublic ); },
+			invoke: service.StorageUnshare,
 		};
 
 

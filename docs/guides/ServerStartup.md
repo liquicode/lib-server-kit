@@ -7,7 +7,7 @@ instantiate a new `Server` object, and then initialize it:
 
 ```javascript
 const LIB_SERVER_KIT = require( '@liquicode/lib-server-kit' );
-let Server = LIB_SERVER_KIT.NewServer( 'my-app-path' );
+let Server = LIB_SERVER_KIT.NewServer( 'app-name', 'my-app-path' );
 Server.Initialize();
 ```
 

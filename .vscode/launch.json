@@ -5,9 +5,9 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Launch Program",
 			"type": "pwa-node",
 			"request": "launch",
-			"name": "Launch Program",
 			"skipFiles": [
 				"<node_internals>/**"
 			],
@@ -22,9 +22,9 @@
 			"internalConsoleOptions": "openOnSessionStart",
 		},
 		{
+			"name": "Run Tests",
 			"type": "pwa-node",
 			"request": "launch",
-			"name": "Run Tests",
 			"skipFiles": [
 				"<node_internals>/**"
 			],
@@ -33,22 +33,22 @@
 			"args": [
 				"-u",
 				"bdd",
-				"tests/021*.js",
+				"tests/*.js",
 				"--timeout",
 				"0",
 			],
 			"internalConsoleOptions": "openOnSessionStart",
 		},
 		{
+			"name": "Maths Server",
 			"type": "pwa-node",
 			"request": "launch",
-			"name": "FindAllFiles",
 			"skipFiles": [
 				"<node_internals>/**"
 			],
 			"outputCapture": "std",
-			"cwd": "${workspaceFolder}",
-			"program": "${workspaceFolder}/_scratch/FindAllFiles.js",
+			"cwd": "${workspaceFolder}/tests/test-app/",
+			"program": "${workspaceFolder}/tests/test-app/MathsServer.js",
 			"args": [],
 			"internalConsoleOptions": "openOnSessionStart",
 		}

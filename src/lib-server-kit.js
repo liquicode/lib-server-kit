@@ -6,7 +6,7 @@ const LIB_PATH = require( 'path' );
 
 //---------------------------------------------------------------------
 exports.NewServer =
-	function ( ApplicationPath )
+	function ( ApplicationName, ApplicationPath, WriteDefaults = false )
 	{
 		if ( !LIB_FS.existsSync( ApplicationPath ) ) { throw new Error( `The application path does not exist [${ApplicationPath}].` ); }
 
@@ -18,12 +18,23 @@ exports.NewServer =
 		//---------------------------------------------------------------------
 
 
-		// Wire up some functions
+		// Expose some construction functions.
 		{
 			server.NewModule = require( LIB_PATH.join( __dirname, 'base', 'ModuleBase.js' ) ).NewModule;
 			server.NewService = require( LIB_PATH.join( __dirname, 'base', 'ServiceBase.js' ) ).NewService;
 			server.NewStorageService = require( LIB_PATH.join( __dirname, 'base', 'StorageService.js' ) ).NewStorageService;
 		}
+
+
+		//---------------------------------------------------------------------
+		// ResolveApplicationPath
+		//---------------------------------------------------------------------
+
+		function ResolveApplicationPath( Path )
+		{
+			return LIB_PATH.resolve( ApplicationPath, Path );
+		};
+		server.ResolveApplicationPath = ResolveApplicationPath;
 
 
 		//---------------------------------------------------------------------
@@ -33,12 +44,12 @@ exports.NewServer =
 
 		let modules_path = LIB_PATH.join( __dirname, 'modules' );
 
-		// Load the application's package.json file.
-		{
-			let filename = LIB_PATH.join( ApplicationPath, 'package.json' );
-			if ( !LIB_FS.existsSync( filename ) ) { throw new Error( `A [package.json] file was not found in the application path [${ApplicationPath}].` ); }
-			server.Package = require( filename );
-		}
+		// // Load the application's package.json file.
+		// {
+		// 	let filename = LIB_PATH.join( ApplicationPath, 'package.json' );
+		// 	if ( !LIB_FS.existsSync( filename ) ) { throw new Error( `A [package.json] file was not found in the application path [${ApplicationPath}].` ); }
+		// 	server.Package = require( filename );
+		// }
 
 		// Load the internal utility functions.
 		server.Utility = require( LIB_PATH.join( modules_path, 'Utility.js' ) );
@@ -46,10 +57,14 @@ exports.NewServer =
 		// Load the configuration module.
 		server.Config = require( LIB_PATH.join( modules_path, 'Config.js' ) ).Construct( server );
 		server.Config.Defaults.AppInfo = {
-			name: server.Package.name,
-			version: server.Package.version,
-			description: server.Package.description,
-			homepage: server.Package.homepage,
+			// name: server.Package.name,
+			// version: server.Package.version,
+			// description: server.Package.description,
+			// homepage: server.Package.homepage,
+			name: ApplicationName,
+			version: '',
+			description: '',
+			homepage: '',
 			environment: 'development',
 		};
 
@@ -86,14 +101,27 @@ exports.NewServer =
 			}
 		};
 
-
 		server.Services = {};
-		load_services( LIB_PATH.join( __dirname, 'services' ) );
-		load_services( LIB_PATH.join( ApplicationPath, 'services' ) );
+		load_services( LIB_PATH.join( __dirname, 'services' ) );	// Load server-kit Services
+		load_services( ResolveApplicationPath( 'services' ) );		// Load Application Services
 		server.Config.Defaults.Log = server.Log.GetDefaults();
 
 		// Initialize Config Module.
 		server.Config.ResetSettings();
+
+		// Load the application's config file.
+		let defaults_filename = ResolveApplicationPath( `${ApplicationName}.defaults.json` );
+		let settings_filename = ResolveApplicationPath( `${ApplicationName}.settings.json` );
+		if ( WriteDefaults )
+		{
+			server.Config.SaveDefaults( defaults_filename );
+		}
+		if ( LIB_FS.existsSync( settings_filename ) ) 
+		{
+			let content = LIB_FS.readFileSync( settings_filename, 'utf8' );
+			let config = JSON.parse( content );
+			server.Config.MergeSettings( config );
+		}
 
 
 		//---------------------------------------------------------------------
@@ -105,35 +133,45 @@ exports.NewServer =
 			function Intialize( SettingsFilenameOrObject )
 			{
 				let log_trace = [];
-				log_trace.push( `Initialized module [Package].` );
-				log_trace.push( `Initialized module [Config].` );
-
-				// Load the application's config file.
+				// log_trace.push( `Initialized module [Package].` );
+				if ( WriteDefaults )
 				{
-					let filename = LIB_PATH.join( ApplicationPath, `${server.Package.name}.settings.json` );
-					if ( LIB_FS.existsSync( filename ) ) 
-					{
-						let content = LIB_FS.readFileSync( filename, 'utf8' );
-						let config = JSON.parse( content );
-						server.Config.MergeSettings( config );
-						log_trace.push( `Merged configuration from settings file [${filename}].` );
-					}
-					else
-					{
-						let filename = LIB_PATH.join( ApplicationPath, `${server.Package.name}.defaults.json` );
-						server.Config.SaveDefaults( filename );
-					}
+					log_trace.push( `Wrote configuration defaults to file [${defaults_filename}].` );
 				}
+				if ( LIB_FS.existsSync( settings_filename ) ) 
+				{
+					log_trace.push( `Merged configuration settings from file [${settings_filename}].` );
+				}
+				log_trace.push( `Initialized module [Config].` );
 
 				// Customize the configuration with the supplied settings.
 				if ( typeof SettingsFilenameOrObject === 'undefined' ) { }
 				else if ( typeof SettingsFilenameOrObject === 'string' )
 				{
 					// Load configuration settings from a specific application defined file.
-					let content = LIB_FS.readFileSync( Filename, 'utf8' );
-					let config = JSON.parse( content );
-					server.Config.MergeSettings( config );
-					log_trace.push( `Merged configuration from settings file [${filename}].` );
+					let content = null;
+					let filename = SettingsFilenameOrObject;
+					if ( LIB_FS.existsSync( filename ) )
+					{
+						// Read realtive to cwd.
+						content = LIB_FS.readFileSync( filename, 'utf8' );
+					}
+					else if ( LIB_FS.existsSync( ResolveApplicationPath( filename ) ) )
+					{
+						// Read realtive to ApplicationPath.
+						filename = ResolveApplicationPath( filename );
+						content = LIB_FS.readFileSync( filename, 'utf8' );
+					}
+					if ( content )
+					{
+						let config = JSON.parse( content );
+						server.Config.MergeSettings( config );
+						log_trace.push( `Merged configuration from settings file [${filename}].` );
+					}
+					else
+					{
+						log_trace.push( `Warning: Unable to find settings file [${SettingsFilenameOrObject}].` );
+					}
 				}
 				else if ( typeof SettingsFilenameOrObject === 'object' )
 				{

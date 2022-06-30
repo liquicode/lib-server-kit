@@ -16,7 +16,7 @@ describe( `021) Maths WebService Tests`,
 		before(
 			async function ()
 			{
-				Server = LIB_SERVER_KIT.NewServer( LIB_PATH.resolve( __dirname, 'test-app' ) );
+				Server = LIB_SERVER_KIT.NewServer( 'test-app', LIB_PATH.resolve( __dirname, 'test-app' ) );
 				let settings = { Log: { Console: { enabled: true }, Shell: { enabled: false } } };
 				Server.Initialize( settings );
 				await Server.WebServer.StartWebServer();

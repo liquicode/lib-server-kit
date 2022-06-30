@@ -2,8 +2,7 @@
 
 
 //---------------------------------------------------------------------
-const LIB_MANAGED_STORAGE = require( '@liquicode/lib-managed-storage' );
-
+const LIB_USER_STORAGE = require( '@liquicode/lib-user-storage' );
 
 //---------------------------------------------------------------------
 exports.Construct =
@@ -24,24 +23,24 @@ exports.Construct =
 		//---------------------------------------------------------------------
 
 
-		//---------------------------------------------------------------------
-		// Create the default configuration.
-		service.GetDefaults =
-			function GetDefaults()
-			{
-				let config = LIB_MANAGED_STORAGE.DefaultConfiguration();
-				return config;
-			};
+		// //---------------------------------------------------------------------
+		// // Create the default configuration.
+		// service.GetDefaults =
+		// 	function GetDefaults()
+		// 	{
+		// 		let config = LIB_MANAGED_STORAGE.DefaultConfiguration();
+		// 		return config;
+		// 	};
 
 
-		//---------------------------------------------------------------------
-		// Initialize this service.
-		service.InitializeService =
-			function InitializeService()
-			{
-				service.storage = LIB_MANAGED_STORAGE.NewManagedStorage( service.Settings );
-				return;
-			};
+		// //---------------------------------------------------------------------
+		// // Initialize this service.
+		// service.InitializeService =
+		// 	function InitializeService()
+		// 	{
+		// 		service.storage = LIB_MANAGED_STORAGE.NewManagedStorage( service.Settings );
+		// 		return;
+		// 	};
 
 
 		//---------------------------------------------------------------------
@@ -135,13 +134,19 @@ exports.Construct =
 		service.FindOrCreateUser =
 			async function FindOrCreateUser( UserInfo )
 			{
+				let api_response = {
+					ok: true,
+					error: '',
+					object: null,
+				};
+
 				//---------------------------------------------------------------------
 				// Validate inputs.
 				try
 				{
-					if ( Server.Utility.value_missing_null_empty( service.storage ) ) { throw new Error( `Service has not been initialized.` ); }
+					if ( Server.Utility.value_missing_null_empty( service.Storage ) ) { throw new Error( `Service has not been initialized.` ); }
 					if ( Server.Utility.value_missing_null_empty( UserInfo ) ) { throw new Error( `Missing Parameter: UserInfo` ); }
-					if ( Server.Utility.value_missing_null_empty( UserInfo.user_email ) ) { throw new Error( `Missing Parameter: UserInfo.user_email` ); }
+					if ( Server.Utility.value_missing_null_empty( UserInfo.user_id ) ) { throw new Error( `Missing Parameter: UserInfo.user_email` ); }
 					if ( Server.Utility.value_missing_null_empty( UserInfo.user_role ) ) { throw new Error( `Missing Parameter: UserInfo.user_role` ); }
 				}
 				catch ( error )
@@ -155,30 +160,39 @@ exports.Construct =
 				// Create a user object that is owned by that user.
 				async function create_user( Storage, ThisUserInfo )
 				{
-					let new_user = await Storage.CreateOne( LIB_MANAGED_STORAGE.StorageAdministrator(), ThisUserInfo );
-					let count = await Storage.SetOwner( LIB_MANAGED_STORAGE.StorageAdministrator(), ThisUserInfo.user_email, new_user._m.id );
-					new_user = await Storage.FindOne( LIB_MANAGED_STORAGE.StorageAdministrator(), new_user._m.id );
-					return new_user;
+					let new_user = await Storage.CreateOne( LIB_USER_STORAGE.StorageAdministrator(), ThisUserInfo );
+					// let count = await Storage.SetOwner( LIB_MANAGED_STORAGE.StorageAdministrator(), ThisUserInfo.user_id, new_user._m.id );
+					// return await Storage.FindOne( LIB_MANAGED_STORAGE.StorageAdministrator(), new_user._m.id );
+					let info = Storage.GetUserInfo( new_user );
+					let count = await Storage.SetOwner( ThisUserInfo, info.id ); // Users own their accounts.
+					return await Storage.FindOne( ThisUserInfo, info.id );
 				}
 
 				//---------------------------------------------------------------------
 				try
 				{
 					// Count all users of the system.
-					let count = await service.storage.Count( LIB_MANAGED_STORAGE.StorageAdministrator(), {} );
+					let count = await service.Storage.Count( LIB_USER_STORAGE.StorageAdministrator(), {} );
 					if ( count === 0 )
 					{
 						// Create the first user as the admin user.
+						Server.Log.warn( `SystemUsers is empty, creating the first SystemUser as the admin user.` );
 						UserInfo.user_role = 'admin';
-						api_response.object = await create_user( service.storage, UserInfo );
+						Server.Log.debug( `Creating a new SystemUser: ${JSON.stringify( UserInfo )}` );
+						api_response.object = await create_user( service.Storage, UserInfo );
 					}
 					else
 					{
 						// Find the user email amongst all users of the system.
-						api_response.object = service.storage.FindOne( LIB_MANAGED_STORAGE.StorageAdministrator(), { user_email: UserInfo.user_email } );
+						api_response.object = await service.Storage.FindOne( LIB_USER_STORAGE.StorageAdministrator(), { user_id: UserInfo.user_id } );
 						if ( api_response.object === null )
 						{
-							api_response.object = await create_user( service.storage, UserInfo );
+							Server.Log.debug( `Creating a new SystemUser: ${JSON.stringify( UserInfo )}` );
+							api_response.object = await create_user( service.Storage, UserInfo );
+						}
+						else
+						{
+							Server.Log.debug( `Found an existing SystemUser: ${JSON.stringify( UserInfo )}` );
 						}
 					}
 				}

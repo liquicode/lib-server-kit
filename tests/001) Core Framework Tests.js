@@ -14,14 +14,14 @@ describe( `001) Core Framework Tests`,
 
 		//---------------------------------------------------------------------
 		before(
-			function()
+			function ()
 			{
-				Server = LIB_SERVER_KIT.NewServer( LIB_PATH.resolve( __dirname, 'test-app' ) );
+				Server = LIB_SERVER_KIT.NewServer( 'test-app', LIB_PATH.resolve( __dirname, 'test-app' ) );
 				let settings = { Log: { Console: { enabled: true }, Shell: { enabled: false } } };
 				Server.Initialize( settings );
 				return;
 			}
-		)
+		);
 
 
 		//---------------------------------------------------------------------
@@ -29,10 +29,8 @@ describe( `001) Core Framework Tests`,
 			async function ()
 			{
 				LIB_ASSERT.ok( Server );
-				LIB_ASSERT.ok( Server.Package );
 				LIB_ASSERT.ok( Server.Config.Settings );
 				LIB_ASSERT.ok( Server.Config.Settings.AppInfo );
-				LIB_ASSERT.strictEqual( Server.Config.Settings.AppInfo.name, Server.Package.name );
 				return;
 			} );
 

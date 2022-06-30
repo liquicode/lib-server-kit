@@ -39,6 +39,21 @@ exports.NewService =
 				// 	invoke: async function ( User, Criteria ) { return await service.storage.Count( User, Criteria ); },
 				// },
 			},
+			Pages: {
+				ShowThing: {
+					name: 'Show',
+					view: 'Show',
+					description: 'Shows detail for a service object.',
+					requires_login: true,
+					allowed_roles: [ 'admin', 'super', 'user' ],
+					invoke:
+						async function ( Server, request, response, next ) 
+						{
+							let thing = await service.GetThing( request.params );
+							response.render( '/show-thing', { App: Server, User: request.user, Thing: thing } );
+						},
+				},
+			},
 		};
 
 

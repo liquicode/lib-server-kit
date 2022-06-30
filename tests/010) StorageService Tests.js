@@ -27,7 +27,7 @@ describe( `010) StorageService Tests`,
 		before(
 			function ()
 			{
-				Server = LIB_SERVER_KIT.NewServer( LIB_PATH.resolve( __dirname, 'test-app' ) );
+				Server = LIB_SERVER_KIT.NewServer( 'test-app', LIB_PATH.resolve( __dirname, 'test-app' ) );
 				let settings = { Log: { Console: { enabled: true }, Shell: { enabled: false } } };
 				Server.Initialize( settings );
 				return;
@@ -108,10 +108,10 @@ describe( `010) StorageService Tests`,
 				// Create an empty object.
 				let managed_object = await storage.StorageCreateOne( OwnerUser, {} );
 				LIB_ASSERT.ok( managed_object );
-				LIB_ASSERT.ok( managed_object._m.id );
-				LIB_ASSERT.strictEqual( managed_object._m.owner_id, OwnerUser.user_id );
-				LIB_ASSERT.strictEqual( managed_object._o.name, "" );
-				LIB_ASSERT.strictEqual( managed_object._o.number, 0 );
+				LIB_ASSERT.ok( managed_object.__info.id );
+				LIB_ASSERT.strictEqual( managed_object.__info.owner_id, OwnerUser.user_id );
+				LIB_ASSERT.strictEqual( managed_object.name, "" );
+				LIB_ASSERT.strictEqual( managed_object.number, 0 );
 
 				return;
 			} );
@@ -129,13 +129,13 @@ describe( `010) StorageService Tests`,
 				let test_object = { name: "Test Name", number: 3.14 };
 				let managed_object = await storage.StorageCreateOne( OwnerUser, test_object );
 				LIB_ASSERT.ok( managed_object );
-				LIB_ASSERT.ok( managed_object._m.id );
-				LIB_ASSERT.strictEqual( managed_object._m.owner_id, OwnerUser.user_id );
-				LIB_ASSERT.strictEqual( managed_object._o.name, "Test Name" );
-				LIB_ASSERT.strictEqual( managed_object._o.number, 3.14 );
+				LIB_ASSERT.ok( managed_object.__info.id );
+				LIB_ASSERT.strictEqual( managed_object.__info.owner_id, OwnerUser.user_id );
+				LIB_ASSERT.strictEqual( managed_object.name, "Test Name" );
+				LIB_ASSERT.strictEqual( managed_object.number, 3.14 );
 
 				// Delete the object.
-				let count = await storage.StorageDeleteOne( OwnerUser, managed_object._m.id );
+				let count = await storage.StorageDeleteOne( OwnerUser, managed_object.__info.id );
 				LIB_ASSERT.strictEqual( count, 1 );
 
 				// Count all objects.

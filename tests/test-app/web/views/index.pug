@@ -1,7 +1,7 @@
 doctype html
 html
 	head
-		title='SimTrader'
+		title= locals.App.Config.Settings.AppInfo.name
 
 		meta( name="viewport" content="width=device-width, initial-scale=1" )
 
@@ -53,7 +53,7 @@ body
 			.w3-bar-item.w3-text-grey Server
 			a.w3-bar-item.w3-button( href="/" ) Home
 
-			if locals.user
+			if locals.User
 
 				//- a.w3-bar-item.w3-button( href="/SimAccounts/ListMine" ) Accounts
 				//- a.w3-bar-item.w3-button( href="/SimInstruments/ListMine" ) Instruments
@@ -61,20 +61,30 @@ body
 				//- a.w3-bar-item.w3-button( href="/SimSessions/ListMine" ) Sessions
 
 				.w3-dropdown-hover.w3-right.w3-mobile
-					button.w3-button
-						img.w3-round( src=`${locals.User.image_url}` style='width:24px; height:24px' )
-						span.w3-margin= locals.User._m.owner.name
-						i.fa.fa-caret-down
-					.w3-dropdown-content.w3-bar-block.w3-dark-grey
-						a.w3-bar-item.w3-button.w3-mobile( href="/user" ) User Account
-						a.w3-bar-item.w3-button.w3-mobile( href="/logout" ) Log Out
 
-						if ( locals.User.role === 'admin' ) || ( locals.User.role === 'super' )
+					button.w3-button
+						if( locals.User.image_url )
+							img.w3-round( src=`${locals.User.image_url}` style='width:24px; height:24px' )
+						span.w3-margin= locals.User.user_name
+						i.fa.fa-caret-down
+
+					.w3-dropdown-content.w3-bar-block.w3-dark-grey
+
+						if ( locals.User.user_role === 'public' )
+							a.w3-bar-item.w3-button.w3-mobile( href="/auth/signup" ) Sign Up
+							a.w3-bar-item.w3-button.w3-mobile( href="/auth/login" ) Log In
+
+						if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' ) || ( locals.User.user_role === 'user' )
+							a.w3-bar-item.w3-button.w3-mobile( href="/auth/user" ) User Account
+							a.w3-bar-item.w3-button.w3-mobile( href="/auth/logout" ) Log Out
+
+						if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' )
 							.w3-bar-item.w3-border-bottom
-							a.w3-bar-item.w3-button.no-wrap( href="/SystemUsers/ListAll" ) System Users
+							a.w3-bar-item.w3-button.no-wrap( href="/api/SystemUsers/FindMany" ) System Users
 
 			else
 
-				a( id="qsLoginBtn" href="/login" ).w3-bar-item.w3-button Log In
+				a( id="qsLoginBtn" href="/auth/signup" ).w3-bar-item.w3-button Sign Up
+				a( id="qsLoginBtn" href="/auth/login" ).w3-bar-item.w3-button Log In
 
 		block content

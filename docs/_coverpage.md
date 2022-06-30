@@ -2,7 +2,7 @@
 
 ![logo](media/template-lib-banner-large.png)
 
-# lib-managed-storage <small>(v0.0.16)</small>
+# lib-server-kit <small>(v0.0.16)</small>
 
 <hr>
 
@@ -15,7 +15,7 @@
 - Many Features
 - Many More Features
 
-[GitHub](https://github.com/liquicode/lib-managed-storage)
+[GitHub](https://github.com/liquicode/lib-server-kit)
 [Get Started](external/readme.md)
 
 

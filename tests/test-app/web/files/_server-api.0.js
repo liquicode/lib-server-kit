@@ -2,7 +2,7 @@
 
 
 //------------------------------------------
-const API_SERVER_ADDRESS = 'http://localhost:4200';
+// const API_SERVER_ADDRESS = 'http://localhost:4200';
 
 
 //---------------------------------------------------------------------
@@ -56,7 +56,7 @@ var api_callback =
 
 
 
-function get_managed_service( ServiceName )
+function get_storage_service_endpoints( ServiceName )
 {
 	var service =
 	{
@@ -174,7 +174,7 @@ function get_managed_service( ServiceName )
 
 var SERVER_API =
 {
-	SystemUsers: get_managed_service( 'SystemUsers' ),
+	SystemUsers: get_storage_service_endpoints( 'SystemUsers' ),
 };
 
 

@@ -10,7 +10,7 @@ const MODULE_NOT_INITIALIZED_MESSAGE = `Module [Log] is not initialized. Call Ap
 
 //---------------------------------------------------------------------
 exports.Construct =
-	function Construct_LogModule( App )
+	function Construct_LogModule( Server )
 	{
 		let module = MODULE_BASE.NewModule();
 
@@ -71,7 +71,7 @@ exports.Construct =
 						File:
 						{
 							log_path: '',
-							log_filename: App.Package.name,
+							log_filename: 'server',
 							log_extension: 'log',
 							use_hourly_logfiles: false,
 							use_daily_logfiles: false,
@@ -100,28 +100,28 @@ exports.Construct =
 		module.Initialize =
 			function Initialize()
 			{
-				if ( !App.Config.Settings.Log ) { throw new Error( `Invalid configuration, the [Log] section is missing.` ); }
+				if ( !Server.Config.Settings.Log ) { throw new Error( `Invalid configuration, the [Log] section is missing.` ); }
 
 				// Construct a new logger.
-				module.Logger = LIB_LOGGER.NewLogger( App.Package.name );
+				module.Logger = LIB_LOGGER.NewLogger( Server.Config.Settings.AppInfo.name );
 
 				// Add the log targets.
-				if ( App.Config.Settings.Log.Console && App.Config.Settings.Log.Console.enabled )
+				if ( Server.Config.Settings.Log.Console && Server.Config.Settings.Log.Console.enabled )
 				{
-					let target = LIB_LOGGER.NewConsoleLogTarget( App.Config.Settings.Log.Console.LogLevels );
-					target.Config = App.Config.Settings.Log.Console;
+					let target = LIB_LOGGER.NewConsoleLogTarget( Server.Config.Settings.Log.Console.LogLevels );
+					target.Config = Server.Config.Settings.Log.Console;
 					module.Logger.AddLogTarget( target );
 				}
-				if ( App.Config.Settings.Log.Shell && App.Config.Settings.Log.Shell.enabled )
+				if ( Server.Config.Settings.Log.Shell && Server.Config.Settings.Log.Shell.enabled )
 				{
-					let target = LIB_LOGGER.NewShellLogTarget( App.Config.Settings.Log.Shell.LogLevels );
-					target.Config = App.Config.Settings.Log.Shell;
+					let target = LIB_LOGGER.NewShellLogTarget( Server.Config.Settings.Log.Shell.LogLevels );
+					target.Config = Server.Config.Settings.Log.Shell;
 					module.Logger.AddLogTarget( target );
 				}
-				if ( App.Config.Settings.Log.File && App.Config.Settings.Log.File.enabled )
+				if ( Server.Config.Settings.Log.File && Server.Config.Settings.Log.File.enabled )
 				{
-					let target = LIB_LOGGER.NewFileLogTarget( App.Config.Settings.Log.File.LogLevels );
-					target.Config = App.Config.Settings.Log.File;
+					let target = LIB_LOGGER.NewFileLogTarget( Server.Config.Settings.Log.File.LogLevels );
+					target.Config = Server.Config.Settings.Log.File;
 					module.Logger.AddLogTarget( target );
 				}
 
