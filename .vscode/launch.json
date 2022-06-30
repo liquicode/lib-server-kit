@@ -47,8 +47,8 @@
 				"<node_internals>/**"
 			],
 			"outputCapture": "std",
-			"cwd": "${workspaceFolder}/tests/test-app/",
-			"program": "${workspaceFolder}/tests/test-app/MathsServer.js",
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/tests/MathsServer/MathsServer.js",
 			"args": [],
 			"internalConsoleOptions": "openOnSessionStart",
 		}

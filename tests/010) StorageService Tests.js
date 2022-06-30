@@ -6,7 +6,7 @@ const LIB_ASSERT = require( 'assert' );
 
 const LIB_SERVER_KIT = require( LIB_PATH.resolve( __dirname, '../src/lib-server-kit.js' ) );
 let application_name = 'MathsServer';
-let application_path = LIB_PATH.resolve( __dirname, 'test-app' );
+let application_path = LIB_PATH.resolve( __dirname, 'MathsServer' );
 let Server = null;
 
 const SRC_STORAGE_SERVICE = require( LIB_PATH.resolve( __dirname, '../src/base/StorageService.js' ) );
