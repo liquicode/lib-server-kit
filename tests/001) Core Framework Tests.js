@@ -4,6 +4,8 @@ const LIB_PATH = require( 'path' );
 const LIB_ASSERT = require( 'assert' );
 
 const LIB_SERVER_KIT = require( LIB_PATH.resolve( __dirname, '../src/lib-server-kit.js' ) );
+let application_name = 'MathsServer';
+let application_path = LIB_PATH.resolve( __dirname, 'test-app' );
 let Server = null;
 
 //---------------------------------------------------------------------
@@ -16,7 +18,7 @@ describe( `001) Core Framework Tests`,
 		before(
 			function ()
 			{
-				Server = LIB_SERVER_KIT.NewServer( 'test-app', LIB_PATH.resolve( __dirname, 'test-app' ) );
+				Server = LIB_SERVER_KIT.NewServer( application_name, application_path );
 				let settings = { Log: { Console: { enabled: true }, Shell: { enabled: false } } };
 				Server.Initialize( settings );
 				return;
