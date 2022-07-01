@@ -11,7 +11,7 @@
 
 
 //---------------------------------------------------------------------
-const MODULE_BASE = require( '../base/ModuleBase.js' );
+const SRC_MODULE_BASE = require( '../base/ModuleBase.js' );
 
 const LIB_FS = require( 'fs' );
 const LIB_PATH = require( 'path' );
@@ -26,7 +26,7 @@ const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
 exports.Construct =
 	function Construct_WebServer( Server )
 	{
-		let module = MODULE_BASE.NewModule();
+		let module = SRC_MODULE_BASE.NewModule();
 
 		module.ExpressRouter = null;	// Initialized during Initialize()
 		module.HttpServer = null;		// Initialized during StartWebServer()
@@ -104,7 +104,7 @@ exports.Construct =
 			{
 				if ( request.user ) { return next(); }
 				request.session.returnTo = request.originalUrl;
-				response.redirect( Server.Config.Settings.WebServer.login_url );
+				response.redirect( `/${Server.Config.Settings.WebServer.login_url}` );
 			};
 
 
@@ -206,6 +206,7 @@ exports.Construct =
 			async function StartWebServer( Address = null, Port = null )
 			{
 				if ( module.HttpServer !== null ) { throw new Error( `WebServer is already running.` ); }
+				const WebServerSettings = Server.Config.Settings.WebServer;
 
 				//==========================================
 				// Create an Express router.
@@ -214,21 +215,28 @@ exports.Construct =
 
 				//---------------------------------------------------------------------
 				// Configure express cors.
-				// - Enable CORS (see: https://medium.com/@alexishevia/using-cors-in-express-cac7e29b005b)
-				module.ExpressRouter.use( LIB_CORS( { origin: '*' } ) );
-				Server.Log.trace( `WebServer - initialized CORS` );
+				{
+					// - Enable CORS (see: https://medium.com/@alexishevia/using-cors-in-express-cac7e29b005b)
+					module.ExpressRouter.use( LIB_CORS( { origin: '*' } ) );
+					Server.Log.trace( `WebServer - initialized CORS` );
+				}
 
 
 				//---------------------------------------------------------------------
 				// Configure body parser.
-				// module.ExpressRouter.use( LIB_BODY_PARSER.json() );
-				// module.ExpressRouter.use( LIB_BODY_PARSER.urlencoded( { extended: true } ) ); // for parsing application/x-www-form-urlencoded
-				module.ExpressRouter.use( LIB_EXPRESS.json( { limit: '50mb' } ) );
-				Server.Log.trace( `WebServer - initialized json body parser (limit: 50mb)` );
+				{
+					// module.ExpressRouter.use( LIB_BODY_PARSER.json() );
+					// module.ExpressRouter.use( LIB_BODY_PARSER.urlencoded( { extended: true } ) ); // for parsing application/x-www-form-urlencoded
+					module.ExpressRouter.use( LIB_EXPRESS.json( { limit: '50mb' } ) );
+					Server.Log.trace( `WebServer - initialized json body parser (limit: 50mb)` );
 
-				module.ExpressRouter.use( LIB_EXPRESS.urlencoded( { extended: true, limit: '50 MB' } ) );
-				Server.Log.trace( `WebServer - initialized urlencoded body parser (limit: 50 MB)` );
+					module.ExpressRouter.use( LIB_EXPRESS.urlencoded( { extended: true, limit: '50 MB' } ) );
+					Server.Log.trace( `WebServer - initialized urlencoded body parser (limit: 50 MB)` );
+				}
 
+
+				//---------------------------------------------------------------------
+				// Configure file upload.
 				{
 					let options = {
 						// debug: true,
@@ -251,11 +259,11 @@ exports.Construct =
 				//---------------------------------------------------------------------
 				// Configure express session.
 				// https://auth0.com/docs/quickstart/webapp/nodejs#configure-auth0
-				if ( Server.Config.Settings.WebServer.session_enabled )
+				if ( WebServerSettings.session_enabled )
 				{
 					let session =
 					{
-						secret: Server.Config.Settings.WebServer.session_key,
+						secret: WebServerSettings.session_key,
 						cookie: {},
 						resave: false,
 						saveUninitialized: true
@@ -278,14 +286,14 @@ exports.Construct =
 
 				//---------------------------------------------------------------------
 				// Configure passport.
-				if ( Server.Config.Settings.WebServer.passport_local &&
-					Server.Config.Settings.WebServer.passport_local.enabled )
+				if ( WebServerSettings.passport_local &&
+					WebServerSettings.passport_local.enabled )
 				{
 					require( './WebServer-Passport-Local.js' ).Use( Server, module.ExpressRouter );
 					Server.Log.trace( `WebServer - initialized passport local` );
 				}
-				else if ( Server.Config.Settings.WebServer.passport_auth0 &&
-					Server.Config.Settings.WebServer.passport_auth0.enabled )
+				else if ( WebServerSettings.passport_auth0 &&
+					WebServerSettings.passport_auth0.enabled )
 				{
 					require( './WebServer-Passport-Auth0.js' ).Use( Server, module.ExpressRouter );
 					Server.Log.trace( `WebServer - initialized passport auth0` );
@@ -305,11 +313,11 @@ exports.Construct =
 
 				//---------------------------------------------------------------------
 				// Serve views.
-				if ( Server.Config.Settings.WebServer.website_views )
+				if ( WebServerSettings.website_views )
 				{
 					module.ExpressRouter.set( 'view engine', 'pug' );
 					// module.ExpressRouter.set( 'views', 'src/web/views' );
-					let path = Server.ResolveApplicationPath( Server.Config.Settings.WebServer.website_views );
+					let path = Server.ResolveApplicationPath( WebServerSettings.website_views );
 					module.ExpressRouter.set( 'views', path );
 					Server.Log.trace( `WebServer - initialized pug views [${path}]` );
 				}
@@ -317,61 +325,28 @@ exports.Construct =
 
 				//---------------------------------------------------------------------
 				// Serve a static folder.
-				if ( Server.Config.Settings.WebServer.website_files )
+				if ( WebServerSettings.website_files )
 				{
 					// module.ExpressRouter.use( '/', LIB_EXPRESS.static( 'src/web/files' ) );
-					let path = Server.ResolveApplicationPath( Server.Config.Settings.WebServer.website_files );
+					let path = Server.ResolveApplicationPath( WebServerSettings.website_files );
 					module.ExpressRouter.use( '/', LIB_EXPRESS.static( path ) );
 					Server.Log.trace( `WebServer - initialized static folder [${path}]` );
 				}
 
 
-				//=====================================================================
-				//=====================================================================
-				//
-				//		API Services
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Services
-				//
-				//=====================================================================
-				//=====================================================================
-
+				//---------------------------------------------------------------------
+				// Top-level page endpoints.
 				{
-					let ParentPath = '/';
-
-
-					//---------------------------------------------------------------------
-					function log_request( request )
-					{
-						let log_text = ' --- uiservice --- | ' + request.method.padEnd( 7 ) + request.url;;
-						if ( request.user )
-						{
-							log_text += ` (by: ${request.user.user_id})`;
-						}
-						Server.Log.debug( log_text );;
-						return;
-					}
-
-
-					//=====================================================================
-					//=====================================================================
-					//
-					//		Top Level Routes
-					//
-					//=====================================================================
-					//=====================================================================
-
+					let Urls = {
+						root_url: `/`,
+						home_url: `/${WebServerSettings.home_url}`,
+						user_url: `/${WebServerSettings.user_url}`,
+					};
 
 					//---------------------------------------------------------------------
 					// Default root route.
-					module.ExpressRouter.get( `${ParentPath}`,
+					module.ExpressRouter.get( Urls.root_url,
+						Server.WebServer.NotRequiresLogin,
 						// Server.WebServer.RequiresLogin,
 						async function ( request, response, next ) 
 						{
@@ -380,17 +355,16 @@ exports.Construct =
 								{
 									// log_request( request );
 									response.render(
-										Server.Config.Settings.WebServer.home_url,
+										WebServerSettings.home_url,
 										{ App: Server, User: request.user } );
 									return;
 								}
 								, true );
 						} );
-
 
 					//---------------------------------------------------------------------
 					// Default home route.
-					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.home_url}`,
+					module.ExpressRouter.get( Urls.home_url,
 						Server.WebServer.NotRequiresLogin,
 						async function ( request, response, next ) 
 						{
@@ -399,114 +373,43 @@ exports.Construct =
 								{
 									// log_request( request );
 									response.render(
-										Server.Config.Settings.WebServer.home_url,
+										WebServerSettings.home_url,
 										{ App: Server, User: request.user } );
 									return;
 								}
 								, true );
 						} );
-
-
-					//=====================================================================
-					//=====================================================================
-					//
-					//		Authentication Routes
-					//
-					//=====================================================================
-					//=====================================================================
-
-
-					//---------------------------------------------------------------------
-					// Login route.
-					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.login_url}`,
-						Server.WebServer.NotRequiresLogin,
-						async function ( request, response, next ) 
-						{
-							await Server.WebServer.RequestProcessor( request, response, next,
-								async function ( request, response, next )
-								{
-									// log_request( request );
-									response.render(
-										Server.Config.Settings.WebServer.login_url,
-										{ App: Server, User: request.user } );
-									return;
-								}
-								, true );
-						} );
-
-
-					//---------------------------------------------------------------------
-					// Logout route.
-					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.logout_url}`,
-						Server.WebServer.NotRequiresLogin,
-						async function ( request, response, next ) 
-						{
-							await Server.WebServer.RequestProcessor( request, response, next,
-								async function ( request, response, next )
-								{
-									// log_request( request );
-									response.render(
-										Server.Config.Settings.WebServer.logout_url,
-										{ App: Server, User: request.user } );
-									return;
-								}
-								, true );
-						} );
-
-
-					//---------------------------------------------------------------------
-					// Signup route.
-					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.signup_url}`,
-						Server.WebServer.NotRequiresLogin,
-						async function ( request, response, next ) 
-						{
-							await Server.WebServer.RequestProcessor( request, response, next,
-								async function ( request, response, next )
-								{
-									// log_request( request );
-									response.render(
-										Server.Config.Settings.WebServer.signup_url,
-										{ App: Server, User: request.user } );
-									return;
-								}
-								, true );
-						} );
-
 
 					//---------------------------------------------------------------------
 					// Default user route.
-					module.ExpressRouter.get( `${ParentPath}${Server.Config.Settings.WebServer.user_url}`,
+					module.ExpressRouter.get( Urls.user_url,
 						Server.WebServer.RequiresLogin,
 						async function ( request, response, next ) 
 						{
 							await Server.WebServer.RequestProcessor( request, response, next,
 								async function ( request, response, next )
 								{
-									// log_request( request );
-									// response.render( 'user', { App: App, User: request.user } );
-									// response.redirect( '/SystemUsers/ReadOne/' + request.user._m.id );
 									response.render(
-										Server.Config.Settings.WebServer.user_url,
+										WebServerSettings.user_url,
 										{ App: Server, User: request.user } );
 								}
 								, true );
 							return;
 						} );
 
-
-					//=====================================================================
-					//=====================================================================
-					//
-					//		Application Service Routes
-					//
-					//=====================================================================
-					//=====================================================================
-
-
-					require( './WebServer-Application-Services.js' ).Use( Server, module.ExpressRouter );
-
-
 				}
+
+
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Application Service Routes
+				//
+				//=====================================================================
+				//=====================================================================
+
+
+				require( './WebServer-Application-Services.js' ).Use( Server, module.ExpressRouter );
 
 
 				//=====================================================================
@@ -518,12 +421,12 @@ exports.Construct =
 				//=====================================================================
 
 
-				if ( Server.Config.Settings.WebServer.website_api_client )
+				if ( WebServerSettings.website_api_client )
 				{
 					// Generate the api client for javascript.
 					const SRC_GENERATE_SERVICE_CLIENT = require( '../processes/Generate_ServiceClient.js' );
 					let code = SRC_GENERATE_SERVICE_CLIENT.Generate_HttpClient( Server );
-					let filename = Server.ResolveApplicationPath( Server.Config.Settings.WebServer.website_api_client );
+					let filename = Server.ResolveApplicationPath( WebServerSettings.website_api_client );
 					LIB_FS.writeFileSync( filename, code );
 					Server.Log.trace( `WebServer - generated api client: [${filename}]` );
 				}

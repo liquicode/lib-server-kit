@@ -13,8 +13,8 @@
 exports.Use =
 	function Use( Server, ExpressRouter )
 	{
-		const LIB_URL = require( 'url' );
-		const LIB_QUERYSTRING = require( 'querystring' );
+		// const LIB_URL = require( 'url' );
+		// const LIB_QUERYSTRING = require( 'querystring' );
 		const LIB_PASSPORT = require( 'passport' );
 		const LIB_PASSPORT_LOCAL = require( 'passport-local' );
 
@@ -96,8 +96,8 @@ exports.Use =
 					let user = Server.SystemUsers.NewServiceObject();
 					user.user_id = username;
 					user.user_name = username;
-					// user.user_email = username;
 					user.user_role = 'user';
+					user.image_url = '';
 					let api_result = await Server.SystemUsers.FindOrCreateUser( user );
 					if ( !api_result.ok ) { throw new Error( api_result.error ); }
 					return done( null, api_result.object );
@@ -118,39 +118,96 @@ exports.Use =
 
 
 		{
-			let ParentPath = '/';
+			let Urls = {
+				home_url: `/${WebServerSettings.home_url}`,
+				signup_url: `/${WebServerSettings.signup_url}`,
+				login_url: `/${WebServerSettings.login_url}`,
+				logout_url: `/${WebServerSettings.logout_url}`,
+			};
 
+			
 			//---------------------------------------------------------------------
-			ExpressRouter.post( `${ParentPath}${WebServerSettings.signup_url}`,
+			// SignUp
+			ExpressRouter.get( Urls.signup_url,
 				Server.WebServer.NotRequiresLogin,
-				function ( request, response, next )
+				async function ( request, response, next )
 				{
-					// response.redirect( WebServerSettings.home_url );
+					await Server.WebServer.RequestProcessor( request, response, next,
+						async function ( request, response, next )
+						{
+							response.render(
+								WebServerSettings.signup_url,
+								{ App: Server, User: request.user } );
+							return;
+						}
+						, true );
+				}
+			);
+			ExpressRouter.post( Urls.signup_url,
+				Server.WebServer.NotRequiresLogin,
+				async function ( request, response, next )
+				{
+					// response.redirect( Urls.home_url );
 					response.send( 'Not implemented.' );
-				} );
+				}
+			);
 
 
 			//---------------------------------------------------------------------
-			ExpressRouter.post( `${ParentPath}${WebServerSettings.login_url}`,
+			// Login
+			ExpressRouter.get( Urls.login_url,
+				Server.WebServer.NotRequiresLogin,
+				async function ( request, response, next ) 
+				{
+					await Server.WebServer.RequestProcessor( request, response, next,
+						async function ( request, response, next )
+						{
+							response.render(
+								WebServerSettings.login_url,
+								{ App: Server, User: request.user } );
+							return;
+						}
+						, true );
+				}
+			);
+			ExpressRouter.post( Urls.login_url,
 				Server.WebServer.NotRequiresLogin,
 				LIB_PASSPORT.authenticate( 'local',
 					{
 						// If this setting is not provided then the client receives a 'Not Found' message.
-						successReturnToOrRedirect: `${ParentPath}${WebServerSettings.home_url}`,
-						// failureRedirect: `${ParentPath}${WebServerSettings.login_url}`,
+						successReturnToOrRedirect: Urls.home_url,
+						// failureRedirect: Urls.login_url,
 						// failureMessage: true
-					} ) );
+					} )
+			);
 
 
 			//---------------------------------------------------------------------
-			ExpressRouter.post( `${ParentPath}${WebServerSettings.logout_url}`,
+			// LogOut
+			ExpressRouter.get( Urls.logout_url,
+				Server.WebServer.NotRequiresLogin,
+				async function ( request, response, next ) 
+				{
+					await Server.WebServer.RequestProcessor( request, response, next,
+						async function ( request, response, next )
+						{
+							response.render(
+								WebServerSettings.logout_url,
+								{ App: Server, User: request.user } );
+							return;
+						}
+						, true );
+				}
+			);
+			ExpressRouter.post( Urls.logout_url,
 				Server.WebServer.RequiresLogin,
-				function ( request, response, next )
+				async function ( request, response, next )
 				{
 					request.logout();
-					// response.redirect( `${ParentPath}${WebServerSettings.home_url}` );
+					// response.redirect( Urls.home_url );
 					response.send( 'OK' );
-				} );
+				}
+			);
 
 		}
 
