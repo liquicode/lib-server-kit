@@ -35,7 +35,10 @@
 				}
 			]
 		},
-		"temp_path": "~temp"
+		"temp_path": "~temp",
+		"socket_server": {
+			"enabled": false
+		}
 	},
 	"SystemUsers": {
 		"user_info_member": "__info",

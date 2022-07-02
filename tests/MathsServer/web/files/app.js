@@ -44,7 +44,7 @@ function clone_object( item )
 }
 
 
-const APP_COOKIE_NAME = 'simtrader';
+const APP_COOKIE_NAME = 'lib-server-kit';
 
 
 //---------------------------------------------------------------------
@@ -71,3 +71,4 @@ const COOKIE =
 		},
 
 };
+

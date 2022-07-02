@@ -38,8 +38,12 @@ html
 		//- Auth0
 		//- script(type='text/javascript' src='https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js')
 
+		// socket.io
+		script( src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous" )
+		script( src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.1.0/uuidv4.min.js" )
+
 		//- Application Source
-		script( type='text/javascript' src='/server-api.js' )
+		script( type='text/javascript' src='/_server-api.js' )
 		script( type='text/javascript' src='/app.js' )
 		link( rel='stylesheet' href='/application.css' )
 

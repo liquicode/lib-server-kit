@@ -20,16 +20,18 @@ const LIB_EXPRESS = require( 'express' );
 const LIB_EXPRESS_SESSION = require( 'express-session' );
 const LIB_CORS = require( 'cors' );
 const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
+const LIB_SOCKET_IO = require( 'socket.io' );
 
 
 //---------------------------------------------------------------------
 exports.Construct =
 	function Construct_WebServer( Server )
 	{
-		let module = SRC_MODULE_BASE.NewModule();
+		let _module = SRC_MODULE_BASE.NewModule();
 
-		module.ExpressRouter = null;	// Initialized during Initialize()
-		module.HttpServer = null;		// Initialized during StartWebServer()
+		_module.ExpressRouter = null;	// Initialized during Initialize()
+		_module.HttpServer = null;		// Initialized during StartWebServer()
+		_module.SocketServer = null;	// Initialized during StartWebServer()
 
 
 		//---------------------------------------------------------------------
@@ -42,7 +44,7 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		module.GetDefaults =
+		_module.GetDefaults =
 			function GetDefaults() 
 			{
 				return {
@@ -77,12 +79,16 @@ exports.Construct =
 					},
 					// Temp folder for file uploads.
 					temp_path: '~temp',
+					socket_server: {
+						enabled: false,
+						// port: 3000,
+					},
 				};
 			};
 
 
 		//---------------------------------------------------------------------
-		module.Initialize =
+		_module.Initialize =
 			function Initialize()
 			{
 				return;
@@ -99,7 +105,7 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		module.RequiresLogin =
+		_module.RequiresLogin =
 			function requires_login( request, response, next )
 			{
 				if ( request.user ) { return next(); }
@@ -109,7 +115,7 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		module.NotRequiresLogin =
+		_module.NotRequiresLogin =
 			function not_requires_login( request, response, next )
 			{
 				if ( request.user ) { return next(); }
@@ -124,7 +130,7 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		module.ReportError =
+		_module.ReportError =
 			async function ReportError( error, response )
 			{
 				let error_text = '';
@@ -143,7 +149,7 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		module.ReportApiError =
+		_module.ReportApiError =
 			async function ReportApiError( api_result, response )
 			{
 				let error_text = 'Error in [' + api_result.origin + ']: ' + api_result.error;
@@ -155,7 +161,7 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		module.RequestProcessor =
+		_module.RequestProcessor =
 			async function RequestProcessor( request, response, next, processor, do_render_error = false )
 			{
 				let error_text = null;
@@ -201,23 +207,33 @@ exports.Construct =
 			};
 
 
-		//---------------------------------------------------------------------
-		module.StartWebServer =
+		//=====================================================================
+		//=====================================================================
+		//
+		//		StartWebServer
+		//
+		//=====================================================================
+		//=====================================================================
+
+
+		_module.StartWebServer =
 			async function StartWebServer( Address = null, Port = null )
 			{
-				if ( module.HttpServer !== null ) { throw new Error( `WebServer is already running.` ); }
+				if ( _module.HttpServer !== null ) { throw new Error( `WebServer is already running. Call the StopWebServer() function.` ); }
+				if ( _module.SocketServer !== null ) { throw new Error( `SocketServer is already running. Call the StopWebServer() function.` ); }
 				const WebServerSettings = Server.Config.Settings.WebServer;
+
 
 				//==========================================
 				// Create an Express router.
-				module.ExpressRouter = LIB_EXPRESS();
+				_module.ExpressRouter = LIB_EXPRESS();
 
 
 				//---------------------------------------------------------------------
 				// Configure express cors.
 				{
 					// - Enable CORS (see: https://medium.com/@alexishevia/using-cors-in-express-cac7e29b005b)
-					module.ExpressRouter.use( LIB_CORS( { origin: '*' } ) );
+					_module.ExpressRouter.use( LIB_CORS( { origin: '*' } ) );
 					Server.Log.trace( `WebServer - initialized CORS` );
 				}
 
@@ -227,10 +243,10 @@ exports.Construct =
 				{
 					// module.ExpressRouter.use( LIB_BODY_PARSER.json() );
 					// module.ExpressRouter.use( LIB_BODY_PARSER.urlencoded( { extended: true } ) ); // for parsing application/x-www-form-urlencoded
-					module.ExpressRouter.use( LIB_EXPRESS.json( { limit: '50mb' } ) );
+					_module.ExpressRouter.use( LIB_EXPRESS.json( { limit: '50mb' } ) );
 					Server.Log.trace( `WebServer - initialized json body parser (limit: 50mb)` );
 
-					module.ExpressRouter.use( LIB_EXPRESS.urlencoded( { extended: true, limit: '50 MB' } ) );
+					_module.ExpressRouter.use( LIB_EXPRESS.urlencoded( { extended: true, limit: '50 MB' } ) );
 					Server.Log.trace( `WebServer - initialized urlencoded body parser (limit: 50 MB)` );
 				}
 
@@ -245,13 +261,13 @@ exports.Construct =
 						abortOnLimit: true,
 						responseOnLimit: 'Uploads cannot be larger than 500MB.',
 					};
-					if ( module.Settings.temp_path )
+					if ( _module.Settings.temp_path )
 					{
 						// Temp Files
 						options.useTempFiles = true;
-						options.tempFileDir = module.Settings.temp_path;
+						options.tempFileDir = _module.Settings.temp_path;
 					}
-					module.ExpressRouter.use( LIB_EXPRESS_FILEUPLOAD( options ) );
+					_module.ExpressRouter.use( LIB_EXPRESS_FILEUPLOAD( options ) );
 					Server.Log.trace( `WebServer - initialized file upload (limit: 500 MB)` );
 				}
 
@@ -277,9 +293,9 @@ exports.Construct =
 						// "Unable to verify authorization request state"
 						// session.proxy = true;
 						session.proxy = true;
-						module.ExpressRouter.set( 'trust proxy', 1 );
+						_module.ExpressRouter.set( 'trust proxy', 1 );
 					}
-					module.ExpressRouter.use( LIB_EXPRESS_SESSION( session ) );
+					_module.ExpressRouter.use( LIB_EXPRESS_SESSION( session ) );
 					Server.Log.trace( `WebServer - initialized sessions` );
 				}
 
@@ -289,20 +305,20 @@ exports.Construct =
 				if ( WebServerSettings.passport_local &&
 					WebServerSettings.passport_local.enabled )
 				{
-					require( './WebServer-Passport-Local.js' ).Use( Server, module.ExpressRouter );
+					require( './WebServer-Passport-Local.js' ).Use( Server, _module.ExpressRouter );
 					Server.Log.trace( `WebServer - initialized passport local` );
 				}
 				else if ( WebServerSettings.passport_auth0 &&
 					WebServerSettings.passport_auth0.enabled )
 				{
-					require( './WebServer-Passport-Auth0.js' ).Use( Server, module.ExpressRouter );
+					require( './WebServer-Passport-Auth0.js' ).Use( Server, _module.ExpressRouter );
 					Server.Log.trace( `WebServer - initialized passport auth0` );
 				}
 
 
 				//---------------------------------------------------------------------
 				// Make user object available within pug files.
-				module.ExpressRouter.use(
+				_module.ExpressRouter.use(
 					function ( request, response, next )
 					{
 						response.locals.User = request.user;
@@ -315,10 +331,10 @@ exports.Construct =
 				// Serve views.
 				if ( WebServerSettings.website_views )
 				{
-					module.ExpressRouter.set( 'view engine', 'pug' );
+					_module.ExpressRouter.set( 'view engine', 'pug' );
 					// module.ExpressRouter.set( 'views', 'src/web/views' );
 					let path = Server.ResolveApplicationPath( WebServerSettings.website_views );
-					module.ExpressRouter.set( 'views', path );
+					_module.ExpressRouter.set( 'views', path );
 					Server.Log.trace( `WebServer - initialized pug views [${path}]` );
 				}
 
@@ -329,7 +345,7 @@ exports.Construct =
 				{
 					// module.ExpressRouter.use( '/', LIB_EXPRESS.static( 'src/web/files' ) );
 					let path = Server.ResolveApplicationPath( WebServerSettings.website_files );
-					module.ExpressRouter.use( '/', LIB_EXPRESS.static( path ) );
+					_module.ExpressRouter.use( '/', LIB_EXPRESS.static( path ) );
 					Server.Log.trace( `WebServer - initialized static folder [${path}]` );
 				}
 
@@ -345,7 +361,7 @@ exports.Construct =
 
 					//---------------------------------------------------------------------
 					// Default root route.
-					module.ExpressRouter.get( Urls.root_url,
+					_module.ExpressRouter.get( Urls.root_url,
 						Server.WebServer.NotRequiresLogin,
 						// Server.WebServer.RequiresLogin,
 						async function ( request, response, next ) 
@@ -364,7 +380,7 @@ exports.Construct =
 
 					//---------------------------------------------------------------------
 					// Default home route.
-					module.ExpressRouter.get( Urls.home_url,
+					_module.ExpressRouter.get( Urls.home_url,
 						Server.WebServer.NotRequiresLogin,
 						async function ( request, response, next ) 
 						{
@@ -382,7 +398,7 @@ exports.Construct =
 
 					//---------------------------------------------------------------------
 					// Default user route.
-					module.ExpressRouter.get( Urls.user_url,
+					_module.ExpressRouter.get( Urls.user_url,
 						Server.WebServer.RequiresLogin,
 						async function ( request, response, next ) 
 						{
@@ -409,7 +425,25 @@ exports.Construct =
 				//=====================================================================
 
 
-				require( './WebServer-Application-Services.js' ).Use( Server, module.ExpressRouter );
+				require( './WebServer-Application-Services.js' ).Use( Server, _module.ExpressRouter );
+
+
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Socket Server
+				//
+				//=====================================================================
+				//=====================================================================
+
+
+				//==========================================
+				// Create a Socket Server.
+				if ( WebServerSettings.socket_server && WebServerSettings.socket_server.enabled )
+				{
+					_module.SocketServer = LIB_SOCKET_IO();
+					require( './WebServer-Socket-Server.js' ).Use( Server, _module.SocketServer );
+				}
 
 
 				//=====================================================================
@@ -424,8 +458,8 @@ exports.Construct =
 				if ( WebServerSettings.website_api_client )
 				{
 					// Generate the api client for javascript.
-					const SRC_GENERATE_SERVICE_CLIENT = require( '../processes/Generate_ServiceClient.js' );
-					let code = SRC_GENERATE_SERVICE_CLIENT.Generate_HttpClient( Server );
+					const SRC_GENERATE_SERVICE_CLIENT = require( '../processes/Generate_ServerApi.js' );
+					let code = SRC_GENERATE_SERVICE_CLIENT.Generate_ServerApi( Server );
 					let filename = Server.ResolveApplicationPath( WebServerSettings.website_api_client );
 					LIB_FS.writeFileSync( filename, code );
 					Server.Log.trace( `WebServer - generated api client: [${filename}]` );
@@ -433,11 +467,11 @@ exports.Construct =
 
 
 				// Create the HTTP server.
-				module.HttpServer = LIB_HTTP.createServer( module.ExpressRouter );
+				_module.HttpServer = LIB_HTTP.createServer( _module.ExpressRouter );
 				Server.Log.trace( `WebServer - server initialized` );
 
 				// Report the server routes.
-				let stack = module.ExpressRouter._router.stack;
+				let stack = _module.ExpressRouter._router.stack;
 				stack.forEach(
 					function ( r )
 					{
@@ -455,12 +489,12 @@ exports.Construct =
 					} );
 
 				// Begin accepting connections.
-				let service_address = Address || module.Settings.address;
-				let service_port = Port || module.Settings.port;
+				let service_address = Address || _module.Settings.address;
+				let service_port = Port || _module.Settings.port;
 				await new Promise(
 					function ( resolve, reject )
 					{
-						module.HttpServer.listen(
+						_module.HttpServer.listen(
 							service_port,
 							service_address,
 							function ( err ) 
@@ -469,8 +503,16 @@ exports.Construct =
 								else { resolve( true ); }
 							} );
 					} );
-				let address = module.HttpServer.address();
+				let address = _module.HttpServer.address();
 				Server.Log.trace( `WebServer is listening at [${address.address}:${address.port}].` );
+
+				// Start the Socket Server.
+				if ( _module.SocketServer )
+				{
+					// _module.SocketServer.Listen();
+					_module.SocketServer.attach( _module.HttpServer );
+					Server.Log.trace( `SocketServer has attached to the WebServer.` );
+				}
 
 				// Return
 				return { ok: true };
@@ -478,31 +520,39 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		module.StopWebServer =
+		_module.StopWebServer =
 			async function StopWebServer()
 			{
-				if ( module.HttpServer === null ) { return { ok: true }; }
-				if ( module.HttpServer.listening ) 
+				if ( _module.HttpServer !== null ) 
 				{
-					await new Promise(
-						function ( resolve, reject )
-						{
-							module.HttpServer.close(
-								function ( err ) 
-								{
-									if ( err ) { reject( err ); }
-									else { resolve( true ); }
-								} );
-						} );
+					if ( _module.HttpServer.listening ) 
+					{
+						await new Promise(
+							function ( resolve, reject )
+							{
+								_module.HttpServer.close(
+									function ( err ) 
+									{
+										if ( err ) { reject( err ); }
+										else { resolve( true ); }
+									} );
+							} );
+					}
+					_module.HttpServer = null;
+					Server.Log.trace( `WebServer has stopped.` );
 				}
-				module.HttpServer = null;
-				Server.Log.trace( `WebServer has stopped listening.` );
+				if ( _module.SocketServer )
+				{
+					_module.SocketServer.close();
+					_module.SocketServer = null;
+					Server.Log.trace( `SocketServer has stopped.` );
+				}
 				return { ok: true };
 			};
 
 
 		//---------------------------------------------------------------------
-		return module;
+		return _module;
 	};
 
 
