@@ -48,10 +48,10 @@ exports.Use =
 		// Construct the authentication strategy.
 		let strategy = new LIB_PASSPORT_AUTH0(
 			{
-				domain: WebServerSettings.passport_auth0.domain,
-				clientID: WebServerSettings.passport_auth0.client_id,
-				clientSecret: WebServerSettings.passport_auth0.client_secret,
-				callbackURL: WebServerSettings.passport_auth0.callback_url,
+				domain: WebServerSettings.Passport.Auth0.domain,
+				clientID: WebServerSettings.Passport.Auth0.client_id,
+				clientSecret: WebServerSettings.Passport.Auth0.client_secret,
+				callbackURL: WebServerSettings.Passport.Auth0.callback_url,
 			},
 			async function ( accessToken, refreshToken, extraParams, profile, done )
 			{
@@ -88,10 +88,10 @@ exports.Use =
 		{
 			let ParentPath = '/';
 			let Urls = {
-				home_url: `${ParentPath}${WebServerSettings.home_url}`,
-				signup_url: `${ParentPath}${WebServerSettings.signup_url}`,
-				login_url: `${ParentPath}${WebServerSettings.login_url}`,
-				logout_url: `${ParentPath}${WebServerSettings.logout_url}`,
+				home_url: `${ParentPath}${WebServerSettings.Urls.home_url}`,
+				signup_url: `${ParentPath}${WebServerSettings.Urls.signup_url}`,
+				login_url: `${ParentPath}${WebServerSettings.Urls.login_url}`,
+				logout_url: `${ParentPath}${WebServerSettings.Urls.logout_url}`,
 			};
 
 
@@ -158,10 +158,10 @@ exports.Use =
 					}
 
 					request.logout();
-					let url = new LIB_URL.URL( `https://${WebServerSettings.passport_auth0.domain}/v2/logout` );
+					let url = new LIB_URL.URL( `https://${WebServerSettings.Passport.Auth0.domain}/v2/logout` );
 					url.search = LIB_QUERYSTRING.stringify(
 						{
-							client_id: WebServerSettings.passport_auth0.client_id,
+							client_id: WebServerSettings.Passport.Auth0.client_id,
 							returnTo: get_server_address( request ) + Urls.home_url,
 						} );
 					response.redirect( url );

@@ -38,12 +38,13 @@ html
 		//- Auth0
 		//- script(type='text/javascript' src='https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js')
 
-		// socket.io
+		//- socket.io
 		script( src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous" )
 		script( src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.1.0/uuidv4.min.js" )
 
 		//- Application Source
-		script( type='text/javascript' src='/_server-api.js' )
+		script( type='text/javascript' src='/_http-api-client.js' )
+		script( type='text/javascript' src='/_socket-api-client.js' )
 		script( type='text/javascript' src='/app.js' )
 		link( rel='stylesheet' href='/application.css' )
 
@@ -57,7 +58,8 @@ body
 			.w3-bar-item.w3-text-grey Server
 			a.w3-bar-item.w3-button( href="/" ) Home
 
-			if locals.User
+			//- if locals.User && (locals.User.user_role !== 'public')
+			if( locals.User )
 
 				//- a.w3-bar-item.w3-button( href="/SimAccounts/ListMine" ) Accounts
 				//- a.w3-bar-item.w3-button( href="/SimInstruments/ListMine" ) Instruments

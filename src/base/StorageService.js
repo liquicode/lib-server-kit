@@ -36,19 +36,38 @@ exports.NewStorageService =
 		service.GetDefaults =
 			function GetDefaults()
 			{
-				let config = LIB_USER_STORAGE.DefaultConfiguration();
-				return config;
+				return service.GetStorageDefaults();
 			};
 
 
 		//---------------------------------------------------------------------
-		// Initialize trhe service.
+		// Initialize the service.
 		service.InitializeService =
 			function InitializeService()
 			{
-				service.Storage = LIB_USER_STORAGE.NewUserStorage( service.Settings );
+				service.InitializeStorage();
 				return;
 			};
+
+
+		//---------------------------------------------------------------------
+		// Create the storage default configuration.
+		service.GetStorageDefaults =
+			function GetStorageDefaults()
+			{
+				return LIB_USER_STORAGE.DefaultConfiguration();
+			};
+
+
+		//---------------------------------------------------------------------
+		// Initialize the storage.
+		service.InitializeStorage =
+			function InitializeStorage( Settings )
+			{
+				service.Storage = LIB_USER_STORAGE.NewUserStorage( Settings );
+				return;
+			};
+
 
 
 		//---------------------------------------------------------------------

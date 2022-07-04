@@ -23,24 +23,26 @@ exports.Construct =
 		//---------------------------------------------------------------------
 
 
-		// //---------------------------------------------------------------------
-		// // Create the default configuration.
-		// service.GetDefaults =
-		// 	function GetDefaults()
-		// 	{
-		// 		let config = LIB_MANAGED_STORAGE.DefaultConfiguration();
-		// 		return config;
-		// 	};
+		//---------------------------------------------------------------------
+		// Create the default configuration.
+		service.GetDefaults =
+			function GetDefaults()
+			{
+				let config = {
+					Storage: service.GetStorageDefaults(),
+				};
+				return config;
+			};
 
 
-		// //---------------------------------------------------------------------
-		// // Initialize this service.
-		// service.InitializeService =
-		// 	function InitializeService()
-		// 	{
-		// 		service.storage = LIB_MANAGED_STORAGE.NewManagedStorage( service.Settings );
-		// 		return;
-		// 	};
+		//---------------------------------------------------------------------
+		// Initialize this service.
+		service.InitializeService =
+			function InitializeService()
+			{
+				service.storage = service.InitializeStorage( service.Settings.Storage );
+				return;
+			};
 
 
 		//---------------------------------------------------------------------
@@ -161,14 +163,14 @@ exports.Construct =
 				async function create_user( Storage, ThisUserInfo )
 				{
 					let new_user = await Storage.CreateOne( LIB_USER_STORAGE.StorageAdministrator(), ThisUserInfo );
-					// let count = await Storage.SetOwner( LIB_MANAGED_STORAGE.StorageAdministrator(), ThisUserInfo.user_id, new_user._m.id );
-					// return await Storage.FindOne( LIB_MANAGED_STORAGE.StorageAdministrator(), new_user._m.id );
 					let info = Storage.GetUserInfo( new_user );
 					let count = await Storage.SetOwner( ThisUserInfo, info.id ); // Users own their accounts.
-					return await Storage.FindOne( ThisUserInfo, info.id );
+					new_user = await Storage.FindOne( ThisUserInfo, info.id );
+					return new_user;
 				}
 
 				//---------------------------------------------------------------------
+				let found_user = null;
 				try
 				{
 					// Count all users of the system.
@@ -178,21 +180,21 @@ exports.Construct =
 						// Create the first user as the admin user.
 						Server.Log.warn( `SystemUsers is empty, creating the first SystemUser as the admin user.` );
 						UserInfo.user_role = 'admin';
-						Server.Log.debug( `Creating a new SystemUser: ${JSON.stringify( UserInfo )}` );
-						api_response.object = await create_user( service.Storage, UserInfo );
+						found_user = await create_user( service.Storage, UserInfo );
+						Server.Log.debug( `Created a new admin SystemUser: (${found_user.user_id})` );
 					}
 					else
 					{
 						// Find the user email amongst all users of the system.
-						api_response.object = await service.Storage.FindOne( LIB_USER_STORAGE.StorageAdministrator(), { user_id: UserInfo.user_id } );
-						if ( api_response.object === null )
+						found_user = await service.Storage.FindOne( LIB_USER_STORAGE.StorageAdministrator(), { user_id: UserInfo.user_id } );
+						if ( found_user === null )
 						{
-							Server.Log.debug( `Creating a new SystemUser: ${JSON.stringify( UserInfo )}` );
-							api_response.object = await create_user( service.Storage, UserInfo );
+							found_user = await create_user( service.Storage, UserInfo );
+							Server.Log.debug( `Created a new SystemUser: (${found_user.user_id})` );
 						}
 						else
 						{
-							Server.Log.debug( `Found an existing SystemUser: ${JSON.stringify( UserInfo )}` );
+							Server.Log.debug( `Found an existing SystemUser: (${found_user.user_id})` );
 						}
 					}
 				}
@@ -204,6 +206,8 @@ exports.Construct =
 				}
 
 				//---------------------------------------------------------------------
+				Server.Log.info( `Accepted SystemUser: ${JSON.stringify( service.Storage.GetUserData( found_user ) )}` );
+				api_response.object = found_user;
 				return api_response;
 			};
 

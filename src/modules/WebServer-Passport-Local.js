@@ -76,7 +76,7 @@ exports.Use =
 
 					// Authenticate the user.
 					let authenticated = false;
-					let users = WebServerSettings.passport_local.users;
+					let users = WebServerSettings.Passport.Local.users;
 					for ( let user_index = 0; user_index < users.length; user_index++ )
 					{
 						if ( username === users[ user_index ].user_email.toLowerCase().trim() )
@@ -119,10 +119,10 @@ exports.Use =
 
 		{
 			let Urls = {
-				home_url: `/${WebServerSettings.home_url}`,
-				signup_url: `/${WebServerSettings.signup_url}`,
-				login_url: `/${WebServerSettings.login_url}`,
-				logout_url: `/${WebServerSettings.logout_url}`,
+				home_url: `/${WebServerSettings.Urls.home_url}`,
+				signup_url: `/${WebServerSettings.Urls.signup_url}`,
+				login_url: `/${WebServerSettings.Urls.login_url}`,
+				logout_url: `/${WebServerSettings.Urls.logout_url}`,
 			};
 
 			
@@ -136,7 +136,7 @@ exports.Use =
 						async function ( request, response, next )
 						{
 							response.render(
-								WebServerSettings.signup_url,
+								WebServerSettings.Urls.signup_url,
 								{ App: Server, User: request.user } );
 							return;
 						}
@@ -163,7 +163,7 @@ exports.Use =
 						async function ( request, response, next )
 						{
 							response.render(
-								WebServerSettings.login_url,
+								WebServerSettings.Urls.login_url,
 								{ App: Server, User: request.user } );
 							return;
 						}
@@ -192,7 +192,7 @@ exports.Use =
 						async function ( request, response, next )
 						{
 							response.render(
-								WebServerSettings.logout_url,
+								WebServerSettings.Urls.logout_url,
 								{ App: Server, User: request.user } );
 							return;
 						}

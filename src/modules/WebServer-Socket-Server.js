@@ -28,7 +28,7 @@ exports.Use =
 
 
 				//---------------------------------------------------------------------
-				Socket.on( 'authorize',
+				Socket.on( 'Authorize',
 					async function ( Message )
 					{
 						let user = await Server.SystemUsers.StorageFindOne( Message.User, Message.User );

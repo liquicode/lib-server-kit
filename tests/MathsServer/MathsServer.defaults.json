@@ -9,53 +9,71 @@
 	"WebServer": {
 		"address": "localhost",
 		"port": 80,
-		"website_files": "web/files",
-		"website_views": "web/views",
-		"website_api_client": "web/files/_server-api.js",
-		"session_enabled": false,
-		"session_key": "CHANGE THIS TO A RANDOM SECRET",
-		"home_url": "/home",
-		"login_url": "/auth/login",
-		"logout_url": "/auth/logout",
-		"signup_url": "/auth/signup",
-		"user_url": "/auth/user",
-		"passport_auth0": {
-			"enabled": false,
-			"domain": "auth0-domain",
-			"client_id": "auth0-client-id",
-			"client_secret": "auth0-client-secret",
-			"callback_url": "auth0-callback-url"
-		},
-		"passport_local": {
-			"enabled": false,
-			"users": [
-				{
-					"user_email": "admin@internal",
-					"password": "password"
-				}
-			]
-		},
 		"temp_path": "~temp",
-		"socket_server": {
-			"enabled": false
+		"report_routes": false,
+		"ClientFiles": {
+			"enabled": true,
+			"public_files": "web/files",
+			"view_files": "web/views",
+			"http_api_client": "web/files/_http-api-client.js"
+		},
+		"Session": {
+			"enabled": false,
+			"session_key": "CHANGE THIS TO A RANDOM SECRET"
+		},
+		"Urls": {
+			"home_url": "home",
+			"login_url": "auth/login",
+			"logout_url": "auth/logout",
+			"signup_url": "auth/signup",
+			"user_url": "auth/user"
+		},
+		"Passport": {
+			"Local": {
+				"enabled": false,
+				"users": [
+					{
+						"user_email": "admin@internal",
+						"password": "password"
+					}
+				]
+			},
+			"Auth0": {
+				"enabled": false,
+				"domain": "auth0-domain",
+				"client_id": "auth0-client-id",
+				"client_secret": "auth0-client-secret",
+				"callback_url": "auth0-callback-url"
+			}
+		},
+		"SocketServer": {
+			"enabled": false,
+			"socket_api_client": "web/files/_socket-api-client.js"
+		},
+		"Cors": {
+			"enabled": true,
+			"origin": "*",
+			"optionsSuccessStatus": 200
 		}
 	},
 	"SystemUsers": {
-		"user_info_member": "__info",
-		"throw_permission_errors": false,
-		"json_provider": {
-			"enabled": false,
-			"collection_name": "Collection-Name",
-			"database_name": "/path/to/store/collections",
-			"clear_collection_on_start": false,
-			"flush_on_update": false,
-			"flush_every_ms": 0
-		},
-		"mongo_provider": {
-			"enabled": false,
-			"collection_name": "Collection-Name",
-			"database_name": "Database-Name",
-			"connection_string": "mongodb://<username>:<password>@<server-address"
+		"Storage": {
+			"user_info_member": "__info",
+			"throw_permission_errors": false,
+			"JsonProvider": {
+				"enabled": false,
+				"collection_name": "Collection-Name",
+				"database_name": "/path/to/store/collections",
+				"clear_collection_on_start": false,
+				"flush_on_update": false,
+				"flush_every_ms": 0
+			},
+			"MongoProvider": {
+				"enabled": false,
+				"collection_name": "Collection-Name",
+				"database_name": "Database-Name",
+				"connection_string": "mongodb://<username>:<password>@<server-address"
+			}
 		}
 	},
 	"Maths": {},

@@ -65,13 +65,13 @@ app.controller(
 
 		if ( Page.Server.User )
 		{
-			var socket = Server.NewSocket( Page.Server.User );
-			socket.Services.authorize(
+			var socket = SocketApi.NewSocket( Page.Server.User );
+			socket.Authorize(
 				function ( Message )
 				{
 					console.log( 'Authorize User: ' + Message );
 					if ( Message === 'Fail' ) { return; }
-					socket.Services.SystemUsers.Count( {},
+					socket.SystemUsers.Count( {},
 						function ( ApiResult )
 						{
 							if ( ApiResult.error )
@@ -80,11 +80,11 @@ app.controller(
 							}
 							else if ( ApiResult.result === 1 )
 							{
-								console.log( 'Services.SystemUsers.Count() works' );
+								console.log( 'SystemUsers.Count() works! :D' );
 							}
 							else
 							{
-								console.error( 'Services.SystemUsers.Count() doesnt work' );
+								console.error( 'SystemUsers.Count() doesnt work :/' );
 								console.error( ApiResult.result );
 							}
 						} );

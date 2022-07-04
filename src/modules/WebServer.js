@@ -19,6 +19,7 @@ const LIB_HTTP = require( 'http' );
 const LIB_EXPRESS = require( 'express' );
 const LIB_EXPRESS_SESSION = require( 'express-session' );
 const LIB_CORS = require( 'cors' );
+// const LIB_HELMET = require( 'helmet' );
 const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
 const LIB_SOCKET_IO = require( 'socket.io' );
 
@@ -48,41 +49,60 @@ exports.Construct =
 			function GetDefaults() 
 			{
 				return {
-					// Listen
+					// WebServer Settings
 					address: 'localhost',
 					port: 80,
-					// Static website files
-					website_files: 'web/files',
-					website_views: 'web/views',
-					website_api_client: 'web/files/_server-api.js',
-					// Session
-					session_enabled: false,
-					session_key: 'CHANGE THIS TO A RANDOM SECRET',
-					// Authentication urls
-					home_url: '/home',
-					login_url: '/auth/login',
-					logout_url: '/auth/logout',
-					signup_url: '/auth/signup',
-					user_url: '/auth/user',
-					// Authentication: Auth0
-					passport_auth0: {
-						enabled: false,
-						domain: 'auth0-domain',
-						client_id: 'auth0-client-id',
-						client_secret: 'auth0-client-secret',
-						callback_url: 'auth0-callback-url',
+					temp_path: '~temp', // Temp folder for file uploads.
+					report_routes: false,
+					ClientFiles: {
+						enabled: true,
+						public_files: 'web/files',
+						view_files: 'web/views',
+						http_api_client: 'web/files/_http-api-client.js',
 					},
-					// Authentication: email and password
-					passport_local: {
+					Session: {
 						enabled: false,
-						users: [ { user_email: 'admin@internal', password: 'password' } ],
+						session_key: 'CHANGE THIS TO A RANDOM SECRET',
 					},
-					// Temp folder for file uploads.
-					temp_path: '~temp',
-					socket_server: {
+					Urls: {
+						home_url: 'home',
+						login_url: 'auth/login',
+						logout_url: 'auth/logout',
+						signup_url: 'auth/signup',
+						user_url: 'auth/user',
+					},
+					Passport: {
+						// Authentication: email and password
+						Local: {
+							enabled: false,
+							users: [ { user_email: 'admin@internal', password: 'password' } ],
+						},
+						// Authentication: Auth0
+						Auth0: {
+							enabled: false,
+							domain: 'auth0-domain',
+							client_id: 'auth0-client-id',
+							client_secret: 'auth0-client-secret',
+							callback_url: 'auth0-callback-url',
+						},
+					},
+					SocketServer: {
 						enabled: false,
 						// port: 3000,
+						socket_api_client: 'web/files/_socket-api-client.js',
 					},
+					Cors: {
+						enabled: true,
+						origin: '*',
+						optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+					},
+					// Helmet: {
+					// 	enabled: true,
+					// 	crossOriginResourcePolicy: {
+					// 		// origin: '*',
+					// 		policy: "cross-origin",
+					// 	},
+					// },
 				};
 			};
 
@@ -110,7 +130,7 @@ exports.Construct =
 			{
 				if ( request.user ) { return next(); }
 				request.session.returnTo = request.originalUrl;
-				response.redirect( `/${Server.Config.Settings.WebServer.login_url}` );
+				response.redirect( `/${Server.Config.Settings.WebServer.Urls.login_url}` );
 			};
 
 
@@ -229,17 +249,40 @@ exports.Construct =
 				_module.ExpressRouter = LIB_EXPRESS();
 
 
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Security
+				//
+				//=====================================================================
+				//=====================================================================
+
+
 				//---------------------------------------------------------------------
-				// Configure express cors.
+				if ( WebServerSettings.Cors && WebServerSettings.Cors.enabled )
 				{
 					// - Enable CORS (see: https://medium.com/@alexishevia/using-cors-in-express-cac7e29b005b)
-					_module.ExpressRouter.use( LIB_CORS( { origin: '*' } ) );
-					Server.Log.trace( `WebServer - initialized CORS` );
+					// _module.ExpressRouter.use( LIB_CORS( { origin: '*' } ) );
+					_module.ExpressRouter.use( LIB_CORS( WebServerSettings.Cors ) );
+					Server.Log.trace( `WebServer - initialized Cors` );
 				}
+				// if ( WebServerSettings.Helmet && WebServerSettings.Helmet.enabled )
+				// {
+				// 	_module.ExpressRouter.use( LIB_HELMET( WebServerSettings.Helmet ) );
+				// 	Server.Log.trace( `WebServer - initialized Helmet` );
+				// }
+
+
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Params Parser
+				//
+				//=====================================================================
+				//=====================================================================
 
 
 				//---------------------------------------------------------------------
-				// Configure body parser.
 				{
 					// module.ExpressRouter.use( LIB_BODY_PARSER.json() );
 					// module.ExpressRouter.use( LIB_BODY_PARSER.urlencoded( { extended: true } ) ); // for parsing application/x-www-form-urlencoded
@@ -247,8 +290,17 @@ exports.Construct =
 					Server.Log.trace( `WebServer - initialized json body parser (limit: 50mb)` );
 
 					_module.ExpressRouter.use( LIB_EXPRESS.urlencoded( { extended: true, limit: '50 MB' } ) );
-					Server.Log.trace( `WebServer - initialized urlencoded body parser (limit: 50 MB)` );
+					Server.Log.trace( `WebServer - initialized urlencoded parser (limit: 50 MB)` );
 				}
+
+
+				//=====================================================================
+				//=====================================================================
+				//
+				//		File Upload
+				//
+				//=====================================================================
+				//=====================================================================
 
 
 				//---------------------------------------------------------------------
@@ -272,14 +324,23 @@ exports.Construct =
 				}
 
 
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Session
+				//
+				//=====================================================================
+				//=====================================================================
+
+
 				//---------------------------------------------------------------------
 				// Configure express session.
 				// https://auth0.com/docs/quickstart/webapp/nodejs#configure-auth0
-				if ( WebServerSettings.session_enabled )
+				if ( WebServerSettings.Session && WebServerSettings.Session.enabled )
 				{
 					let session =
 					{
-						secret: WebServerSettings.session_key,
+						secret: WebServerSettings.Session.session_key,
 						cookie: {},
 						resave: false,
 						saveUninitialized: true
@@ -296,67 +357,99 @@ exports.Construct =
 						_module.ExpressRouter.set( 'trust proxy', 1 );
 					}
 					_module.ExpressRouter.use( LIB_EXPRESS_SESSION( session ) );
-					Server.Log.trace( `WebServer - initialized sessions` );
+					Server.Log.trace( `WebServer - initialized Session handler` );
 				}
+
+
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Passport
+				//
+				//=====================================================================
+				//=====================================================================
 
 
 				//---------------------------------------------------------------------
 				// Configure passport.
-				if ( WebServerSettings.passport_local &&
-					WebServerSettings.passport_local.enabled )
+				if ( WebServerSettings.Passport &&
+					WebServerSettings.Passport.Local &&
+					WebServerSettings.Passport.Local.enabled )
 				{
 					require( './WebServer-Passport-Local.js' ).Use( Server, _module.ExpressRouter );
-					Server.Log.trace( `WebServer - initialized passport local` );
+					Server.Log.trace( `WebServer - initialized Passport with Local` );
 				}
-				else if ( WebServerSettings.passport_auth0 &&
-					WebServerSettings.passport_auth0.enabled )
+				else if ( WebServerSettings.Passport &&
+					WebServerSettings.Passport.Auth0 &&
+					WebServerSettings.Passport.Auth0.enabled )
 				{
 					require( './WebServer-Passport-Auth0.js' ).Use( Server, _module.ExpressRouter );
-					Server.Log.trace( `WebServer - initialized passport auth0` );
+					Server.Log.trace( `WebServer - initialized Passport with Auth0` );
 				}
 
 
-				//---------------------------------------------------------------------
-				// Make user object available within pug files.
-				_module.ExpressRouter.use(
-					function ( request, response, next )
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Client Files
+				//
+				//=====================================================================
+				//=====================================================================
+
+
+				// //---------------------------------------------------------------------
+				// // Make user object available within pug files.
+				// _module.ExpressRouter.use(
+				// 	function ( request, response, next )
+				// 	{
+				// 		response.locals.User = request.user;
+				// 		next();
+				// 	}
+				// );
+
+
+				if ( WebServerSettings.ClientFiles && WebServerSettings.ClientFiles.enabled )
+				{
+
+					//---------------------------------------------------------------------
+					// Serve a static folder.
+					if ( WebServerSettings.ClientFiles.public_files )
 					{
-						response.locals.User = request.user;
-						next();
+						let path = Server.ResolveApplicationPath( WebServerSettings.ClientFiles.public_files );
+						_module.ExpressRouter.use( '/', LIB_EXPRESS.static( path ) );
+						Server.Log.trace( `WebServer - initialized Static Folder [${path}]` );
 					}
-				);
 
 
-				//---------------------------------------------------------------------
-				// Serve views.
-				if ( WebServerSettings.website_views )
-				{
-					_module.ExpressRouter.set( 'view engine', 'pug' );
-					// module.ExpressRouter.set( 'views', 'src/web/views' );
-					let path = Server.ResolveApplicationPath( WebServerSettings.website_views );
-					_module.ExpressRouter.set( 'views', path );
-					Server.Log.trace( `WebServer - initialized pug views [${path}]` );
+					//---------------------------------------------------------------------
+					// Serve views.
+					if ( WebServerSettings.ClientFiles.view_files )
+					{
+						_module.ExpressRouter.set( 'view engine', 'pug' );
+						let path = Server.ResolveApplicationPath( WebServerSettings.ClientFiles.view_files );
+						_module.ExpressRouter.set( 'views', path );
+						Server.Log.trace( `WebServer - initialized Pug Views [${path}]` );
+					}
+
+					if ( WebServerSettings.ClientFiles.http_api_client )
+					{
+						// Generate the api client for javascript.
+						const SRC_GENERATE_HTTP_API_CLIENT = require( '../processes/Generate_HttpApiClient.js' );
+						let code = SRC_GENERATE_HTTP_API_CLIENT.Generate_HttpApiClient( Server );
+						let filename = Server.ResolveApplicationPath( WebServerSettings.ClientFiles.http_api_client );
+						LIB_FS.writeFileSync( filename, code );
+						Server.Log.trace( `WebServer - generated Http Api Client: [${filename}]` );
+					}
+
 				}
-
-
-				//---------------------------------------------------------------------
-				// Serve a static folder.
-				if ( WebServerSettings.website_files )
-				{
-					// module.ExpressRouter.use( '/', LIB_EXPRESS.static( 'src/web/files' ) );
-					let path = Server.ResolveApplicationPath( WebServerSettings.website_files );
-					_module.ExpressRouter.use( '/', LIB_EXPRESS.static( path ) );
-					Server.Log.trace( `WebServer - initialized static folder [${path}]` );
-				}
-
 
 				//---------------------------------------------------------------------
 				// Top-level page endpoints.
 				{
 					let Urls = {
 						root_url: `/`,
-						home_url: `/${WebServerSettings.home_url}`,
-						user_url: `/${WebServerSettings.user_url}`,
+						home_url: `/${WebServerSettings.Urls.home_url}`,
+						user_url: `/${WebServerSettings.Urls.user_url}`,
 					};
 
 					//---------------------------------------------------------------------
@@ -371,7 +464,7 @@ exports.Construct =
 								{
 									// log_request( request );
 									response.render(
-										WebServerSettings.home_url,
+										WebServerSettings.Urls.home_url,
 										{ App: Server, User: request.user } );
 									return;
 								}
@@ -389,7 +482,7 @@ exports.Construct =
 								{
 									// log_request( request );
 									response.render(
-										WebServerSettings.home_url,
+										WebServerSettings.Urls.home_url,
 										{ App: Server, User: request.user } );
 									return;
 								}
@@ -406,7 +499,7 @@ exports.Construct =
 								async function ( request, response, next )
 								{
 									response.render(
-										WebServerSettings.user_url,
+										WebServerSettings.Urls.user_url,
 										{ App: Server, User: request.user } );
 								}
 								, true );
@@ -439,10 +532,50 @@ exports.Construct =
 
 				//==========================================
 				// Create a Socket Server.
-				if ( WebServerSettings.socket_server && WebServerSettings.socket_server.enabled )
+				if ( WebServerSettings.SocketServer && WebServerSettings.SocketServer.enabled )
 				{
 					_module.SocketServer = LIB_SOCKET_IO();
 					require( './WebServer-Socket-Server.js' ).Use( Server, _module.SocketServer );
+					Server.Log.trace( `WebServer - initialized Socket Server` );
+					if ( WebServerSettings.SocketServer.socket_api_client )
+					{
+						// Generate the api client for javascript.
+						const SRC_GENERATE_SOCKET_API_CLIENT = require( '../processes/Generate_SocketApiClient.js' );
+						let code = SRC_GENERATE_SOCKET_API_CLIENT.Generate_SocketApiClient( Server );
+						let filename = Server.ResolveApplicationPath( WebServerSettings.SocketServer.socket_api_client );
+						LIB_FS.writeFileSync( filename, code );
+						Server.Log.trace( `WebServer - generated Socket Api Client: [${filename}]` );
+					}
+				}
+
+
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Report Routes
+				//
+				//=====================================================================
+				//=====================================================================
+
+
+				if ( WebServerSettings.report_routes )
+				{
+					let stack = _module.ExpressRouter._router.stack;
+					stack.forEach(
+						function ( r )
+						{
+							if ( r.route && r.route.path )
+							{
+								let verbs = [];
+								if ( r.route.methods.get ) { verbs.push( 'GET ' ); }
+								if ( r.route.methods.put ) { verbs.push( 'PUT ' ); }
+								if ( r.route.methods.post ) { verbs.push( 'POST' ); }
+								if ( r.route.methods.del ) { verbs.push( 'DEL ' ); }
+								let text = verbs.join( '|' );
+								text += ' ' + r.route.path;
+								Server.Log.debug( 'Added route: ' + text );
+							}
+						} );
 				}
 
 
@@ -455,39 +588,11 @@ exports.Construct =
 				//=====================================================================
 
 
-				if ( WebServerSettings.website_api_client )
-				{
-					// Generate the api client for javascript.
-					const SRC_GENERATE_SERVICE_CLIENT = require( '../processes/Generate_ServerApi.js' );
-					let code = SRC_GENERATE_SERVICE_CLIENT.Generate_ServerApi( Server );
-					let filename = Server.ResolveApplicationPath( WebServerSettings.website_api_client );
-					LIB_FS.writeFileSync( filename, code );
-					Server.Log.trace( `WebServer - generated api client: [${filename}]` );
-				}
-
-
 				// Create the HTTP server.
 				_module.HttpServer = LIB_HTTP.createServer( _module.ExpressRouter );
 				Server.Log.trace( `WebServer - server initialized` );
 
 				// Report the server routes.
-				let stack = _module.ExpressRouter._router.stack;
-				stack.forEach(
-					function ( r )
-					{
-						if ( r.route && r.route.path )
-						{
-							let verbs = [];
-							if ( r.route.methods.get ) { verbs.push( 'GET ' ); }
-							if ( r.route.methods.put ) { verbs.push( 'PUT ' ); }
-							if ( r.route.methods.post ) { verbs.push( 'POST' ); }
-							if ( r.route.methods.del ) { verbs.push( 'DEL ' ); }
-							let text = verbs.join( '|' );
-							text += ' ' + r.route.path;
-							Server.Log.debug( 'Added route: ' + text );
-						}
-					} );
-
 				// Begin accepting connections.
 				let service_address = Address || _module.Settings.address;
 				let service_port = Port || _module.Settings.port;
