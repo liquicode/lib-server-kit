@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Socket Api Client File for: MathsServer
-// Generated:  2022-07-04T03:01:19.069Z
-//   Sun Jul 03 2022 23:01:19 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-06T20:35:57.107Z
+//   Wed Jul 06 2022 16:35:57 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var SocketApi = {};
@@ -27,10 +27,11 @@ SocketApi.SocketMessage =
 	};
 
 SocketApi.NewSocket =
-	function NewSocket( User )
+	function NewSocket( User, Callback )
 	{
 		let socket = { __: { io: io(), User: User } };
-		socket.Authorize = function ( Callback ) { SocketApi.SocketMessage( socket, 'Authorize', {}, Callback ); };
+		// socket.Authorize = function ( Callback ) { SocketApi.SocketMessage( socket, 'Authorize', {}, Callback ); };
+
 		socket.SystemUsers = {};
 		socket.SystemUsers.Count = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.Count', [Criteria], Callback ); }
 		socket.SystemUsers.FindOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.FindOne', [Criteria], Callback ); }
@@ -41,12 +42,38 @@ SocketApi.NewSocket =
 		socket.SystemUsers.DeleteMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.DeleteMany', [Criteria], Callback ); }
 		socket.SystemUsers.Share = function ( Criteria, Readers, Writers, MakePublic, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.Share', [Criteria, Readers, Writers, MakePublic], Callback ); }
 		socket.SystemUsers.Unshare = function ( Criteria, NotReaders, NotWriters, MakeUnpublic, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.Unshare', [Criteria, NotReaders, NotWriters, MakeUnpublic], Callback ); }
+
 		socket.Maths = {};
 		socket.Maths.Add = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Add', [A, B], Callback ); }
 		socket.Maths.Subtract = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Subtract', [A, B], Callback ); }
 		socket.Maths.Multiply = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Multiply', [A, B], Callback ); }
 		socket.Maths.Divide = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Divide', [A, B], Callback ); }
 
-		return socket;
+		socket.__.io.on( 'connect',
+			() => 
+			{
+				console.log( 'Socket connected.' );
+				SocketApi.SocketMessage( socket, 'Authorize', {},
+					( status ) =>
+					{
+						console.log( 'User authorization: ' + status );
+						Callback( socket, status );
+					} );
+			} );
+		socket.__.io.on( 'disconnect', 
+			( reason, details ) =>
+			{
+				if( details ) { delete details.context; }
+				console.log( 'Socket disconnected. Reason [' + reason + ']; Details [' + JSON.stringify( details ) + ']' );
+			} );
+		socket.__.io.on( 'connect_error',
+			( error ) =>
+			{
+				console.log( 'Socket connection error. Error [' + error + ']' );
+			} );
+
+		socket.__.io.connect();
+
+		return;
 	};
 

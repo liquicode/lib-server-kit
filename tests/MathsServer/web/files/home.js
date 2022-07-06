@@ -65,26 +65,29 @@ app.controller(
 
 		if ( Page.Server.User )
 		{
-			var socket = SocketApi.NewSocket( Page.Server.User );
-			socket.Authorize(
-				function ( Message )
+			SocketApi.NewSocket( Page.Server.User,
+				( Socket, Status ) =>
 				{
-					console.log( 'Authorize User: ' + Message );
-					if ( Message === 'Fail' ) { return; }
-					socket.SystemUsers.Count( {},
+					if ( Status !== 'OK' )
+					{
+						// console.error( 'Socket connection failed.' );
+						return;
+					}
+					Page.Socket = Socket;
+					Page.Socket.SystemUsers.FindMany( {},
 						function ( ApiResult )
 						{
 							if ( ApiResult.error )
 							{
 								console.error( ApiResult.error );
 							}
-							else if ( ApiResult.result === 1 )
+							else if ( ApiResult.result.length > 0 )
 							{
-								console.log( 'SystemUsers.Count() works! :D' );
+								console.log( 'SystemUsers.FindMany() works! :D' );
 							}
 							else
 							{
-								console.error( 'SystemUsers.Count() doesnt work :/' );
+								console.error( 'SystemUsers.FindMany() doesnt work :/' );
 								console.error( ApiResult.result );
 							}
 						} );

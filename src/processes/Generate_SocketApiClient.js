@@ -43,10 +43,10 @@ SocketApi.SocketMessage =
 	};
 
 SocketApi.NewSocket =
-	function NewSocket( User )
+	function NewSocket( User, Callback )
 	{
 		let socket = { __: { io: io(), User: User } };
-		socket.Authorize = function ( Callback ) { SocketApi.SocketMessage( socket, 'Authorize', {}, Callback ); };
+		// socket.Authorize = function ( Callback ) { SocketApi.SocketMessage( socket, 'Authorize', {}, Callback ); };
 `;
 
 	// Generate the Socket Clients.
@@ -54,6 +54,7 @@ SocketApi.NewSocket =
 	{
 		let service = Server.Services[ service_names[ index ] ];
 		let service_name = service.ServiceDefinition.Name;
+		code += `\n`;
 		code += `		socket.${service_name} = {};\n`;
 
 		let endpoints = service.ServiceDefinition.Endpoints;
@@ -83,7 +84,32 @@ SocketApi.NewSocket =
 	}
 
 	code += `
-		return socket;
+		socket.__.io.on( 'connect',
+			() => 
+			{
+				console.log( 'Socket connected.' );
+				SocketApi.SocketMessage( socket, 'Authorize', {},
+					( status ) =>
+					{
+						console.log( 'User authorization: ' + status );
+						Callback( socket, status );
+					} );
+			} );
+		socket.__.io.on( 'disconnect', 
+			( reason, details ) =>
+			{
+				if( details ) { delete details.context; }
+				console.log( 'Socket disconnected. Reason [' + reason + ']; Details [' + JSON.stringify( details ) + ']' );
+			} );
+		socket.__.io.on( 'connect_error',
+			( error ) =>
+			{
+				console.log( 'Socket connection error. Error [' + error + ']' );
+			} );
+
+		socket.__.io.connect();
+
+		return;
 	};
 
 `;

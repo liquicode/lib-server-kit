@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Http Api Client File for: MathsServer
-// Generated:  2022-07-04T03:01:19.050Z
-//   Sun Jul 03 2022 23:01:19 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-06T20:35:57.077Z
+//   Wed Jul 06 2022 16:35:57 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var HttpApi = {};

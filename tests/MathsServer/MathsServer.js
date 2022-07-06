@@ -5,4 +5,10 @@ const LIB_SERVER_KIT = require( '../../src/lib-server-kit' );
 const Server = LIB_SERVER_KIT.NewServer( 'MathsServer', __dirname, true );
 Server.Initialize( { Log: { Console: { enabled: true }, Shell: { enabled: false } } } );
 
-Server.WebServer.StartWebServer();
+let callbacks = {
+	PreInitialize: function ( Server, Router ) { Server.Log.info( `WebServer PreInitialize ---------------------------------------------------------------------` ); },
+	PreStartup: function ( Server, Router ) { Server.Log.info( `WebServer PreStartup ---------------------------------------------------------------------` ); },
+};
+
+Server.WebServer.StartWebServer( callbacks );
+

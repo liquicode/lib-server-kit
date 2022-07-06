@@ -137,7 +137,7 @@ exports.Use =
 						{
 							response.render(
 								WebServerSettings.Urls.signup_url,
-								{ App: Server, User: request.user } );
+								{ Server: Server, User: request.user } );
 							return;
 						}
 						, true );
@@ -164,7 +164,7 @@ exports.Use =
 						{
 							response.render(
 								WebServerSettings.Urls.login_url,
-								{ App: Server, User: request.user } );
+								{ Server: Server, User: request.user } );
 							return;
 						}
 						, true );
@@ -193,7 +193,7 @@ exports.Use =
 						{
 							response.render(
 								WebServerSettings.Urls.logout_url,
-								{ App: Server, User: request.user } );
+								{ Server: Server, User: request.user } );
 							return;
 						}
 						, true );

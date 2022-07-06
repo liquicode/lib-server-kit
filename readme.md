@@ -10,7 +10,18 @@ Features
 - Use MongoDB-like query criteria to access and manipulate storages.
 - Has storage providers for MongoDB as well as in memory json arrays.
 - Flexible hierarchical configuration system.
-- All service functions are callable via http web services.
+- All service functions are callable via http get and post calls.
+- All service functions are callable via web socket calls.
 - All service functions are callable via command line.
-- A simple manmagement user interface for all services is available via the browser.
+- A unified user interface (pages and code) is available for all storage services.
+- Control initialization flow via callbacks.
+
+
+TODO
+---------------------------------------------------------------------
+
+- Service Pages
+	- Define pages within services that are exposed as http endpoints.
+	- Reimplement auth pages from `StartWebServer` as service pages.
+
 

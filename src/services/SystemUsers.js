@@ -71,6 +71,20 @@ exports.Construct =
 		service.ServiceDefinition.Endpoints.Share.allowed_roles = [ 'admin', 'super' ];
 		service.ServiceDefinition.Endpoints.Unshare.allowed_roles = [ 'admin', 'super' ];
 
+		// service.ServiceDefinition.Pages.List = {
+		// 	name: 'List',
+		// 	view: 'storage/list',
+		// 	description: 'Shows a list of service objects.',
+		// 	requires_login: true,
+		// 	allowed_roles: [ 'admin', 'super', 'user' ],
+		// 	invoke:
+		// 		async function ( Server, request, response, next ) 
+		// 		{
+		// 			let list = await service.FindMany( request.user, request.params );
+		// 			response.render( 'storage/list', { Server: Server, User: request.user, List: list } );
+		// 		},
+		// };
+
 
 		//---------------------------------------------------------------------
 		//---------------------------------------------------------------------

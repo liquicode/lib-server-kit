@@ -1,17 +1,17 @@
-extends index.pug
+extends ../index.pug
 
 block content
 
-	script( type='text/javascript' src='/managed-list.js' )
+	script( type='text/javascript' src='/storage/list.js' )
 
-	div( ng-controller='ManagedList_Controller' )
+	div( ng-controller='StorageList_Controller' )
 
 		script
 			!= `window.SERVER_DATA = {};\n`
 			!= `window.SERVER_DATA.User = ${JSON.stringify( locals.User )};\n`
 			!= `window.SERVER_DATA.ObjectDefinition = ${JSON.stringify(locals.ObjectDefinition)};\n`
-			!= `window.SERVER_DATA.Interface = ${JSON.stringify( locals.Interface)};\n`
-			!= `window.SERVER_DATA.PageFunction = "${locals.PageFunction}";\n`
+			!= `window.SERVER_DATA.ServiceDefinition = ${JSON.stringify( locals.ServiceDefinition)};\n`
+			!= `window.SERVER_DATA.Parameters = "${locals.Parameters}";\n`
 
 
 		//-=====================================================================
@@ -26,10 +26,11 @@ block content
 		.w3-container.w3-blue-grey
 			h2
 				i
-					span( ng-show="Page.Server.PageFunction === 'ListAll'" ) All {{Page.Def.ServiceTitle}}
-					span( ng-show="Page.Server.PageFunction === 'ListMine'" ) My {{Page.Def.ServiceTitle}}
-					span( ng-show="Page.Server.PageFunction === 'DeleteMine'" ) Delete My {{Page.Def.ServiceTitle}}
-					span( ng-show="Page.Server.PageFunction === 'DeleteAll'" ) Delete All {{Page.Def.ServiceTitle}}
+					span All {{Page.Server.ObjectDefinition.Titles}}
+					//- span( ng-show="Page.Server.PageFunction === 'ListAll'" ) All {{Page.Def.ServiceTitle}}
+					//- span( ng-show="Page.Server.PageFunction === 'ListMine'" ) My {{Page.Def.ServiceTitle}}
+					//- span( ng-show="Page.Server.PageFunction === 'DeleteMine'" ) Delete My {{Page.Def.ServiceTitle}}
+					//- span( ng-show="Page.Server.PageFunction === 'DeleteAll'" ) Delete All {{Page.Def.ServiceTitle}}
 
 		br
 
@@ -47,13 +48,16 @@ block content
 
 			.w3-row
 				a.w3-btn.w3-green.w3-border.w3-small.w3-padding-small(
+					ng-click="Page.ListObjects()"
+				) List {{ Page.Server.ObjectDefinition.Titles }}
+				a.w3-btn.w3-green.w3-border.w3-small.w3-padding-small(
 					ng-href="{{ Page.ObjectCreateUrl() }}"
 					ng-show="Page.ShowCreateButton()"
-				) New {{ Page.Def.ObjectTitle }}
-				a.w3-btn.w3-red.w3-border.w3-small.w3-padding-small(
-					ng-click=""
-					ng-show="Page.ShowDeleteButton()"
-				) Delete {{ Page.Def.ObjectTitle }}
+				) New {{ Page.Server.ObjectDefinition.Title }}
+				//- a.w3-btn.w3-red.w3-border.w3-small.w3-padding-small(
+				//- 	ng-click=""
+				//- 	ng-show="Page.ShowDeleteButton()"
+				//- ) Delete {{ Page.Server.ObjectDefinition.Title }}
 				.w3-container.w3-margin
 
 
@@ -72,12 +76,12 @@ block content
 					tr 
 						th
 
-						if( '|ListAll|DeleteAll|'.indexOf( locals.PageFunction ) > 0 )
-							th Name
-							th Email
+						//- if( '|ListAll|DeleteAll|'.indexOf( locals.PageFunction ) > 0 )
+						//- 	th Name
+						//- 	th Email
 
 						th(
-							ng-repeat="field in Page.Def.Fields"
+							ng-repeat="field in Page.Server.ObjectDefinition.Fields"
 						)
 							span {{ field.title }}
 
@@ -88,7 +92,7 @@ block content
 
 							a.w3-btn.w3-sand.w3-border.w3-small.w3-padding-small(
 								ng-href="{{Page.ObjectViewUrl( object )}}" 
-								ng-show="Page.UserCanDo('ReadOne')"
+								ng-show="Page.UserCanDo('FindOne')"
 							)
 								i.fa.fa-eye.w3-text-blue
 							a.w3-btn.w3-sand.w3-border.w3-small.w3-padding-small(
@@ -103,44 +107,46 @@ block content
 								i.fa.fa-trash-alt.w3-text-red
 
 						if( '|ListAll|DeleteAll|'.indexOf( locals.PageFunction ) > 0 )
-							td {{ object._m.owner.name }}
-							td {{ object._m.owner.email }}
+							td {{ object.__info.owner_id }}
 
 						td(
-							ng-repeat="field in Page.Def.Fields"
+							ng-repeat="field in Page.Server.ObjectDefinition.Fields"
 						)
 							span(
-								ng-show="field.type === 'string'"
-							) {{ object[field.member] }}
+								ng-if="field.type === 'string'"
+							) {{ object[ field.name ] }}
 
 							span(
-								ng-show="field.type === 'date'"
-							) {{ object[field.member] }}
+								ng-if="field.type === 'date'"
+							) {{ object[ field.name ] }}
 
 							span(
-								ng-show="field.type === 'url'"
+								ng-if="field.type === 'url'"
 							)
-								a( ng-href="{{ object[field.member] }}" ) link
+								a(
+									ng-show="object[ field.name ]"
+									ng-href="{{ object[ field.name ] }}"
+								) link
 
 							span(
-								ng-show="field.type === 'image_url'"
+								ng-if="field.type === 'image_url'"
 							)
 								img(
-									ng-src="{{object[field.member]}}"
+									ng-src="{{object[ field.name ]}}"
 									style="width:50px; height=auto;"
 								)
 
 							span(
-								ng-show="field.type === 'number'"
-							) {{ object[field.member] }}
+								ng-if="field.type === 'number'"
+							) {{ object[ field.name ] }}
 
 							span(
-								ng-show="field.type === 'array'"
-							) {{ object[field.member].length }} items
+								ng-if="field.type === 'array'"
+							) {{ object[ field.name ].length }} items
 
 							span(
-								ng-show="field.type === 'object'"
-							) {{ JSON.stringify( object[field.member] ) }}
+								ng-if="field.type === 'object'"
+							) {{ JSON.stringify( object[ field.name ] ) }}
 
 
 			//-=====================================================================
@@ -157,10 +163,10 @@ block content
 				a.w3-btn.w3-green.w3-border.w3-small.w3-padding-small(
 					ng-href="{{ Page.ObjectCreateUrl() }}"
 					ng-show="Page.ShowCreateButton()"
-				) New {{ Page.Def.ObjectTitle }}
-				a.w3-btn.w3-red.w3-border.w3-small.w3-padding-small(
-					ng-click=""
-					ng-show="Page.ShowDeleteButton()"
-				) Delete {{ Page.Def.ObjectTitle }}
+				) New {{ Page.Server.ObjectDefinition.Title }}
+				//- a.w3-btn.w3-red.w3-border.w3-small.w3-padding-small(
+				//- 	ng-click=""
+				//- 	ng-show="Page.ShowDeleteButton()"
+				//- ) Delete {{ Page.Server.ObjectDefinition.Title }}
 
 

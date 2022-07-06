@@ -162,7 +162,7 @@ exports.NewStorageService =
 			description: 'Returns the number of objects matching the given Criteria.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [ 'Criteria' ],
 			// invoke: async function ( User, Criteria ) { return await service.StorageCount( User, Criteria ); },
 			invoke: service.StorageCount,
@@ -174,7 +174,7 @@ exports.NewStorageService =
 			description: 'Returns the first object matching the given Criteria.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [ 'Criteria' ],
 			// invoke: async function ( User, Criteria ) { return await service.StorageFindOne( User, Criteria ); },
 			invoke: service.StorageFindOne,
@@ -186,7 +186,7 @@ exports.NewStorageService =
 			description: 'Returns an array of all objects matching the given Criteria.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [ 'Criteria' ],
 			// invoke: async function ( User, Criteria ) { return await service.StorageFindMany( User, Criteria ); },
 			invoke: service.StorageFindMany,
@@ -198,7 +198,7 @@ exports.NewStorageService =
 			description: 'Creates and stores a new object based upon the given Prototype; Returns the stored object.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [ 'Prototype' ],
 			// invoke: async function ( User, Prototype ) { return await service.StorageCreateOne( User, Prototype ); },
 			invoke: service.StorageCreateOne,
@@ -210,7 +210,7 @@ exports.NewStorageService =
 			description: 'Overwrites values from DataObject to the first object matching the given Criteria; Returns the number of objects updated.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [ 'Criteria', 'DataObject' ],
 			// invoke: async function ( User, Criteria, DataObject ) { return await service.StorageWriteOne( User, Criteria, DataObject ); },
 			invoke: service.StorageWriteOne,
@@ -222,7 +222,7 @@ exports.NewStorageService =
 			description: 'Deletes the first object matching the given Criteria; Returns the number of objects deleted.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [ 'Criteria' ],
 			// invoke: async function ( User, Criteria ) { return await service.StorageDeleteOne( User, Criteria ); },
 			invoke: service.StorageDeleteOne,
@@ -234,7 +234,7 @@ exports.NewStorageService =
 			description: 'Deletes all objects matching the given Criteria; Returns the number of objects deleted.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [ 'Criteria' ],
 			// invoke: async function ( User, Criteria ) { return await service.StorageDeleteMany( User, Criteria ); },
 			invoke: service.StorageDeleteMany,
@@ -246,7 +246,7 @@ exports.NewStorageService =
 			description: 'Shares all objects matching the given Criteria. Returns the number of objects shared.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [ 'Criteria', 'Readers', 'Writers', 'MakePublic' ],
 			// invoke: async function ( User, Criteria, Readers, Writers, MakePublic ) { return await StorageShare( User, Criteria, Readers, Writers, MakePublic ); },
 			invoke: service.StorageShare,
@@ -258,10 +258,33 @@ exports.NewStorageService =
 			description: 'Unshares all objects matching the given Criteria. Returns the number of objects unshared.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [ 'Criteria', 'NotReaders', 'NotWriters', 'MakeUnpublic' ],
 			// invoke: async function ( User, Criteria, NotReaders, NotWriters, MakeUnpublic ) { return await service.StorageUnshare( User, Criteria, NotReaders, NotWriters, MakeUnpublic ); },
 			invoke: service.StorageUnshare,
+		};
+
+		//---------------------------------------------------------------------
+		service.ServiceDefinition.Pages.List = {
+			name: 'List',
+			description: 'Lists all objects matching the given Criteria.',
+			requires_login: true,
+			allowed_roles: [ 'admin', 'super', 'user' ],
+			verbs: [ 'get' ],
+			parameters: [ 'Criteria' ],
+			view: 'storage/list',
+			// invoke:
+			// 	async function ( User, Criteria ) 
+			// 	{
+			// 		let list = await service.Storage.FindMany( User, Criteria );
+			// 		response.render( 'storage/list', { 
+			// 			Server: Server, 
+			// 			User: User, 
+			// 			ObjectDefinition: service.ObjectDefinition, 
+			// 			ServiceDefinition: service.ServiceDefinition, 
+			// 			List: list } );
+			// 		return;
+			// 	},
 		};
 
 

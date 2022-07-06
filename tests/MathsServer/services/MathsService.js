@@ -50,7 +50,7 @@ exports.Construct =
 			description: 'Returns the sum of two numbers.',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'get', 'post' ],
 			parameters: [ 'A', 'B' ],
 			invoke: async function ( User, A, B )
 			{
@@ -66,7 +66,7 @@ exports.Construct =
 			description: 'Returns the difference of two numbers.',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'get', 'post' ],
 			parameters: [ 'A', 'B' ],
 			invoke: async function ( User, A, B )
 			{
@@ -82,7 +82,7 @@ exports.Construct =
 			description: 'Returns the product of two numbers.',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'get', 'post' ],
 			parameters: [ 'A', 'B' ],
 			invoke: async function ( User, A, B )
 			{
@@ -98,7 +98,7 @@ exports.Construct =
 			description: 'Returns the ratio of two numbers.',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			http_verbs: [ 'get', 'post' ],
+			verbs: [ 'get', 'post' ],
 			parameters: [ 'A', 'B' ],
 			invoke: async function ( User, A, B )
 			{

@@ -195,7 +195,7 @@ exports.Construct =
 					error_text = error.message;
 					if ( do_render_error )
 					{
-						response.render( 'error', { App: Server, User: request.user, Error: error } );
+						response.render( 'error', { Server: Server, User: request.user, Error: error } );
 					}
 					else
 					{
@@ -231,13 +231,16 @@ exports.Construct =
 		//=====================================================================
 		//
 		//		StartWebServer
+		//			- Callbacks: an optional object containing callback functions.
+		//				- PreInitialize( Server, Router ) : Called after Router is created but before any initialization.
+		//				- PreStartup( Server, Router ) : Called after all Router initialization but before starup.
 		//
 		//=====================================================================
 		//=====================================================================
 
 
 		_module.StartWebServer =
-			async function StartWebServer( Address = null, Port = null )
+			async function StartWebServer( Callbacks = null )
 			{
 				if ( _module.HttpServer !== null ) { throw new Error( `WebServer is already running. Call the StopWebServer() function.` ); }
 				if ( _module.SocketServer !== null ) { throw new Error( `SocketServer is already running. Call the StopWebServer() function.` ); }
@@ -247,6 +250,18 @@ exports.Construct =
 				//==========================================
 				// Create an Express router.
 				_module.ExpressRouter = LIB_EXPRESS();
+
+
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Callback: PreInitialize
+				//
+				//=====================================================================
+				//=====================================================================
+
+
+				if ( Callbacks && Callbacks.PreInitialize ) { await Callbacks.PreInitialize( Server, _module.ExpressRouter ); }
 
 
 				//=====================================================================
@@ -465,7 +480,7 @@ exports.Construct =
 									// log_request( request );
 									response.render(
 										WebServerSettings.Urls.home_url,
-										{ App: Server, User: request.user } );
+										{ Server: Server, User: request.user } );
 									return;
 								}
 								, true );
@@ -483,7 +498,7 @@ exports.Construct =
 									// log_request( request );
 									response.render(
 										WebServerSettings.Urls.home_url,
-										{ App: Server, User: request.user } );
+										{ Server: Server, User: request.user } );
 									return;
 								}
 								, true );
@@ -500,7 +515,7 @@ exports.Construct =
 								{
 									response.render(
 										WebServerSettings.Urls.user_url,
-										{ App: Server, User: request.user } );
+										{ Server: Server, User: request.user } );
 								}
 								, true );
 							return;
@@ -582,26 +597,44 @@ exports.Construct =
 				//=====================================================================
 				//=====================================================================
 				//
-				//		Start the Service
+				//		Create the HTTP Server
 				//
 				//=====================================================================
 				//=====================================================================
 
 
-				// Create the HTTP server.
 				_module.HttpServer = LIB_HTTP.createServer( _module.ExpressRouter );
 				Server.Log.trace( `WebServer - server initialized` );
 
-				// Report the server routes.
+
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Callback: PreStartup
+				//
+				//=====================================================================
+				//=====================================================================
+
+
+				if ( Callbacks && Callbacks.PreInitialize ) { await Callbacks.PreStartup( Server, _module.ExpressRouter ); }
+
+
+				//=====================================================================
+				//=====================================================================
+				//
+				//		Start the Web Server
+				//
+				//=====================================================================
+				//=====================================================================
+
+
 				// Begin accepting connections.
-				let service_address = Address || _module.Settings.address;
-				let service_port = Port || _module.Settings.port;
 				await new Promise(
 					function ( resolve, reject )
 					{
 						_module.HttpServer.listen(
-							service_port,
-							service_address,
+							WebServerSettings.port,
+							WebServerSettings.address,
 							function ( err ) 
 							{
 								if ( err ) { reject( err ); }
@@ -628,7 +661,7 @@ exports.Construct =
 		_module.StopWebServer =
 			async function StopWebServer()
 			{
-				if ( _module.HttpServer !== null ) 
+				if ( _module.HttpServer ) 
 				{
 					if ( _module.HttpServer.listening ) 
 					{
@@ -644,6 +677,7 @@ exports.Construct =
 							} );
 					}
 					_module.HttpServer = null;
+					_module.ExpressRouter = null;
 					Server.Log.trace( `WebServer has stopped.` );
 				}
 				if ( _module.SocketServer )
