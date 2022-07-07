@@ -63,7 +63,7 @@ exports.Use =
 					{
 						let api_result = {
 							ok: true,
-							origin: `${Service.ServiceDefinition.Name}/${endpoint.name}`,
+							origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
 							result: await endpoint.invoke( request.user, ...parameters ),
 						};
 						response.send( api_result );
@@ -72,7 +72,7 @@ exports.Use =
 					{
 						let api_result = {
 							ok: false,
-							origin: `${Service.ServiceDefinition.Name}/${endpoint.name}`,
+							origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
 							error: error.message,
 						};
 						Server.WebServer.ReportApiError( api_result, response );
@@ -144,7 +144,7 @@ exports.Use =
 					{
 						let api_result = {
 							ok: false,
-							origin: `${Service.ServiceDefinition.Name}/${endpoint.name}`,
+							origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
 							error: error.message,
 						};
 						Server.WebServer.ReportApiError( api_result, response );
@@ -225,11 +225,11 @@ exports.Use =
 			let service = Server[ service_name ];
 
 			// Add the service API
-			add_http_service_endpoints( service, ExpressRouter, `/api/${service.ServiceDefinition.Name}` );
+			add_http_service_endpoints( service, ExpressRouter, `/api/${service.ServiceDefinition.name}` );
 			Server.Log.trace( `Added service ${service.ServiceDefinition.Endpoints.length} routes for [${service_name}].` );
 
 			// Add the service pages
-			add_http_page_endpoints( service, ExpressRouter, `/ui/${service.ServiceDefinition.Name}` );
+			add_http_page_endpoints( service, ExpressRouter, `/ui/${service.ServiceDefinition.name}` );
 			Server.Log.trace( `Added service ${service.ServiceDefinition.Pages.length} pages for [${service_name}].` );
 
 			// // Add the service UI

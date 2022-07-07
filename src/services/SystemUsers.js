@@ -56,20 +56,20 @@ exports.Construct =
 
 		//---------------------------------------------------------------------
 		// Service Identity
-		service.ServiceDefinition.Name = 'SystemUsers';
-		service.ServiceDefinition.Title = 'System Users';
+		service.ServiceDefinition.name = 'SystemUsers';
+		service.ServiceDefinition.title = 'System Users';
 
 		//---------------------------------------------------------------------
 		// Restrict the permissions for SystemUsers.
-		service.ServiceDefinition.Endpoints.Count.allowed_roles = [ 'admin', 'super', 'user' ];
-		service.ServiceDefinition.Endpoints.FindOne.allowed_roles = [ 'admin', 'super', 'user' ];
-		service.ServiceDefinition.Endpoints.FindMany.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.CreateOne.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.WriteOne.allowed_roles = [ 'admin', 'super', 'user' ];
-		service.ServiceDefinition.Endpoints.DeleteOne.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.DeleteMany.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.Share.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.Unshare.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Endpoints.StorageCount.allowed_roles = [ 'admin', 'super', 'user' ];
+		service.ServiceDefinition.Endpoints.StorageFindOne.allowed_roles = [ 'admin', 'super', 'user' ];
+		service.ServiceDefinition.Endpoints.StorageFindMany.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Endpoints.StorageCreateOne.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Endpoints.StorageWriteOne.allowed_roles = [ 'admin', 'super', 'user' ];
+		service.ServiceDefinition.Endpoints.StorageDeleteOne.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Endpoints.StorageDeleteMany.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Endpoints.StorageShare.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Endpoints.StorageUnshare.allowed_roles = [ 'admin', 'super' ];
 
 		// service.ServiceDefinition.Pages.List = {
 		// 	name: 'List',
@@ -97,9 +97,10 @@ exports.Construct =
 
 		//---------------------------------------------------------------------
 		// Object Identity
-		service.ItemDefinition.Name = 'SystemUser';
-		service.ItemDefinition.Title = 'System User';
-		service.ItemDefinition.Titles = 'System Users';
+		service.ItemDefinition.name = 'SystemUser';
+		service.ItemDefinition.title = 'System User';
+		service.ItemDefinition.titles = 'System Users';
+		service.ItemDefinition.shareable = false;
 
 		//---------------------------------------------------------------------
 		service.ItemDefinition.Fields.UserID = {
@@ -116,6 +117,7 @@ exports.Construct =
 			title: 'User Role',
 			description: 'The role of this user within the system.',
 			type: 'string',
+			readonly: true,
 		};
 
 		//---------------------------------------------------------------------
@@ -124,6 +126,7 @@ exports.Construct =
 			title: 'User Name',
 			description: 'Display name of the user.',
 			type: 'string',
+			readonly: false,
 		};
 
 		//---------------------------------------------------------------------
@@ -132,6 +135,7 @@ exports.Construct =
 			title: 'Image URL',
 			description: 'URL of the image associated with this acoount.',
 			type: 'image_url',
+			readonly: false,
 		};
 
 

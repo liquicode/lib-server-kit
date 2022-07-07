@@ -73,7 +73,7 @@ app.controller(
 			{
 				if ( Page.Socket === null ) { return; }
 
-				Page.Socket.SystemUsers.FindMany( {},
+				Page.Socket.SystemUsers.StorageFindMany( {},
 					function ( ApiResult )
 					{
 						if ( ApiResult.error )
@@ -96,7 +96,7 @@ app.controller(
 		Page.ItemCreateUrl =
 			function ItemCreateUrl()
 			{
-				return `/ui/${Page.Server.ServiceDefinition.Name}/Item?PageOp=Create`;
+				return `/ui/${Page.Server.ServiceDefinition.name}/Item?PageOp=Create`;
 			};
 
 
@@ -104,7 +104,7 @@ app.controller(
 		Page.ItemViewUrl =
 			function ItemViewUrl( object )
 			{
-				return `/ui/${Page.Server.ServiceDefinition.Name}/Item?ItemID=${object.__info.id}&PageOp=Read`;
+				return `/ui/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__info.id}&PageOp=Read`;
 			};
 
 
@@ -112,7 +112,7 @@ app.controller(
 		Page.ItemEditUrl =
 			function ItemEditUrl( object )
 			{
-				return `/ui/${Page.Server.ServiceDefinition.Name}/Item?ItemID=${object.__info.id}&PageOp=Update`;
+				return `/ui/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__info.id}&PageOp=Update`;
 			};
 
 
@@ -120,7 +120,7 @@ app.controller(
 		Page.ItemDeleteUrl =
 			function ItemDeleteUrl( object )
 			{
-				return `/ui/${Page.Server.ServiceDefinition.Name}/Item?ItemID=${object.__info.id}&PageOp=Delete`;
+				return `/ui/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__info.id}&PageOp=Delete`;
 			};
 
 

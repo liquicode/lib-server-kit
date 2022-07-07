@@ -99,7 +99,7 @@ exports.Use =
 					for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
 					{
 						let endpoint_name = endpoint_names[ endpoint_index ];
-						let full_endpoint_name = `${Service.ServiceDefinition.Name}.${endpoint_name}`;
+						let full_endpoint_name = `${Service.ServiceDefinition.name}.${endpoint_name}`;
 						let endpoint = Service.ServiceDefinition.Endpoints[ endpoint_name ];
 
 						if ( endpoint.verbs.includes( 'call' ) )

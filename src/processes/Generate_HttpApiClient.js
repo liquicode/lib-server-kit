@@ -8,7 +8,7 @@ exports.Generate_HttpApiClient = Generate_HttpApiClient;
 //---------------------------------------------------------------------
 function Generate_HttpApiClient( Server, Service, Code, Options )
 {
-	let service_name = Service.ServiceDefinition.Name;
+	let service_name = Service.ServiceDefinition.name;
 
 	Code += `
 // ${service_name} Service Client
@@ -62,7 +62,7 @@ var HttpApi = {};
 	{
 		let service = Server.Services[ service_names[ index ] ];
 		// code = Generate_ServiceHttpClient( Server, service, code, {} );
-		let service_name = service.ServiceDefinition.Name;
+		let service_name = service.ServiceDefinition.name;
 
 		code += `
 HttpApi.${service_name} =

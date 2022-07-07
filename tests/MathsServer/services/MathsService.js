@@ -5,7 +5,7 @@
 exports.Construct =
 	function Construct( Server )
 	{
-		if ( !Server ) { throw Server.Utility.missing_parameter_error( 'App' ); }
+		if ( !Server ) { throw Server.Utility.missing_parameter_error( 'Server' ); }
 
 		// Create the storage service.
 		let service = Server.NewService( Server );
@@ -41,8 +41,8 @@ exports.Construct =
 
 		//---------------------------------------------------------------------
 		// Service Identity
-		service.ServiceDefinition.Name = 'Maths';
-		service.ServiceDefinition.Title = 'Maths';
+		service.ServiceDefinition.name = 'Maths';
+		service.ServiceDefinition.title = 'Maths';
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.Add = {

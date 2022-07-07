@@ -26,8 +26,8 @@ exports.NewService =
 		// - Service Interface Generation: Adapters can be developed to provide endpoint access to web-services, command-line, etc.
 		// - User Interface Generation: User interfaces can display user-friendly titles and descriptions.
 		service.ServiceDefinition = {
-			Name: 'UnnamedService',
-			Title: 'Unnamed Service',
+			name: 'UnnamedService',
+			title: 'Unnamed Service',
 			Endpoints: {
 				// Count: {
 				// 	name: 'Count',
@@ -64,15 +64,17 @@ exports.NewService =
 		// - Storage Consistency: Objects stored in persistent storage can be assured to have the same fields.
 		// - User Interface Generation: User interfaces can display user-friendly titles and descriptions.
 		service.ItemDefinition = {
-			Name: 'GenericObject',
-			Title: 'Generic Object',
-			Titles: 'Generic Objects',
+			name: 'GenericObject',
+			title: 'Generic Object',
+			titles: 'Generic Objects',
+			shareable: true,
 			Fields: {
 				// ObjectName: {
 				// 	name: 'object_name',
 				// 	title: 'Object Name',
 				// 	description: 'A name for this object.',
 				// 	type: 'string',
+				//	readonly: false,
 				// },
 			},
 		};

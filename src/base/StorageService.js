@@ -153,12 +153,12 @@ exports.NewStorageService =
 
 		//---------------------------------------------------------------------
 		// Service Identity
-		service.ServiceDefinition.Name = 'UnnamedStorage';
-		service.ServiceDefinition.Title = 'Unnamed Storage';
+		service.ServiceDefinition.name = 'UnnamedStorage';
+		service.ServiceDefinition.title = 'Unnamed Storage';
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.Count = {
-			name: 'Count',
+		service.ServiceDefinition.Endpoints.StorageCount = {
+			name: 'StorageCount',
 			description: 'Returns the number of objects matching the given Criteria.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
@@ -169,8 +169,8 @@ exports.NewStorageService =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.FindOne = {
-			name: 'FindOne',
+		service.ServiceDefinition.Endpoints.StorageFindOne = {
+			name: 'StorageFindOne',
 			description: 'Returns the first object matching the given Criteria.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
@@ -181,8 +181,8 @@ exports.NewStorageService =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.FindMany = {
-			name: 'FindMany',
+		service.ServiceDefinition.Endpoints.StorageFindMany = {
+			name: 'StorageFindMany',
 			description: 'Returns an array of all objects matching the given Criteria.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
@@ -193,8 +193,8 @@ exports.NewStorageService =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.CreateOne = {
-			name: 'CreateOne',
+		service.ServiceDefinition.Endpoints.StorageCreateOne = {
+			name: 'StorageCreateOne',
 			description: 'Creates and stores a new object based upon the given Prototype; Returns the stored object.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
@@ -205,8 +205,8 @@ exports.NewStorageService =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.WriteOne = {
-			name: 'WriteOne',
+		service.ServiceDefinition.Endpoints.StorageWriteOne = {
+			name: 'StorageWriteOne',
 			description: 'Overwrites values from DataObject to the first object matching the given Criteria; Returns the number of objects updated.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
@@ -217,8 +217,8 @@ exports.NewStorageService =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.DeleteOne = {
-			name: 'DeleteOne',
+		service.ServiceDefinition.Endpoints.StorageDeleteOne = {
+			name: 'StorageDeleteOne',
 			description: 'Deletes the first object matching the given Criteria; Returns the number of objects deleted.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
@@ -229,8 +229,8 @@ exports.NewStorageService =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.DeleteMany = {
-			name: 'DeleteMany',
+		service.ServiceDefinition.Endpoints.StorageDeleteMany = {
+			name: 'StorageDeleteMany',
 			description: 'Deletes all objects matching the given Criteria; Returns the number of objects deleted.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
@@ -241,8 +241,8 @@ exports.NewStorageService =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.Share = {
-			name: 'Share',
+		service.ServiceDefinition.Endpoints.StorageShare = {
+			name: 'StorageShare',
 			description: 'Shares all objects matching the given Criteria. Returns the number of objects shared.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
@@ -253,8 +253,8 @@ exports.NewStorageService =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.Unshare = {
-			name: 'Unshare',
+		service.ServiceDefinition.Endpoints.StorageUnshare = {
+			name: 'StorageUnshare',
 			description: 'Unshares all objects matching the given Criteria. Returns the number of objects unshared.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
@@ -284,6 +284,17 @@ exports.NewStorageService =
 			verbs: [ 'get' ],
 			parameters: [ 'ItemID', 'PageOp' ],
 			view: 'storage/item',
+		};
+
+		//---------------------------------------------------------------------
+		service.ServiceDefinition.Pages.Share = {
+			name: 'Share',
+			description: 'Manage item sharing options.',
+			requires_login: true,
+			allowed_roles: [ 'admin', 'super', 'user' ],
+			verbs: [ 'get' ],
+			parameters: [ 'ItemID' ],
+			view: 'storage/share',
 		};
 
 

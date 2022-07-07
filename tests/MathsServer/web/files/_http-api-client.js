@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Http Api Client File for: MathsServer
-// Generated:  2022-07-07T07:03:57.096Z
-//   Thu Jul 07 2022 03:03:57 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-07T08:05:03.861Z
+//   Thu Jul 07 2022 04:05:03 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var HttpApi = {};
@@ -14,23 +14,23 @@ HttpApi.SystemUsers =
 	Pages: {},
 };
 
-// SystemUsers.Count
+// SystemUsers.StorageCount
 
-// SystemUsers.FindOne
+// SystemUsers.StorageFindOne
 
-// SystemUsers.FindMany
+// SystemUsers.StorageFindMany
 
-// SystemUsers.CreateOne
+// SystemUsers.StorageCreateOne
 
-// SystemUsers.WriteOne
+// SystemUsers.StorageWriteOne
 
-// SystemUsers.DeleteOne
+// SystemUsers.StorageDeleteOne
 
-// SystemUsers.DeleteMany
+// SystemUsers.StorageDeleteMany
 
-// SystemUsers.Share
+// SystemUsers.StorageShare
 
-// SystemUsers.Unshare
+// SystemUsers.StorageUnshare
 
 HttpApi.Maths =
 {

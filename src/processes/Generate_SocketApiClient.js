@@ -53,7 +53,7 @@ SocketApi.NewSocket =
 	for ( let index = 0; index < service_names.length; index++ )
 	{
 		let service = Server.Services[ service_names[ index ] ];
-		let service_name = service.ServiceDefinition.Name;
+		let service_name = service.ServiceDefinition.name;
 		code += `\n`;
 		code += `		socket.${service_name} = {};\n`;
 

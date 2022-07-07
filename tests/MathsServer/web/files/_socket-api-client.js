@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Socket Api Client File for: MathsServer
-// Generated:  2022-07-07T07:03:57.110Z
-//   Thu Jul 07 2022 03:03:57 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-07T08:05:03.867Z
+//   Thu Jul 07 2022 04:05:03 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var SocketApi = {};
@@ -33,15 +33,15 @@ SocketApi.NewSocket =
 		// socket.Authorize = function ( Callback ) { SocketApi.SocketMessage( socket, 'Authorize', {}, Callback ); };
 
 		socket.SystemUsers = {};
-		socket.SystemUsers.Count = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.Count', [Criteria], Callback ); }
-		socket.SystemUsers.FindOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.FindOne', [Criteria], Callback ); }
-		socket.SystemUsers.FindMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.FindMany', [Criteria], Callback ); }
-		socket.SystemUsers.CreateOne = function ( Prototype, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.CreateOne', [Prototype], Callback ); }
-		socket.SystemUsers.WriteOne = function ( Criteria, DataObject, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.WriteOne', [Criteria, DataObject], Callback ); }
-		socket.SystemUsers.DeleteOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.DeleteOne', [Criteria], Callback ); }
-		socket.SystemUsers.DeleteMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.DeleteMany', [Criteria], Callback ); }
-		socket.SystemUsers.Share = function ( Criteria, Readers, Writers, MakePublic, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.Share', [Criteria, Readers, Writers, MakePublic], Callback ); }
-		socket.SystemUsers.Unshare = function ( Criteria, NotReaders, NotWriters, MakeUnpublic, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.Unshare', [Criteria, NotReaders, NotWriters, MakeUnpublic], Callback ); }
+		socket.SystemUsers.StorageCount = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageCount', [Criteria], Callback ); }
+		socket.SystemUsers.StorageFindOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageFindOne', [Criteria], Callback ); }
+		socket.SystemUsers.StorageFindMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageFindMany', [Criteria], Callback ); }
+		socket.SystemUsers.StorageCreateOne = function ( Prototype, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageCreateOne', [Prototype], Callback ); }
+		socket.SystemUsers.StorageWriteOne = function ( Criteria, DataObject, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageWriteOne', [Criteria, DataObject], Callback ); }
+		socket.SystemUsers.StorageDeleteOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageDeleteOne', [Criteria], Callback ); }
+		socket.SystemUsers.StorageDeleteMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageDeleteMany', [Criteria], Callback ); }
+		socket.SystemUsers.StorageShare = function ( Criteria, Readers, Writers, MakePublic, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageShare', [Criteria, Readers, Writers, MakePublic], Callback ); }
+		socket.SystemUsers.StorageUnshare = function ( Criteria, NotReaders, NotWriters, MakeUnpublic, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageUnshare', [Criteria, NotReaders, NotWriters, MakeUnpublic], Callback ); }
 
 		socket.Maths = {};
 		socket.Maths.Add = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Add', [A, B], Callback ); }

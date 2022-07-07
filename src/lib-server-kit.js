@@ -94,7 +94,7 @@ exports.NewServer =
 				if ( file_ext !== '.js' ) { continue; }
 				// Load the service.
 				let service = require( LIB_PATH.join( ServicesPath, filename ) ).Construct( server );
-				let service_name = service.ServiceDefinition.Name;
+				let service_name = service.ServiceDefinition.name;
 				server[ service_name ] = service;
 				server.Services[ service_name ] = service;
 				server.Config.Defaults[ service_name ] = service.GetDefaults();

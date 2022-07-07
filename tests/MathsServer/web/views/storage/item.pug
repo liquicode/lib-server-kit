@@ -26,10 +26,10 @@ block content
 		.w3-container.w3-blue-grey
 			h2
 				i
-					span( ng-show="Page.PageOp === 'Create'" ) New {{Page.ItemDefinition.Title}}
-					span( ng-show="Page.PageOp === 'Read'" ) View {{Page.ItemDefinition.Title}}
-					span( ng-show="Page.PageOp === 'Update'" ) Update {{Page.ItemDefinition.Title}}
-					span( ng-show="Page.PageOp === 'Delete'" ) Delete {{Page.ItemDefinition.Title}}
+					span( ng-show="Page.PageOp === 'Create'" ) New {{Page.ItemDefinition.title}}
+					span( ng-show="Page.PageOp === 'Read'" ) View {{Page.ItemDefinition.title}}
+					span( ng-show="Page.PageOp === 'Update'" ) Update {{Page.ItemDefinition.title}}
+					span( ng-show="Page.PageOp === 'Delete'" ) Delete {{Page.ItemDefinition.title}}
 
 
 		.w3-container
@@ -46,11 +46,11 @@ block content
 
 			.w3-section
 				a.w3-btn.w3-white.w3-border.w3-small.w3-padding-small(
-					ng-href="/ui/{{Page.ServiceDefinition.Name}}/List"
+					ng-href="/ui/{{Page.ServiceDefinition.name}}/List"
 					ng-show="[ 'admin', 'super' ].includes( Page.User.user_role )" 
 				)
 					i.fa.fa-angle-double-left.w3-padding-small
-					span {{ Page.ItemDefinition.Titles }}
+					span {{ Page.ItemDefinition.titles }}
 
 				br
 				//- .w3-panel.w3-sand.w3-margin-small
@@ -90,15 +90,15 @@ block content
 				a.w3-btn.w3-green.w3-border.w3-small.w3-padding-small(
 					ng-click="Page.CreateItem()"
 					ng-show="Page.PageOp === 'Create'"
-				) Create This {{ Page.ItemDefinition.Title }}
+				) Create This {{ Page.ItemDefinition.title }}
 				a.w3-btn.w3-blue.w3-border.w3-small.w3-padding-small(
 					ng-click="Page.WriteItem()"
 					ng-show="Page.PageOp === 'Update'"
-				) Update This {{ Page.ItemDefinition.Title }}
+				) Update This {{ Page.ItemDefinition.title }}
 				a.w3-btn.w3-red.w3-border.w3-small.w3-padding-small(
 					ng-click="Page.DeleteItem()"
 					ng-show="Page.PageOp === 'Delete'"
-				) Delete This {{ Page.ItemDefinition.Title }}
+				) Delete This {{ Page.ItemDefinition.title }}
 				.w3-container.w3-margin
 
 
@@ -187,14 +187,18 @@ block content
 				a.w3-btn.w3-green.w3-border.w3-small.w3-padding-small(
 					ng-click="Page.CreateItem()"
 					ng-show="Page.PageOp === 'Create'"
-				) Create This {{ Page.ItemDefinition.Title }}
+				) Create This {{ Page.ItemDefinition.title }}
 				a.w3-btn.w3-blue.w3-border.w3-small.w3-padding-small(
 					ng-click="Page.WriteItem()"
 					ng-show="Page.PageOp === 'Update'"
-				) Update This {{ Page.ItemDefinition.Title }}
+				) Update This {{ Page.ItemDefinition.title }}
+				a.w3-btn.w3-yellow.w3-border.w3-small.w3-padding-small(
+					ng-href="{{Page.ItemSharingUrl()}}"
+					ng-show="Page.PageOp === 'Update' && Page.ItemDefinition.shareable"
+				) Share This {{ Page.ItemDefinition.title }}
 				a.w3-btn.w3-red.w3-border.w3-small.w3-padding-small(
 					ng-click="Page.DeleteItem()"
 					ng-show="Page.PageOp === 'Delete'"
-				) Delete This {{ Page.ItemDefinition.Title }}
+				) Delete This {{ Page.ItemDefinition.title }}
 
 

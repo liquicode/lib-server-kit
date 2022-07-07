@@ -34,6 +34,11 @@ app.controller(
 			let params = Page.Parameters.split( ',' );
 			Page.ItemID = params[ 0 ];
 			Page.PageOp = params[ 1 ];
+			if ( Page.PageOp === '' )
+			{
+				if ( Page.ItemID ) { Page.PageOp = 'Read'; }
+				else { Page.PageOp = 'Create'; }
+			}
 		}
 		$scope.Page = Page;
 
@@ -123,17 +128,25 @@ app.controller(
 
 
 		//---------------------------------------------------------------------
+		Page.ItemSharingUrl =
+			function ItemSharingUrl()
+			{
+				return `/ui/${Page.Server.ServiceDefinition.name}/Share?ItemID=${Page.Item.__info.id}`;
+			};
+
+
+		//---------------------------------------------------------------------
 		Page.CreateItem =
 			function CreateItem()
 			{
 				if ( Page.Socket )
 				{
-					Page.Socket[ Page.ServiceDefinition.Name ].CreateOne( Page.Item,
+					Page.Socket[ Page.ServiceDefinition.name ].StorageCreateOne( Page.Item,
 						( api_result ) =>
 						{
 							if ( api_result.error )
 							{
-								alert( `Error during CreateOne: ${api_result.error}` );
+								alert( `Error during StorageCreateOne: ${api_result.error}` );
 								return;
 							}
 							Page.Item = api_result.result;
@@ -155,12 +168,12 @@ app.controller(
 			{
 				if ( Page.Socket && Page.ItemID )
 				{
-					Page.Socket[ Page.ServiceDefinition.Name ].FindOne( Page.ItemID,
+					Page.Socket[ Page.ServiceDefinition.name ].StorageFindOne( Page.ItemID,
 						( api_result ) =>
 						{
 							if ( api_result.error )
 							{
-								alert( `Error during FindOne: ${api_result.error}` );
+								alert( `Error during StorageFindOne: ${api_result.error}` );
 								return;
 							}
 							Page.Item = api_result.result;
@@ -181,12 +194,12 @@ app.controller(
 			{
 				if ( Page.Socket && Page.ItemID )
 				{
-					Page.Socket[ Page.ServiceDefinition.Name ].WriteOne( Page.ItemID, Page.Item,
+					Page.Socket[ Page.ServiceDefinition.name ].StorageWriteOne( Page.ItemID, Page.Item,
 						( api_result ) =>
 						{
 							if ( api_result.error )
 							{
-								alert( `Error during WriteOne: ${api_result.error}` );
+								alert( `Error during StorageWriteOne: ${api_result.error}` );
 								return;
 							}
 							// $scope.$apply();
@@ -202,12 +215,12 @@ app.controller(
 			{
 				if ( Page.Socket && Page.ItemID )
 				{
-					Page.Socket[ Page.ServiceDefinition.Name ].DeleteOne( Page.ItemID,
+					Page.Socket[ Page.ServiceDefinition.name ].StorageDeleteOne( Page.ItemID,
 						( api_result ) =>
 						{
 							if ( api_result.error )
 							{
-								console.error( `Error during DeleteOne: ${api_result.error}` );
+								console.error( `Error during StorageDeleteOne: ${api_result.error}` );
 								return;
 							}
 							Page.PageOp = 'Read';
