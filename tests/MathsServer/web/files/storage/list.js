@@ -7,44 +7,34 @@ app.controller(
 	{
 
 
-		//=====================================================================
-		//=====================================================================
-		// 
-		// 		Page
-		// 
-		//=====================================================================
-		//=====================================================================
-
-
 		//---------------------------------------------------------------------
 		var Page = {
 			Server: window.SERVER_DATA,
+			User: window.SERVER_DATA.User,
+			ItemDefinition: window.SERVER_DATA.ItemDefinition,
+			ServiceDefinition: window.SERVER_DATA.ServiceDefinition,
+			Parameters: window.SERVER_DATA.Parameters,
 			Socket: null,
-			object_info_visible: false,
-			objects: [],
+			Items: [],
 		};
 		$scope.Page = Page;
 
 
 		//---------------------------------------------------------------------
-		if ( Page.Server.User )
+		if ( Page.User )
 		{
-			SocketApi.NewSocket( Page.Server.User,
+			SocketApi.NewSocket( Page.User,
 				( Socket, Status ) =>
 				{
 					if ( Status !== 'OK' )
 					{
-						// console.error( 'Socket connection failed.' );
+						console.error( 'Socket connection failed.' );
 						return;
 					}
 					Page.Socket = Socket;
-					Page.ListObjects();
+					Page.ListItems();
 				} );
 		}
-
-
-		//---------------------------------------------------------------------
-		// Page.Def = Page.Server.ObjectDefinition;
 
 
 		//---------------------------------------------------------------------
@@ -55,7 +45,7 @@ app.controller(
 				if ( auth )
 				{
 					if ( !auth.requires_login ) { return true; }
-					if ( auth.allowed_roles.includes( Page.Server.User.user_role ) ) { return true; }
+					if ( auth.allowed_roles.includes( Page.User.user_role ) ) { return true; }
 				}
 				return false;
 			};
@@ -78,8 +68,8 @@ app.controller(
 
 
 		//---------------------------------------------------------------------
-		Page.ListObjects =
-			function ListObjects()
+		Page.ListItems =
+			function ListItems()
 			{
 				if ( Page.Socket === null ) { return; }
 
@@ -92,130 +82,49 @@ app.controller(
 						}
 						else
 						{
-							Page.objects = ApiResult.result;
+							Page.Items = ApiResult.result;
 							// console.log( 'SystemUsers.FindMany() works! :D' );
 							$scope.$apply();
 						}
 					} );
 
-				// if ( Page.Server.PageFunction == 'ListAll' )
-				// {
-				// 	SERVER_API[ Page.Def.ServiceName ].ListAll(
-				// 		function ( error, api_result )
-				// 		{
-				// 			if ( error )
-				// 			{
-				// 				alert( `Server Error: ${error}` );
-				// 			}
-				// 			else
-				// 			{
-				// 				Page.objects = api_result.objects;
-				// 				$scope.$apply();
-				// 			}
-				// 		} );
-				// }
-				// else if ( Page.Server.PageFunction == 'ListMine' )
-				// {
-				// 	SERVER_API[ Page.Def.ServiceName ].ListMine(
-				// 		function ( error, api_result )
-				// 		{
-				// 			if ( error )
-				// 			{
-				// 				alert( `Server Error: ${error}` );
-				// 			}
-				// 			else
-				// 			{
-				// 				Page.objects = api_result.objects;
-				// 				$scope.$apply();
-				// 			}
-				// 		} );
-				// }
-				// if ( Page.Server.PageFunction == 'DeleteMine' )
-				// {
-				// 	SERVER_API[ Page.Def.ServiceName ].DeleteMine(
-				// 		function ( error, api_result )
-				// 		{
-				// 			if ( error )
-				// 			{
-				// 				alert( `Server Error: ${error}` );
-				// 			}
-				// 			else
-				// 			{
-				// 				Page.objects = api_result.objects;
-				// 				$scope.$apply();
-				// 			}
-				// 		} );
-				// }
-				// else if ( Page.Server.PageFunction == 'DeleteAll' )
-				// {
-				// 	SERVER_API[ Page.Def.ServiceName ].DeleteAll(
-				// 		function ( error, api_result )
-				// 		{
-				// 			if ( error )
-				// 			{
-				// 				alert( `Server Error: ${error}` );
-				// 			}
-				// 			else
-				// 			{
-				// 				Page.objects = api_result.objects;
-				// 				$scope.$apply();
-				// 			}
-				// 		} );
-				// }
 				return;
 			};
 
 
 		//---------------------------------------------------------------------
-		// Page.SafeUrl =
-		// 	function SafeUrl( Url )
-		// 	{
-		// 		if ( !Url ) { return ''; }
-		// 		return Url;
-		// 	};
-
-
-		//---------------------------------------------------------------------
-		Page.ObjectCreateUrl =
-			function ObjectCreateUrl()
+		Page.ItemCreateUrl =
+			function ItemCreateUrl()
 			{
-				return '/' + Page.Server.ServiceDefinition.Name + '/CreateOne/new';
+				return `/ui/${Page.Server.ServiceDefinition.Name}/Item?PageOp=Create`;
 			};
 
 
 		//---------------------------------------------------------------------
-		Page.ObjectViewUrl =
-			function ObjectViewUrl( object )
+		Page.ItemViewUrl =
+			function ItemViewUrl( object )
 			{
-				return '/' + Page.Server.ServiceDefinition.Name + '/FindOne/' + object.__info.id;
+				return `/ui/${Page.Server.ServiceDefinition.Name}/Item?ItemID=${object.__info.id}&PageOp=Read`;
 			};
 
 
 		//---------------------------------------------------------------------
-		Page.ObjectEditUrl =
-			function ObjectEditUrl( object )
+		Page.ItemEditUrl =
+			function ItemEditUrl( object )
 			{
-				return '/' + Page.Server.ServiceDefinition.Name + '/WriteOne/' + object.__info.id;
+				return `/ui/${Page.Server.ServiceDefinition.Name}/Item?ItemID=${object.__info.id}&PageOp=Update`;
 			};
 
 
 		//---------------------------------------------------------------------
-		Page.ObjectDeleteUrl =
-			function ObjectDeleteUrl( object )
+		Page.ItemDeleteUrl =
+			function ItemDeleteUrl( object )
 			{
-				return '/' + Page.Server.ServiceDefinition.Name + '/DeleteOne/' + object.__info.id;
+				return `/ui/${Page.Server.ServiceDefinition.Name}/Item?ItemID=${object.__info.id}&PageOp=Delete`;
 			};
 
 
-		//=====================================================================
-		//=====================================================================
-		//
-		//		Initialize
-		//
-		//=====================================================================
-		//=====================================================================
-
-
+		//---------------------------------------------------------------------
 		// Exit Controller
 		return;
 	} );

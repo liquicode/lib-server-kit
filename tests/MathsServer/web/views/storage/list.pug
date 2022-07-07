@@ -9,7 +9,7 @@ block content
 		script
 			!= `window.SERVER_DATA = {};\n`
 			!= `window.SERVER_DATA.User = ${JSON.stringify( locals.User )};\n`
-			!= `window.SERVER_DATA.ObjectDefinition = ${JSON.stringify(locals.ObjectDefinition)};\n`
+			!= `window.SERVER_DATA.ItemDefinition = ${JSON.stringify(locals.ItemDefinition)};\n`
 			!= `window.SERVER_DATA.ServiceDefinition = ${JSON.stringify( locals.ServiceDefinition)};\n`
 			!= `window.SERVER_DATA.Parameters = "${locals.Parameters}";\n`
 
@@ -26,7 +26,7 @@ block content
 		.w3-container.w3-blue-grey
 			h2
 				i
-					span All {{Page.Server.ObjectDefinition.Titles}}
+					span All {{Page.Server.ItemDefinition.Titles}}
 					//- span( ng-show="Page.Server.PageFunction === 'ListAll'" ) All {{Page.Def.ServiceTitle}}
 					//- span( ng-show="Page.Server.PageFunction === 'ListMine'" ) My {{Page.Def.ServiceTitle}}
 					//- span( ng-show="Page.Server.PageFunction === 'DeleteMine'" ) Delete My {{Page.Def.ServiceTitle}}
@@ -47,24 +47,24 @@ block content
 
 
 			.w3-row
+				//- a.w3-btn.w3-green.w3-border.w3-small.w3-padding-small(
+				//- 	ng-click="Page.ListItems()"
+				//- ) List {{ Page.Server.ItemDefinition.Titles }}
 				a.w3-btn.w3-green.w3-border.w3-small.w3-padding-small(
-					ng-click="Page.ListObjects()"
-				) List {{ Page.Server.ObjectDefinition.Titles }}
-				a.w3-btn.w3-green.w3-border.w3-small.w3-padding-small(
-					ng-href="{{ Page.ObjectCreateUrl() }}"
+					ng-href="{{ Page.ItemCreateUrl() }}"
 					ng-show="Page.ShowCreateButton()"
-				) New {{ Page.Server.ObjectDefinition.Title }}
+				) New {{ Page.Server.ItemDefinition.Title }}
 				//- a.w3-btn.w3-red.w3-border.w3-small.w3-padding-small(
 				//- 	ng-click=""
 				//- 	ng-show="Page.ShowDeleteButton()"
-				//- ) Delete {{ Page.Server.ObjectDefinition.Title }}
+				//- ) Delete {{ Page.Server.ItemDefinition.Title }}
 				.w3-container.w3-margin
 
 
 			//-=====================================================================
 			//-=====================================================================
 			//- 
-			//- 	Managed List
+			//- 	Page Items
 			//- 
 			//-=====================================================================
 			//-=====================================================================
@@ -81,72 +81,72 @@ block content
 						//- 	th Email
 
 						th(
-							ng-repeat="field in Page.Server.ObjectDefinition.Fields"
+							ng-repeat="field in Page.Server.ItemDefinition.Fields"
 						)
 							span {{ field.title }}
 
 					tr.w3-border(
-						ng-repeat="object in Page.objects"
+						ng-repeat="item in Page.Items"
 					)
 						td.w3-rightbar.w3-padding-small.w3-center.no-line-break
 
 							a.w3-btn.w3-sand.w3-border.w3-small.w3-padding-small(
-								ng-href="{{Page.ObjectViewUrl( object )}}" 
+								ng-href="{{Page.ItemViewUrl( item )}}" 
 								ng-show="Page.UserCanDo('FindOne')"
 							)
 								i.fa.fa-eye.w3-text-blue
 							a.w3-btn.w3-sand.w3-border.w3-small.w3-padding-small(
-								ng-href="{{Page.ObjectEditUrl( object )}}" 
+								ng-href="{{Page.ItemEditUrl( item )}}" 
 								ng-show="Page.UserCanDo('WriteOne')"
 							)
 								i.fa.fa-edit.w3-text-green
 							a.w3-btn.w3-sand.w3-border.w3-small.w3-padding-small(
-								ng-href="{{Page.ObjectDeleteUrl( object )}}" 
+								ng-href="{{Page.ItemDeleteUrl( item )}}" 
 								ng-show="Page.UserCanDo('DeleteOne')"
 							)
 								i.fa.fa-trash-alt.w3-text-red
 
 						if( '|ListAll|DeleteAll|'.indexOf( locals.PageFunction ) > 0 )
-							td {{ object.__info.owner_id }}
+							td {{ item.__info.owner_id }}
 
 						td(
-							ng-repeat="field in Page.Server.ObjectDefinition.Fields"
+							ng-repeat="field in Page.Server.ItemDefinition.Fields"
 						)
 							span(
 								ng-if="field.type === 'string'"
-							) {{ object[ field.name ] }}
+							) {{ item[ field.name ] }}
 
 							span(
 								ng-if="field.type === 'date'"
-							) {{ object[ field.name ] }}
+							) {{ item[ field.name ] }}
 
 							span(
 								ng-if="field.type === 'url'"
 							)
 								a(
-									ng-show="object[ field.name ]"
-									ng-href="{{ object[ field.name ] }}"
+									ng-show="item[ field.name ]"
+									ng-href="{{ item[ field.name ] }}"
 								) link
 
 							span(
 								ng-if="field.type === 'image_url'"
 							)
 								img(
-									ng-src="{{object[ field.name ]}}"
+									ng-src="{{item[ field.name ]}}"
 									style="width:50px; height=auto;"
 								)
 
 							span(
 								ng-if="field.type === 'number'"
-							) {{ object[ field.name ] }}
+							) {{ item[ field.name ] }}
 
 							span(
 								ng-if="field.type === 'array'"
-							) {{ object[ field.name ].length }} items
+							) {{ item[ field.name ].length }} items
 
 							span(
 								ng-if="field.type === 'object'"
-							) {{ JSON.stringify( object[ field.name ] ) }}
+							) {{ JSON.stringify( item[ field.name ] ) }}
 
 
 			//-=====================================================================
@@ -161,12 +161,12 @@ block content
 			.w3-row
 				.w3-container.w3-margin
 				a.w3-btn.w3-green.w3-border.w3-small.w3-padding-small(
-					ng-href="{{ Page.ObjectCreateUrl() }}"
+					ng-href="{{ Page.ItemCreateUrl() }}"
 					ng-show="Page.ShowCreateButton()"
-				) New {{ Page.Server.ObjectDefinition.Title }}
+				) New {{ Page.Server.ItemDefinition.Title }}
 				//- a.w3-btn.w3-red.w3-border.w3-small.w3-padding-small(
 				//- 	ng-click=""
 				//- 	ng-show="Page.ShowDeleteButton()"
-				//- ) Delete {{ Page.Server.ObjectDefinition.Title }}
+				//- ) Delete {{ Page.Server.ItemDefinition.Title }}
 
 

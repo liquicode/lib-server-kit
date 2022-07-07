@@ -135,7 +135,7 @@ exports.Use =
 						response.render( endpoint.view, {
 							Server: Server,
 							User: request.user,
-							ObjectDefinition: Service.ObjectDefinition,
+							ItemDefinition: Service.ItemDefinition,
 							ServiceDefinition: Service.ServiceDefinition,
 							Parameters: parameters,
 						} );
@@ -186,7 +186,7 @@ exports.Use =
 		// 				{
 		// 					Server: Server, User: request.user,
 		// 					ServiceDefinition: Service.ServiceDefinition,
-		// 					ObjectDefinition: Service.ObjectDefinition,
+		// 					ItemDefinition: Service.ItemDefinition,
 		// 					FunctionRoute: FunctionRoute,
 		// 				} );
 		// 			return;
@@ -207,7 +207,7 @@ exports.Use =
 		// 				{
 		// 					Server: Server, User: request.user,
 		// 					ServiceDefinition: Service.ServiceDefinition,
-		// 					ObjectDefinition: Service.ObjectDefinition,
+		// 					ItemDefinition: Service.ItemDefinition,
 		// 					FunctionRoute: FunctionRoute,
 		// 					ObjectID: request.params.object_id,
 		// 				} );

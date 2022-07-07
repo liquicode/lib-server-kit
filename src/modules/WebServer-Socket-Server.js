@@ -141,13 +141,13 @@ exports.Use =
 				}
 
 
-				//---------------------------------------------------------------------
-				Socket.onAny(
-					async function ( Event, ...args )
-					{
-						Server.Log.trace( `Socket received event: ${Event}\n${JSON.stringify( args, null, '    ' )}` );
-						return;
-					} );
+				// //---------------------------------------------------------------------
+				// Socket.onAny(
+				// 	async function ( Event, ...args )
+				// 	{
+				// 		Server.Log.trace( `Socket received event: ${Event}\n${JSON.stringify( args, null, '    ' )}` );
+				// 		return;
+				// 	} );
 
 
 				//---------------------------------------------------------------------

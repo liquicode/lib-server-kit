@@ -2,7 +2,7 @@
 
 
 app.controller(
-	'ManagedObject_Controller',
+	'StorageItem_Controller',
 	function ( $scope, $http, $window, $location, $cookies )
 	{
 
@@ -19,156 +19,206 @@ app.controller(
 		//---------------------------------------------------------------------
 		var Page = {
 			Server: window.SERVER_DATA,
+			User: window.SERVER_DATA.User,
+			ItemDefinition: window.SERVER_DATA.ItemDefinition,
+			ServiceDefinition: window.SERVER_DATA.ServiceDefinition,
+			Parameters: window.SERVER_DATA.Parameters,
+			ItemID: '',
+			PageOp: '',
 			object_info_visible: false,
-			object: null,
+			Socket: null,
+			Item: null,
 		};
+		{
+			// Parse Parameters
+			let params = Page.Parameters.split( ',' );
+			Page.ItemID = params[ 0 ];
+			Page.PageOp = params[ 1 ];
+		}
 		$scope.Page = Page;
 
 
 		//---------------------------------------------------------------------
-		Page.Def = Page.Server.ObjectDefinition;
-
-
-		//---------------------------------------------------------------------
-		Page.UserCanDo =
-			function UserCanDo( FunctionName )
-			{
-				var auth = Page.Server.ServiceEndpoints[ FunctionName ];
-				if ( !auth.requires_login ) { return true; }
-				if ( auth.allowed_roles.includes( Page.Server.User.role ) ) { return true; }
-				return false;
-			};
-
-
-		//---------------------------------------------------------------------
-		Page.IsReadOnly =
-			function IsReadOnly()
-			{
-				if ( Page.Server.PageFunction === 'CreateOne' ) { return false; }
-				if ( Page.Server.PageFunction === 'ReadOne' ) { return true; }
-				if ( Page.Server.PageFunction === 'WriteOne' ) { return false; }
-				if ( Page.Server.PageFunction === 'DeleteOne' ) { return true; }
-				return false;
-			};
-
-
-		//---------------------------------------------------------------------
-		Page.ReadObject =
-			function ReadObject()
-			{
-				if ( Page.Server.ObjectID )
+		if ( Page.User )
+		{
+			SocketApi.NewSocket( Page.User,
+				( Socket, Status ) =>
 				{
-					SERVER_API[ Page.Def.ServiceName ].ReadOne(
-						Page.Server.ObjectID,
-						function ( error, api_result )
+					if ( Status !== 'OK' )
+					{
+						console.error( 'Socket connection failed.' );
+						return;
+					}
+					Page.Socket = Socket;
+					if ( [ 'Create' ].includes( Page.PageOp ) )
+					{
+						Page.Item = {};
+					}
+					else if ( [ 'Read', 'Update', 'Delete' ].includes( Page.PageOp ) )
+					{
+						Page.ReadItem();
+					}
+				} );
+		}
+
+
+		//---------------------------------------------------------------------
+		Page.ItemInfo =
+			function ItemInfo()
+			{
+				if ( Page.Item === null ) { return ''; }
+				return JSON.stringify( Page.Item.__info, null, '    ' );
+			};
+
+
+		//---------------------------------------------------------------------
+		Page.IsFieldEditable =
+			function IsFieldEditable( Field )
+			{
+				if ( Page.PageOp === 'Create' )
+				{
+					return true;
+				}
+				else if ( Page.PageOp === 'Read' ) 
+				{
+					return false;
+				}
+				else if ( Page.PageOp === 'Update' ) 
+				{
+					if ( Field.readonly ) { return false; }
+					return true;
+				}
+				else if ( Page.PageOp === 'Delete' ) 
+				{
+					return false;
+				}
+				return false;
+			};
+
+
+		// //---------------------------------------------------------------------
+		// Page.UserCanDo =
+		// 	function UserCanDo( FunctionName )
+		// 	{
+		// 		let auth = Page.Server.ServiceDefinition.Endpoints[ FunctionName ];
+		// 		if ( auth )
+		// 		{
+		// 			if ( !auth.requires_login ) { return true; }
+		// 			if ( auth.allowed_roles.includes( Page.User.user_role ) ) { return true; }
+		// 		}
+		// 		return false;
+		// 	};
+
+
+		// //---------------------------------------------------------------------
+		// Page.IsReadOnly =
+		// 	function IsReadOnly()
+		// 	{
+		// 		if ( Page.PageOp === 'Create' ) { return false; }
+		// 		if ( Page.PageOp === 'Read' ) { return true; }
+		// 		if ( Page.PageOp === 'Update' ) { return false; }
+		// 		if ( Page.PageOp === 'Delete' ) { return true; }
+		// 		return false;
+		// 	};
+
+
+		//---------------------------------------------------------------------
+		Page.CreateItem =
+			function CreateItem()
+			{
+				if ( Page.Socket )
+				{
+					Page.Socket[ Page.ServiceDefinition.Name ].CreateOne( Page.Item,
+						( api_result ) =>
 						{
-							if ( error )
+							if ( api_result.error )
 							{
-								alert( `Server Error: ${error}` );
+								alert( `Error during CreateOne: ${api_result.error}` );
+								return;
 							}
-							else
-							{
-								Page.object = api_result.object;
-								$scope.$apply();
-							}
+							Page.Item = api_result.result;
+							Page.ItemID = Page.Item.__info.id;
+							$scope.$apply();
 						} );
 				}
 				else
 				{
-					Page.object = {};
+					Page.Item = {};
 				}
 				return;
 			};
 
 
 		//---------------------------------------------------------------------
-		Page.CreateObject =
-			function CreateObject()
+		Page.ReadItem =
+			function ReadItem()
 			{
-				SERVER_API[ Page.Def.ServiceName ].CreateOne(
-					Page.object,
-					function ( error, api_result )
-					{
-						if ( error )
+				if ( Page.Socket && Page.ItemID )
+				{
+					Page.Socket[ Page.ServiceDefinition.Name ].FindOne( Page.ItemID,
+						( api_result ) =>
 						{
-							alert( `Server Error: ${error}` );
-						}
-						else
-						{
-							Page.object = api_result.object;
+							if ( api_result.error )
+							{
+								alert( `Error during FindOne: ${api_result.error}` );
+								return;
+							}
+							Page.Item = api_result.result;
 							$scope.$apply();
-							alert( Page.Def.ObjectTitle + ' was created' );
-						}
-					} );
+						} );
+				}
+				else
+				{
+					Page.Item = {};
+				}
 				return;
 			};
 
 
 		//---------------------------------------------------------------------
-		Page.WriteObject =
-			function WriteObject()
+		Page.WriteItem =
+			function WriteItem()
 			{
-				SERVER_API[ Page.Def.ServiceName ].WriteOne(
-					Page.object,
-					function ( error, api_result )
-					{
-						if ( error )
+				if ( Page.Socket && Page.ItemID )
+				{
+					Page.Socket[ Page.ServiceDefinition.Name ].WriteOne( Page.ItemID, Page.Item,
+						( api_result ) =>
 						{
-							alert( `Server Error: ${error}` );
-						}
-						else
-						{
-							// Page.object = api_result.object;
+							if ( api_result.error )
+							{
+								alert( `Error during WriteOne: ${api_result.error}` );
+								return;
+							}
 							// $scope.$apply();
-							alert( Page.Def.ObjectTitle + ' was updated' );
-						}
-					} );
+						} );
+				}
 				return;
 			};
 
 
 		//---------------------------------------------------------------------
-		Page.DeleteObject =
-			function DeleteObject()
+		Page.DeleteItem =
+			function DeleteItem()
 			{
-				SERVER_API[ Page.Def.ServiceName ].DeleteOne(
-					Page.Server.ObjectID,
-					function ( error, api_result )
-					{
-						if ( error )
+				if ( Page.Socket && Page.ItemID )
+				{
+					Page.Socket[ Page.ServiceDefinition.Name ].DeleteOne( Page.ItemID,
+						( api_result ) =>
 						{
-							alert( `Server Error: ${error}` );
-						}
-						else
-						{
-							// Page.object = api_result.object;
-							// $scope.$apply();
-							alert( Page.Def.ObjectTitle + ' was deleted' );
-						}
-					} );
+							if ( api_result.error )
+							{
+								console.error( `Error during DeleteOne: ${api_result.error}` );
+								return;
+							}
+							Page.PageOp = 'Read';
+							$scope.$apply();
+						} );
+				}
 				return;
 			};
 
 
-		//=====================================================================
-		//=====================================================================
-		//
-		//		Initialize
-		//
-		//=====================================================================
-		//=====================================================================
-
-
-		if ( Page.Server.PageFunction === 'CreateOne' ) 
-		{
-			if ( Page.Server.ObjectID === 'new' ) 
-			{
-				Page.Server.ObjectID = '';
-			}
-		}
-		Page.ReadObject();
-
-
+		//---------------------------------------------------------------------
 		// Exit Controller
 		return;
 	} );

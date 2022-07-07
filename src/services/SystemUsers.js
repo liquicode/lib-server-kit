@@ -97,20 +97,21 @@ exports.Construct =
 
 		//---------------------------------------------------------------------
 		// Object Identity
-		service.ObjectDefinition.Name = 'SystemUser';
-		service.ObjectDefinition.Title = 'System User';
-		service.ObjectDefinition.Titles = 'System Users';
+		service.ItemDefinition.Name = 'SystemUser';
+		service.ItemDefinition.Title = 'System User';
+		service.ItemDefinition.Titles = 'System Users';
 
 		//---------------------------------------------------------------------
-		service.ObjectDefinition.Fields.UserID = {
+		service.ItemDefinition.Fields.UserID = {
 			name: 'user_id',
 			title: 'User Email',
 			description: 'Email address of the user.',
 			type: 'string',
+			readonly: true,
 		};
 
 		//---------------------------------------------------------------------
-		service.ObjectDefinition.Fields.UserRole = {
+		service.ItemDefinition.Fields.UserRole = {
 			name: 'user_role',
 			title: 'User Role',
 			description: 'The role of this user within the system.',
@@ -118,7 +119,7 @@ exports.Construct =
 		};
 
 		//---------------------------------------------------------------------
-		service.ObjectDefinition.Fields.UserName = {
+		service.ItemDefinition.Fields.UserName = {
 			name: 'user_name',
 			title: 'User Name',
 			description: 'Display name of the user.',
@@ -126,7 +127,7 @@ exports.Construct =
 		};
 
 		//---------------------------------------------------------------------
-		service.ObjectDefinition.Fields.ImageUrl = {
+		service.ItemDefinition.Fields.ImageUrl = {
 			name: 'image_url',
 			title: 'Image URL',
 			description: 'URL of the image associated with this acoount.',

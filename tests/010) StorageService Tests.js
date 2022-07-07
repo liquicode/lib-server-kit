@@ -63,7 +63,7 @@ describe( `010) StorageService Tests`,
 			storage.SetSettings( storage_config );
 
 			// Create an object definition.
-			storage.ObjectDefinition = {
+			storage.ItemDefinition = {
 				Name: 'TestObject',
 				Title: 'Test Object',
 				Titles: 'Test Objects',

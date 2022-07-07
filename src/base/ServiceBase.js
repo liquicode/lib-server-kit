@@ -59,11 +59,11 @@ exports.NewService =
 
 		//---------------------------------------------------------------------
 		// *** Implemented by the service.
-		// The ObjectDefinition describes the service object and its fields.
-		// ObjectDefinition contains all of the information necessary to perform the following:
+		// The ItemDefinition describes the service object and its fields.
+		// ItemDefinition contains all of the information necessary to perform the following:
 		// - Storage Consistency: Objects stored in persistent storage can be assured to have the same fields.
 		// - User Interface Generation: User interfaces can display user-friendly titles and descriptions.
-		service.ObjectDefinition = {
+		service.ItemDefinition = {
 			Name: 'GenericObject',
 			Title: 'Generic Object',
 			Titles: 'Generic Objects',
@@ -79,17 +79,17 @@ exports.NewService =
 
 
 		//---------------------------------------------------------------------
-		// Creates a new object based upon the service's ObjectDefinition.
+		// Creates a new object based upon the service's ItemDefinition.
 		service.NewServiceObject =
 			function ( Prototype ) 
 			{
 				let service_object = {};
 				if ( Prototype ) { service_object = Server.Utility.clone( Prototype ); }
-				let field_names = Object.keys( service.ObjectDefinition.Fields );
+				let field_names = Object.keys( service.ItemDefinition.Fields );
 				for ( let field_index = 0; field_index < field_names.length; field_index++ )
 				{
 					let field_name = field_names[ field_index ];
-					let field = service.ObjectDefinition.Fields[ field_name ];
+					let field = service.ItemDefinition.Fields[ field_name ];
 					if ( typeof service_object[ field.name ] === 'undefined' )
 					{
 						service_object[ field.name ] = null;

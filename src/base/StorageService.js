@@ -273,18 +273,17 @@ exports.NewStorageService =
 			verbs: [ 'get' ],
 			parameters: [ 'Criteria' ],
 			view: 'storage/list',
-			// invoke:
-			// 	async function ( User, Criteria ) 
-			// 	{
-			// 		let list = await service.Storage.FindMany( User, Criteria );
-			// 		response.render( 'storage/list', { 
-			// 			Server: Server, 
-			// 			User: User, 
-			// 			ObjectDefinition: service.ObjectDefinition, 
-			// 			ServiceDefinition: service.ServiceDefinition, 
-			// 			List: list } );
-			// 		return;
-			// 	},
+		};
+
+		//---------------------------------------------------------------------
+		service.ServiceDefinition.Pages.Item = {
+			name: 'Item',
+			description: 'Shows item detail and management functions.',
+			requires_login: true,
+			allowed_roles: [ 'admin', 'super', 'user' ],
+			verbs: [ 'get' ],
+			parameters: [ 'ItemID', 'PageOp' ],
+			view: 'storage/item',
 		};
 
 
