@@ -54,15 +54,41 @@ exports.Construct =
 					port: 80,
 					temp_path: '~temp', // Temp folder for file uploads.
 					report_routes: false,
+					JsonBodyParser: {
+						enabled: true,
+						limit: '50mb',
+					},
+					UrlEncodedParser: {
+						enabled: true,
+						extended: true,
+						limit: '50 MB',
+					},
+					FileUpload: {
+						enabled: true,
+						debug: false,
+						limits: { fileSize: 500 * 1024 * 1024 /* 500 MB */ },
+						abortOnLimit: true,
+						responseOnLimit: 'Uploads cannot be larger than 500MB.',
+						useTempFiles: false,
+						tempFileDir: 'path-to-temp-folder',
+					},
 					ClientFiles: {
 						enabled: true,
 						public_files: 'web/files',
 						view_files: 'web/views',
 						http_api_client: 'web/files/_http-api-client.js',
 					},
+					Cors: {
+						enabled: true,
+						origin: '*',
+						optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+					},
 					Session: {
-						enabled: false,
-						session_key: 'CHANGE THIS TO A RANDOM SECRET',
+						enabled: true,
+						secret: 'CHANGE THIS TO A RANDOM SECRET',
+						cookie: {},
+						resave: false,
+						saveUninitialized: true
 					},
 					Urls: {
 						home_url: 'home',
@@ -75,7 +101,7 @@ exports.Construct =
 						// Authentication: email and password
 						Local: {
 							enabled: false,
-							users: [ { user_email: 'admin@internal', password: 'password' } ],
+							Users: [ { user_id: 'admin@internal', password: 'password' } ],
 						},
 						// Authentication: Auth0
 						Auth0: {
@@ -90,11 +116,6 @@ exports.Construct =
 						enabled: false,
 						// port: 3000,
 						socket_api_client: 'web/files/_socket-api-client.js',
-					},
-					Cors: {
-						enabled: true,
-						origin: '*',
-						optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 					},
 					// Helmet: {
 					// 	enabled: true,
@@ -298,14 +319,18 @@ exports.Construct =
 
 
 				//---------------------------------------------------------------------
+				if ( WebServerSettings.JsonBodyParser && WebServerSettings.JsonBodyParser.enabled )
 				{
-					// module.ExpressRouter.use( LIB_BODY_PARSER.json() );
-					// module.ExpressRouter.use( LIB_BODY_PARSER.urlencoded( { extended: true } ) ); // for parsing application/x-www-form-urlencoded
-					_module.ExpressRouter.use( LIB_EXPRESS.json( { limit: '50mb' } ) );
-					Server.Log.trace( `WebServer - initialized json body parser (limit: 50mb)` );
+					_module.ExpressRouter.use( LIB_EXPRESS.json( WebServerSettings.JsonBodyParser ) );
+					Server.Log.trace( `WebServer - initialized JsonBodyParser` );
+				}
 
-					_module.ExpressRouter.use( LIB_EXPRESS.urlencoded( { extended: true, limit: '50 MB' } ) );
-					Server.Log.trace( `WebServer - initialized urlencoded parser (limit: 50 MB)` );
+
+				//---------------------------------------------------------------------
+				if ( WebServerSettings.UrlEncodedParser && WebServerSettings.UrlEncodedParser.enabled )
+				{
+					_module.ExpressRouter.use( LIB_EXPRESS.urlencoded( WebServerSettings.UrlEncodedParser ) );
+					Server.Log.trace( `WebServer - initialized UrlEncodedParser` );
 				}
 
 
@@ -319,23 +344,10 @@ exports.Construct =
 
 
 				//---------------------------------------------------------------------
-				// Configure file upload.
+				if ( WebServerSettings.FileUpload && WebServerSettings.FileUpload.enabled )
 				{
-					let options = {
-						// debug: true,
-						// File Size Limits
-						limits: { fileSize: 500 * 1024 * 1024 /* 500 MB */ },
-						abortOnLimit: true,
-						responseOnLimit: 'Uploads cannot be larger than 500MB.',
-					};
-					if ( _module.Settings.temp_path )
-					{
-						// Temp Files
-						options.useTempFiles = true;
-						options.tempFileDir = _module.Settings.temp_path;
-					}
-					_module.ExpressRouter.use( LIB_EXPRESS_FILEUPLOAD( options ) );
-					Server.Log.trace( `WebServer - initialized file upload (limit: 500 MB)` );
+					_module.ExpressRouter.use( LIB_EXPRESS_FILEUPLOAD( WebServerSettings.FileUpload ) );
+					Server.Log.trace( `WebServer - initialized FileUpload` );
 				}
 
 
@@ -353,13 +365,8 @@ exports.Construct =
 				// https://auth0.com/docs/quickstart/webapp/nodejs#configure-auth0
 				if ( WebServerSettings.Session && WebServerSettings.Session.enabled )
 				{
-					let session =
-					{
-						secret: WebServerSettings.Session.session_key,
-						cookie: {},
-						resave: false,
-						saveUninitialized: true
-					};
+					// let session = Server.Utility.clone( WebServerSettings.Session );
+					let session = JSON.parse( JSON.stringify( WebServerSettings.Session ) );
 					if ( Server.Config.Settings.AppInfo.environment === 'production' )
 					{
 						// Use secure cookies in production (requires SSL/TLS)
@@ -604,7 +611,7 @@ exports.Construct =
 
 
 				_module.HttpServer = LIB_HTTP.createServer( _module.ExpressRouter );
-				Server.Log.trace( `WebServer - server initialized` );
+				Server.Log.trace( `WebServer - server initialization complete.` );
 
 
 				//=====================================================================

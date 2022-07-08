@@ -11,15 +11,43 @@
 		"port": 80,
 		"temp_path": "~temp",
 		"report_routes": false,
+		"JsonBodyParser": {
+			"enabled": true,
+			"limit": "50mb"
+		},
+		"UrlEncodedParser": {
+			"enabled": true,
+			"extended": true,
+			"limit": "50 MB"
+		},
+		"FileUpload": {
+			"enabled": true,
+			"debug": false,
+			"limits": {
+				"fileSize": 524288000
+			},
+			"abortOnLimit": true,
+			"responseOnLimit": "Uploads cannot be larger than 500MB.",
+			"useTempFiles": false,
+			"tempFileDir": "path-to-temp-folder"
+		},
 		"ClientFiles": {
 			"enabled": true,
 			"public_files": "web/files",
 			"view_files": "web/views",
 			"http_api_client": "web/files/_http-api-client.js"
 		},
+		"Cors": {
+			"enabled": true,
+			"origin": "*",
+			"optionsSuccessStatus": 200
+		},
 		"Session": {
-			"enabled": false,
-			"session_key": "CHANGE THIS TO A RANDOM SECRET"
+			"enabled": true,
+			"secret": "CHANGE THIS TO A RANDOM SECRET",
+			"cookie": {},
+			"resave": false,
+			"saveUninitialized": true
 		},
 		"Urls": {
 			"home_url": "home",
@@ -31,9 +59,9 @@
 		"Passport": {
 			"Local": {
 				"enabled": false,
-				"users": [
+				"Users": [
 					{
-						"user_email": "admin@internal",
+						"user_id": "admin@internal",
 						"password": "password"
 					}
 				]
@@ -49,11 +77,6 @@
 		"SocketServer": {
 			"enabled": false,
 			"socket_api_client": "web/files/_socket-api-client.js"
-		},
-		"Cors": {
-			"enabled": true,
-			"origin": "*",
-			"optionsSuccessStatus": 200
 		}
 	},
 	"SystemUsers": {

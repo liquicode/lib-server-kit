@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Socket Api Client File for: MathsServer
-// Generated:  2022-07-07T08:05:03.867Z
-//   Thu Jul 07 2022 04:05:03 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-08T07:35:46.550Z
+//   Fri Jul 08 2022 03:35:46 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var SocketApi = {};
@@ -40,14 +40,8 @@ SocketApi.NewSocket =
 		socket.SystemUsers.StorageWriteOne = function ( Criteria, DataObject, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageWriteOne', [Criteria, DataObject], Callback ); }
 		socket.SystemUsers.StorageDeleteOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageDeleteOne', [Criteria], Callback ); }
 		socket.SystemUsers.StorageDeleteMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageDeleteMany', [Criteria], Callback ); }
-		socket.SystemUsers.StorageShare = function ( Criteria, Readers, Writers, MakePublic, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageShare', [Criteria, Readers, Writers, MakePublic], Callback ); }
-		socket.SystemUsers.StorageUnshare = function ( Criteria, NotReaders, NotWriters, MakeUnpublic, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageUnshare', [Criteria, NotReaders, NotWriters, MakeUnpublic], Callback ); }
 
 		socket.Maths = {};
-		socket.Maths.Add = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Add', [A, B], Callback ); }
-		socket.Maths.Subtract = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Subtract', [A, B], Callback ); }
-		socket.Maths.Multiply = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Multiply', [A, B], Callback ); }
-		socket.Maths.Divide = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Divide', [A, B], Callback ); }
 
 		socket.__.io.on( 'connect',
 			() => 
@@ -69,7 +63,7 @@ SocketApi.NewSocket =
 		socket.__.io.on( 'connect_error',
 			( error ) =>
 			{
-				console.log( 'Socket connection error. Error [' + error + ']' );
+				console.log( 'Socket connection error: ' + error );
 			} );
 
 		socket.__.io.connect();

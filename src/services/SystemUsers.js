@@ -70,6 +70,8 @@ exports.Construct =
 		service.ServiceDefinition.Endpoints.StorageDeleteMany.allowed_roles = [ 'admin', 'super' ];
 		service.ServiceDefinition.Endpoints.StorageShare.allowed_roles = [ 'admin', 'super' ];
 		service.ServiceDefinition.Endpoints.StorageUnshare.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Endpoints.StorageShare.verbs = [];		// Do not expose StorageShare
+		service.ServiceDefinition.Endpoints.StorageUnshare.verbs = [];		// Do not expose StorageUnshare
 
 		// service.ServiceDefinition.Pages.List = {
 		// 	name: 'List',
@@ -179,12 +181,13 @@ exports.Construct =
 
 				//---------------------------------------------------------------------
 				// Create a user object that is owned by that user.
-				async function create_user( Storage, ThisUserInfo )
+				async function create_user( ThisUserInfo )
 				{
-					let new_user = await Storage.CreateOne( LIB_USER_STORAGE.StorageAdministrator(), ThisUserInfo );
-					let info = Storage.GetUserInfo( new_user );
-					let count = await Storage.SetOwner( ThisUserInfo, info.id ); // Users own their accounts.
-					new_user = await Storage.FindOne( ThisUserInfo, info.id );
+					let user_prototype = service.NewServiceObject( ThisUserInfo )
+					let new_user = await service.Storage.CreateOne( LIB_USER_STORAGE.StorageAdministrator(), user_prototype );
+					let info = service.Storage.GetUserInfo( new_user );
+					let count = await service.Storage.SetOwner( ThisUserInfo, info.id ); // Users own their accounts.
+					new_user = await service.Storage.FindOne( ThisUserInfo, info.id );
 					return new_user;
 				}
 
@@ -199,7 +202,7 @@ exports.Construct =
 						// Create the first user as the admin user.
 						Server.Log.warn( `SystemUsers is empty, creating the first SystemUser as the admin user.` );
 						UserInfo.user_role = 'admin';
-						found_user = await create_user( service.Storage, UserInfo );
+						found_user = await create_user( UserInfo );
 						Server.Log.debug( `Created a new admin SystemUser: (${found_user.user_id})` );
 					}
 					else
@@ -208,7 +211,7 @@ exports.Construct =
 						found_user = await service.Storage.FindOne( LIB_USER_STORAGE.StorageAdministrator(), { user_id: UserInfo.user_id } );
 						if ( found_user === null )
 						{
-							found_user = await create_user( service.Storage, UserInfo );
+							found_user = await create_user( UserInfo );
 							Server.Log.debug( `Created a new SystemUser: (${found_user.user_id})` );
 						}
 						else

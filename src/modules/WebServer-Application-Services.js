@@ -45,6 +45,7 @@ exports.Use =
 		function add_http_service_endpoints( Service, Router, ParentPath )
 		{
 			// Add endpoints for this service.
+			let endpoint_count = 0;
 			let endpoint_names = Object.keys( Service.ServiceDefinition.Endpoints );
 			for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
 			{
@@ -87,29 +88,33 @@ exports.Use =
 					Router.get( `${ParentPath}/${endpoint.name}`,
 						( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
 						http_service_handler );
+					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'post' ) )
 				{
 					Router.post( `${ParentPath}/${endpoint.name}`,
 						( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
 						http_service_handler );
+					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'put' ) )
 				{
 					Router.put( `${ParentPath}/${endpoint.name}`,
 						( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
 						http_service_handler );
+					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'delete' ) )
 				{
 					Router.delete( `${ParentPath}/${endpoint.name}`,
 						( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
 						http_service_handler );
+					endpoint_count++;
 				}
 
 			}
 
-			return;
+			return endpoint_count;
 		};
 
 
@@ -117,6 +122,7 @@ exports.Use =
 		function add_http_page_endpoints( Service, Router, ParentPath )
 		{
 			// Add endpoints for this service.
+			let endpoint_count = 0;
 			let endpoint_names = Object.keys( Service.ServiceDefinition.Pages );
 			for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
 			{
@@ -159,17 +165,33 @@ exports.Use =
 					Router.get( `${ParentPath}/${endpoint.name}`,
 						( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
 						http_page_handler );
+					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'post' ) )
 				{
 					Router.post( `${ParentPath}/${endpoint.name}`,
 						( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
 						http_page_handler );
+					endpoint_count++;
+				}
+				if ( endpoint.verbs.includes( 'put' ) )
+				{
+					Router.put( `${ParentPath}/${endpoint.name}`,
+						( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
+						http_page_handler );
+					endpoint_count++;
+				}
+				if ( endpoint.verbs.includes( 'delete' ) )
+				{
+					Router.delete( `${ParentPath}/${endpoint.name}`,
+						( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
+						http_page_handler );
+					endpoint_count++;
 				}
 
 			}
 
-			return;
+			return endpoint_count;
 		};
 
 
@@ -225,12 +247,12 @@ exports.Use =
 			let service = Server[ service_name ];
 
 			// Add the service API
-			add_http_service_endpoints( service, ExpressRouter, `/api/${service.ServiceDefinition.name}` );
-			Server.Log.trace( `Added service ${service.ServiceDefinition.Endpoints.length} routes for [${service_name}].` );
+			let endpoint_count = add_http_service_endpoints( service, ExpressRouter, `/api/${service.ServiceDefinition.name}` );
+			Server.Log.trace( `Added ${endpoint_count} http routes for [/api/${service.ServiceDefinition.name}] functions.` );
 
 			// Add the service pages
-			add_http_page_endpoints( service, ExpressRouter, `/ui/${service.ServiceDefinition.name}` );
-			Server.Log.trace( `Added service ${service.ServiceDefinition.Pages.length} pages for [${service_name}].` );
+			let page_count = add_http_page_endpoints( service, ExpressRouter, `/ui/${service.ServiceDefinition.name}` );
+			Server.Log.trace( `Added ${page_count} http routes for [/ui/${service.ServiceDefinition.name}] pages.` );
 
 			// // Add the service UI
 			// add_managed_list_page( service, 'ListAll' );		// /{{service_name}}/ListAll

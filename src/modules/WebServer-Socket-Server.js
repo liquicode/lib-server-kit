@@ -21,7 +21,7 @@ exports.Use =
 			{
 				Server.Log.trace( `New socket connection received.` );
 
-				let _session = {
+				let this_session = {
 					socket_id: Socket.id,
 					User: null,
 				};
@@ -74,7 +74,7 @@ exports.Use =
 							if ( Message.User.user_id === user.user_id ) // Match the user_id fields.
 							{
 								// Socket.User = user;
-								_session.User = user;
+								this_session.User = user;
 								if ( Message.callback_name ) { Socket.emit( Message.callback_name, 'OK' ); }
 								Server.Log.debug( `Authorized User (${user.user_id})` );
 								return;
@@ -95,6 +95,7 @@ exports.Use =
 					};
 
 					// Add endpoints for this service.
+					let endpoint_count = 0;
 					let endpoint_names = Object.keys( Service.ServiceDefinition.Endpoints );
 					for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
 					{
@@ -109,10 +110,10 @@ exports.Use =
 								async function ( Message ) 
 								{
 									let api_result = { ok: true };
-									Server.Log.info( `Socket call [${full_endpoint_name}] (by: ${_session.User.user_id})` );
+									Server.Log.info( `Socket call [${full_endpoint_name}] (by: ${this_session.User.user_id})` );
 									try
 									{
-										api_result.result = await endpoint.invoke( _session.User, ...Message.Payload );
+										api_result.result = await endpoint.invoke( this_session.User, ...Message.Payload );
 										if ( Message.callback_name ) { Socket.emit( Message.callback_name, api_result ); }
 									}
 									catch ( error )
@@ -122,10 +123,11 @@ exports.Use =
 										if ( Message.callback_name ) { Socket.emit( Message.callback_name, api_result ); }
 									}
 								} );
+							endpoint_count++;
 						}
 					}
 
-					return;
+					return endpoint_count;
 				};
 
 
@@ -136,8 +138,8 @@ exports.Use =
 				{
 					let service_name = service_names[ index ];
 					let service = Server[ service_name ];
-					add_service_endpoints( service, Socket, '' );
-					Server.Log.trace( `Added service routes for [${service_name}].` );
+					let count = add_service_endpoints( service, Socket, '' );
+					Server.Log.trace( `Added ${count} socket functions for [${service_name}].` );
 				}
 
 

@@ -63,23 +63,26 @@ SocketApi.NewSocket =
 		{
 			// Define a Service Endpoint.
 			let endpoint = endpoints[ endpoint_names[ index ] ];
-			let parameters = ``;
-			let payload = ``;
-			for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
+			if ( endpoint.verbs.includes( 'call' ) )
 			{
-				// Construct the parameters and payload.
-				let parameter_name = endpoint.parameters[ parameter_index ];
-				parameters += parameter_name + ', ';
-				if ( payload ) { payload += ', '; };
-				payload += parameter_name;
-			}
-			parameters += 'Callback';
-			payload = `[${payload}]`;
+				let parameters = ``;
+				let payload = ``;
+				for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
+				{
+					// Construct the parameters and payload.
+					let parameter_name = endpoint.parameters[ parameter_index ];
+					parameters += parameter_name + ', ';
+					if ( payload ) { payload += ', '; };
+					payload += parameter_name;
+				}
+				parameters += 'Callback';
+				payload = `[${payload}]`;
 
-			// Define the endpoint.
-			code += `		socket.${service_name}.${endpoint.name}`;
-			code += ` = function ( ${parameters} )`;
-			code += ` { SocketApi.SocketMessage( socket, '${service_name}.${endpoint.name}', ${payload}, Callback ); }\n`;
+				// Define the endpoint.
+				code += `		socket.${service_name}.${endpoint.name}`;
+				code += ` = function ( ${parameters} )`;
+				code += ` { SocketApi.SocketMessage( socket, '${service_name}.${endpoint.name}', ${payload}, Callback ); }\n`;
+			}
 		}
 	}
 
@@ -104,7 +107,7 @@ SocketApi.NewSocket =
 		socket.__.io.on( 'connect_error',
 			( error ) =>
 			{
-				console.log( 'Socket connection error. Error [' + error + ']' );
+				console.log( 'Socket connection error: ' + error );
 			} );
 
 		socket.__.io.connect();

@@ -40,10 +40,17 @@ app.controller(
 						password: Page.password,
 					} )
 					.done(
-						function ( api_result )
+						function ( result )
 						{
 							Page.message = "User Logged In Successfully!";
-							$window.location.href = '/';
+							if ( result )
+							{
+								$window.location.href = result;
+							}
+							else
+							{
+								$window.location.href = '/';
+							}
 							$scope.$apply();
 							return;
 						} )
