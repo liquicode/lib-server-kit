@@ -1,5 +1,5 @@
 # lib-server-kit
-***(v0.0.2)***
+***(v0.0.3)***
 ## A toolkit for developing functional node servers.
 
 ```

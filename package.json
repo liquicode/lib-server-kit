@@ -1,6 +1,6 @@
 {
 	"name": "@liquicode/lib-server-kit",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "A toolkit for developing functional node servers.",
 	"main": "src/lib-server-kit.js",
 	"homepage": "",
