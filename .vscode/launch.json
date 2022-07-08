@@ -5,23 +5,6 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Launch Program",
-			"type": "pwa-node",
-			"request": "launch",
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"outputCapture": "std",
-			"cwd": "${workspaceFolder}",
-			"program": "${workspaceFolder}/cli/cli.js",
-			"args": [
-				"run",
-				"0.0.0.0",
-				"4200"
-			],
-			"internalConsoleOptions": "openOnSessionStart",
-		},
-		{
 			"name": "Run Tests",
 			"type": "pwa-node",
 			"request": "launch",
@@ -51,6 +34,22 @@
 			"program": "${workspaceFolder}/tests/MathsServer/MathsServer.js",
 			"args": [],
 			"internalConsoleOptions": "openOnSessionStart",
-		}
+		},
+		{
+			"name": "------------------------------------------",
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test 910",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/build/custom/910-release-version.js",
+			"cwd": "${workspaceFolder}",
+			"args": [
+				"--test",
+			],
+		},
 	]
 }

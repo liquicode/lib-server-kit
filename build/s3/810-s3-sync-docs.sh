@@ -1,11 +1,11 @@
 #!/bin/bash
 . build/__secrets/build-env
 echo "------------------------------------------"
-echo "811-s3-sync-web-client.sh"
+echo "810-s3-sync.sh"
 echo " - AWS_BUCKET = $AWS_BUCKET"
 echo "------------------------------------------"
 
-aws s3 sync web-client s3://$AWS_BUCKET
+aws s3 sync docs s3://$AWS_BUCKET
 
 
 # # = BUCKET POLICY =
