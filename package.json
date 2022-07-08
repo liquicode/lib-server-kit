@@ -6,7 +6,7 @@
 	"homepage": "",
 	"license": "",
 	"repository": {},
-	"private": true,
+	"private": false,
 	"dependencies": {
 		"@liquicode/lib-json": "^0.1.5",
 		"@liquicode/lib-logger": "^0.2.2",
