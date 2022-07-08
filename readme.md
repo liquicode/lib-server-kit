@@ -39,3 +39,6 @@ TODO
 
 - What to do about `_http-api-client.js`?
 
+- Switch configuration management to [merge-config](https://www.npmjs.com/package/merge-config)?
+	- Supports yaml as well as json and hjson.
+	- hjson allows relaxed syntax and comments in json source.
