@@ -14,14 +14,15 @@
 const SRC_MODULE_BASE = require( '../base/ModuleBase.js' );
 
 const LIB_FS = require( 'fs' );
-const LIB_PATH = require( 'path' );
+// const LIB_PATH = require( 'path' );
 const LIB_HTTP = require( 'http' );
-const LIB_EXPRESS = require( 'express' );
-const LIB_EXPRESS_SESSION = require( 'express-session' );
-const LIB_CORS = require( 'cors' );
-// const LIB_HELMET = require( 'helmet' );
-const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
-const LIB_SOCKET_IO = require( 'socket.io' );
+const LIB_HTTPS = require( 'https' );
+// const LIB_EXPRESS = require( 'express' );
+// const LIB_EXPRESS_SESSION = require( 'express-session' );
+// const LIB_CORS = require( 'cors' );
+// // const LIB_HELMET = require( 'helmet' );
+// const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
+// const LIB_SOCKET_IO = require( 'socket.io' );
 
 
 //---------------------------------------------------------------------
@@ -30,9 +31,15 @@ exports.Construct =
 	{
 		let _module = SRC_MODULE_BASE.NewModule();
 
-		_module.ExpressRouter = null;	// Initialized during Initialize()
-		_module.HttpServer = null;		// Initialized during StartWebServer()
-		_module.SocketServer = null;	// Initialized during StartWebServer()
+		// Initialized during StartWebServer()
+		_module.HttpServer = null;
+		_module.ExpressTransport = null;
+		_module.SocketTransport = null;
+
+
+		const SRC_CONFIGURATION = require( './WebServer/Configuration.js' );
+		const SRC_EXPRESS = require( './WebServer/Express.js' );
+		const SRC_SOCKETIO = require( './WebServer/SocketIO.js' );
 
 
 		//---------------------------------------------------------------------
@@ -48,83 +55,8 @@ exports.Construct =
 		_module.GetDefaults =
 			function GetDefaults() 
 			{
-				return {
-					// WebServer Settings
-					address: 'localhost',
-					port: 80,
-					temp_path: '~temp', // Temp folder for file uploads.
-					report_routes: false,
-					JsonBodyParser: {
-						enabled: true,
-						limit: '50mb',
-					},
-					UrlEncodedParser: {
-						enabled: true,
-						extended: true,
-						limit: '50 MB',
-					},
-					FileUpload: {
-						enabled: true,
-						debug: false,
-						limits: { fileSize: 500 * 1024 * 1024 /* 500 MB */ },
-						abortOnLimit: true,
-						responseOnLimit: 'Uploads cannot be larger than 500MB.',
-						useTempFiles: false,
-						tempFileDir: 'path-to-temp-folder',
-					},
-					ClientFiles: {
-						enabled: true,
-						public_files: 'web/files',
-						view_files: 'web/views',
-						http_api_client: 'web/files/_http-api-client.js',
-					},
-					Cors: {
-						enabled: true,
-						origin: '*',
-						optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-					},
-					Session: {
-						enabled: true,
-						secret: 'CHANGE THIS TO A RANDOM SECRET',
-						cookie: {},
-						resave: false,
-						saveUninitialized: true
-					},
-					Urls: {
-						home_url: 'home',
-						login_url: 'auth/login',
-						logout_url: 'auth/logout',
-						signup_url: 'auth/signup',
-						user_url: 'auth/user',
-					},
-					Passport: {
-						// Authentication: email and password
-						Local: {
-							enabled: false,
-							Users: [ { user_id: 'admin@internal', password: 'password' } ],
-						},
-						// Authentication: Auth0
-						Auth0: {
-							enabled: false,
-							domain: 'auth0-domain',
-							client_id: 'auth0-client-id',
-							client_secret: 'auth0-client-secret',
-							callback_url: 'auth0-callback-url',
-						},
-					},
-					SocketServer: {
-						enabled: false,
-						// port: 3000,
-						socket_api_client: 'web/files/_socket-api-client.js',
-					},
-					// Helmet: {
-					// 	enabled: true,
-					// 	crossOriginResourcePolicy: {
-					// 		// origin: '*',
-					// 		policy: "cross-origin",
-					// 	},
-					// },
-				};
+				let defaults = SRC_CONFIGURATION.GetDefaults();
+				return defaults;
 			};
 
 
@@ -146,28 +78,64 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		_module.RequiresLogin =
-			function requires_login( request, response, next )
+		_module.AuthenticationGate =
+			function AuthenticationGate( WebServerSettings, RequiresAuthentication )
 			{
-				if ( request.user ) { return next(); }
-				request.session.returnTo = request.originalUrl;
-				response.redirect( `/${Server.Config.Settings.WebServer.Urls.login_url}` );
+				let middleware = null;
+				if ( WebServerSettings.Authentication
+					&& WebServerSettings.Authentication.enabled
+					&& RequiresAuthentication )
+				{
+					middleware =
+						function ( request, response, next )
+						{
+							if ( request.user ) { return next(); }
+							if ( request.session )
+							{
+								request.session.returnTo = request.originalUrl;
+							}
+							let url = WebServerSettings.Authentication.Urls.login_url;
+							if ( !url.startsWith( '/' ) ) { url = '/' + url; }
+							response.redirect( url );
+						};
+				}
+				else
+				{
+					middleware =
+						function ( request, response, next )
+						{
+							if ( request.user ) { return next(); }
+							request.user = JSON.parse( JSON.stringify( WebServerSettings.Authentication.AnonymousUser ) );
+							return next();
+						};
+				}
+				return middleware;
 			};
 
 
-		//---------------------------------------------------------------------
-		_module.NotRequiresLogin =
-			function not_requires_login( request, response, next )
-			{
-				if ( request.user ) { return next(); }
-				request.user = {
-					user_id: 'anonymous@internal',
-					user_role: 'public',
-					user_name: 'Anonymous',
-					image_url: '',
-				};
-				return next();
-			};
+		// //---------------------------------------------------------------------
+		// _module.RequiresLogin =
+		// 	function requires_login( request, response, next )
+		// 	{
+		// 		if ( request.user ) { return next(); }
+		// 		request.session.returnTo = request.originalUrl;
+		// 		response.redirect( `/${Server.Config.Settings.WebServer.Urls.login_url}` );
+		// 	};
+
+
+		// //---------------------------------------------------------------------
+		// _module.NotRequiresLogin =
+		// 	function not_requires_login( request, response, next )
+		// 	{
+		// 		if ( request.user ) { return next(); }
+		// 		request.user = {
+		// 			user_id: 'anonymous@internal',
+		// 			user_role: 'public',
+		// 			user_name: 'Anonymous',
+		// 			image_url: '',
+		// 		};
+		// 		return next();
+		// 	};
 
 
 		//---------------------------------------------------------------------
@@ -263,385 +231,99 @@ exports.Construct =
 		_module.StartWebServer =
 			async function StartWebServer( Callbacks = null )
 			{
-				if ( _module.HttpServer !== null ) { throw new Error( `WebServer is already running. Call the StopWebServer() function.` ); }
-				if ( _module.SocketServer !== null ) { throw new Error( `SocketServer is already running. Call the StopWebServer() function.` ); }
+				if ( _module.HttpServer ) { throw new Error( `HttpServer is already running. Call the StopWebServer() function.` ); }
+				if ( _module.ExpressTransport ) { throw new Error( `ExpressTransport is already running. Call the StopWebServer() function.` ); }
+				if ( _module.SocketTransport ) { throw new Error( `SocketTransport is already running. Call the StopWebServer() function.` ); }
+
 				const WebServerSettings = Server.Config.Settings.WebServer;
-
-
-				//==========================================
-				// Create an Express router.
-				_module.ExpressRouter = LIB_EXPRESS();
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Callback: PreInitialize
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				if ( Callbacks && Callbacks.PreInitialize ) { await Callbacks.PreInitialize( Server, _module.ExpressRouter ); }
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Security
-				//
-				//=====================================================================
-				//=====================================================================
-
+				_module.ExpressTransport = null;
+				_module.SocketTransport = null;
 
 				//---------------------------------------------------------------------
-				if ( WebServerSettings.Cors && WebServerSettings.Cors.enabled )
+				// Create the Express Transport.
+				if ( WebServerSettings.ExpressTransport
+					&& WebServerSettings.ExpressTransport.enabled )
 				{
-					// - Enable CORS (see: https://medium.com/@alexishevia/using-cors-in-express-cac7e29b005b)
-					// _module.ExpressRouter.use( LIB_CORS( { origin: '*' } ) );
-					_module.ExpressRouter.use( LIB_CORS( WebServerSettings.Cors ) );
-					Server.Log.trace( `WebServer - initialized Cors` );
-				}
-				// if ( WebServerSettings.Helmet && WebServerSettings.Helmet.enabled )
-				// {
-				// 	_module.ExpressRouter.use( LIB_HELMET( WebServerSettings.Helmet ) );
-				// 	Server.Log.trace( `WebServer - initialized Helmet` );
-				// }
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Params Parser
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				//---------------------------------------------------------------------
-				if ( WebServerSettings.JsonBodyParser && WebServerSettings.JsonBodyParser.enabled )
-				{
-					_module.ExpressRouter.use( LIB_EXPRESS.json( WebServerSettings.JsonBodyParser ) );
-					Server.Log.trace( `WebServer - initialized JsonBodyParser` );
+					_module.ExpressTransport = SRC_EXPRESS.Create( Server, _module, WebServerSettings );
 				}
 
-
 				//---------------------------------------------------------------------
-				if ( WebServerSettings.UrlEncodedParser && WebServerSettings.UrlEncodedParser.enabled )
+				// Create the HTTP Server.
+				if ( WebServerSettings.HttpServer.protocol === 'http' )
 				{
-					_module.ExpressRouter.use( LIB_EXPRESS.urlencoded( WebServerSettings.UrlEncodedParser ) );
-					Server.Log.trace( `WebServer - initialized UrlEncodedParser` );
-				}
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		File Upload
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				//---------------------------------------------------------------------
-				if ( WebServerSettings.FileUpload && WebServerSettings.FileUpload.enabled )
-				{
-					_module.ExpressRouter.use( LIB_EXPRESS_FILEUPLOAD( WebServerSettings.FileUpload ) );
-					Server.Log.trace( `WebServer - initialized FileUpload` );
-				}
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Session
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				//---------------------------------------------------------------------
-				// Configure express session.
-				// https://auth0.com/docs/quickstart/webapp/nodejs#configure-auth0
-				if ( WebServerSettings.Session && WebServerSettings.Session.enabled )
-				{
-					// let session = Server.Utility.clone( WebServerSettings.Session );
-					let session = JSON.parse( JSON.stringify( WebServerSettings.Session ) );
-					if ( Server.Config.Settings.AppInfo.environment === 'production' )
+					if ( _module.ExpressTransport )
 					{
-						// Use secure cookies in production (requires SSL/TLS)
-						session.cookie.secure = true;
-						// Uncomment the line below if your application is behind a proxy (like on Heroku)
-						// or if you're encountering the error message:
-						// "Unable to verify authorization request state"
-						// session.proxy = true;
-						session.proxy = true;
-						_module.ExpressRouter.set( 'trust proxy', 1 );
+						_module.HttpServer = LIB_HTTP.createServer( _module.ExpressTransport );
 					}
-					_module.ExpressRouter.use( LIB_EXPRESS_SESSION( session ) );
-					Server.Log.trace( `WebServer - initialized Session handler` );
-				}
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Passport
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				//---------------------------------------------------------------------
-				// Configure passport.
-				if ( WebServerSettings.Passport &&
-					WebServerSettings.Passport.Local &&
-					WebServerSettings.Passport.Local.enabled )
-				{
-					require( './WebServer-Passport-Local.js' ).Use( Server, _module.ExpressRouter );
-					Server.Log.trace( `WebServer - initialized Passport with Local` );
-				}
-				else if ( WebServerSettings.Passport &&
-					WebServerSettings.Passport.Auth0 &&
-					WebServerSettings.Passport.Auth0.enabled )
-				{
-					require( './WebServer-Passport-Auth0.js' ).Use( Server, _module.ExpressRouter );
-					Server.Log.trace( `WebServer - initialized Passport with Auth0` );
-				}
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Client Files
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				// //---------------------------------------------------------------------
-				// // Make user object available within pug files.
-				// _module.ExpressRouter.use(
-				// 	function ( request, response, next )
-				// 	{
-				// 		response.locals.User = request.user;
-				// 		next();
-				// 	}
-				// );
-
-
-				if ( WebServerSettings.ClientFiles && WebServerSettings.ClientFiles.enabled )
-				{
-
-					//---------------------------------------------------------------------
-					// Serve a static folder.
-					if ( WebServerSettings.ClientFiles.public_files )
+					else
 					{
-						let path = Server.ResolveApplicationPath( WebServerSettings.ClientFiles.public_files );
-						_module.ExpressRouter.use( '/', LIB_EXPRESS.static( path ) );
-						Server.Log.trace( `WebServer - initialized Static Folder [${path}]` );
-					}
-
-
-					//---------------------------------------------------------------------
-					// Serve views.
-					if ( WebServerSettings.ClientFiles.view_files )
-					{
-						_module.ExpressRouter.set( 'view engine', 'pug' );
-						let path = Server.ResolveApplicationPath( WebServerSettings.ClientFiles.view_files );
-						_module.ExpressRouter.set( 'views', path );
-						Server.Log.trace( `WebServer - initialized Pug Views [${path}]` );
-					}
-
-					if ( WebServerSettings.ClientFiles.http_api_client )
-					{
-						// Generate the api client for javascript.
-						const SRC_GENERATE_HTTP_API_CLIENT = require( '../processes/Generate_HttpApiClient.js' );
-						let code = SRC_GENERATE_HTTP_API_CLIENT.Generate_HttpApiClient( Server );
-						let filename = Server.ResolveApplicationPath( WebServerSettings.ClientFiles.http_api_client );
-						LIB_FS.writeFileSync( filename, code );
-						Server.Log.trace( `WebServer - generated Http Api Client: [${filename}]` );
-					}
-
-				}
-
-				//---------------------------------------------------------------------
-				// Top-level page endpoints.
-				{
-					let Urls = {
-						root_url: `/`,
-						home_url: `/${WebServerSettings.Urls.home_url}`,
-						user_url: `/${WebServerSettings.Urls.user_url}`,
-					};
-
-					//---------------------------------------------------------------------
-					// Default root route.
-					_module.ExpressRouter.get( Urls.root_url,
-						Server.WebServer.NotRequiresLogin,
-						// Server.WebServer.RequiresLogin,
-						async function ( request, response, next ) 
-						{
-							await Server.WebServer.RequestProcessor( request, response, next,
-								async function ( request, response, next )
-								{
-									// log_request( request );
-									response.render(
-										WebServerSettings.Urls.home_url,
-										{ Server: Server, User: request.user } );
-									return;
-								}
-								, true );
-						} );
-
-					//---------------------------------------------------------------------
-					// Default home route.
-					_module.ExpressRouter.get( Urls.home_url,
-						Server.WebServer.NotRequiresLogin,
-						async function ( request, response, next ) 
-						{
-							await Server.WebServer.RequestProcessor( request, response, next,
-								async function ( request, response, next )
-								{
-									// log_request( request );
-									response.render(
-										WebServerSettings.Urls.home_url,
-										{ Server: Server, User: request.user } );
-									return;
-								}
-								, true );
-						} );
-
-					//---------------------------------------------------------------------
-					// Default user route.
-					_module.ExpressRouter.get( Urls.user_url,
-						Server.WebServer.RequiresLogin,
-						async function ( request, response, next ) 
-						{
-							await Server.WebServer.RequestProcessor( request, response, next,
-								async function ( request, response, next )
-								{
-									response.render(
-										WebServerSettings.Urls.user_url,
-										{ Server: Server, User: request.user } );
-								}
-								, true );
-							return;
-						} );
-
-				}
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Application Service Routes
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				require( './WebServer-Application-Services.js' ).Use( Server, _module.ExpressRouter );
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Socket Server
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				//==========================================
-				// Create a Socket Server.
-				if ( WebServerSettings.SocketServer && WebServerSettings.SocketServer.enabled )
-				{
-					_module.SocketServer = LIB_SOCKET_IO();
-					require( './WebServer-Socket-Server.js' ).Use( Server, _module.SocketServer );
-					Server.Log.trace( `WebServer - initialized Socket Server` );
-					if ( WebServerSettings.SocketServer.socket_api_client )
-					{
-						// Generate the api client for javascript.
-						const SRC_GENERATE_SOCKET_API_CLIENT = require( '../processes/Generate_SocketApiClient.js' );
-						let code = SRC_GENERATE_SOCKET_API_CLIENT.Generate_SocketApiClient( Server );
-						let filename = Server.ResolveApplicationPath( WebServerSettings.SocketServer.socket_api_client );
-						LIB_FS.writeFileSync( filename, code );
-						Server.Log.trace( `WebServer - generated Socket Api Client: [${filename}]` );
+						_module.HttpServer = LIB_HTTP.createServer();
 					}
 				}
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Report Routes
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				if ( WebServerSettings.report_routes )
+				else if ( WebServerSettings.HttpServer.protocol === 'https' )
 				{
-					let stack = _module.ExpressRouter._router.stack;
-					stack.forEach(
-						function ( r )
-						{
-							if ( r.route && r.route.path )
-							{
-								let verbs = [];
-								if ( r.route.methods.get ) { verbs.push( 'GET ' ); }
-								if ( r.route.methods.put ) { verbs.push( 'PUT ' ); }
-								if ( r.route.methods.post ) { verbs.push( 'POST' ); }
-								if ( r.route.methods.del ) { verbs.push( 'DEL ' ); }
-								let text = verbs.join( '|' );
-								text += ' ' + r.route.path;
-								Server.Log.debug( 'Added route: ' + text );
-							}
-						} );
+					if ( _module.ExpressTransport )
+					{
+						_module.HttpServer = LIB_HTTPS.createServer( _module.ExpressTransport );
+					}
+					else
+					{
+						_module.HttpServer = LIB_HTTPS.createServer();
+					}
+				}
+				else
+				{
+					throw new Error( Server.Utility.invalid_parameter_value_message(
+						'HttpServer.protocol',
+						WebServerSettings.HttpServer.protocol,
+						`Must be either 'http' or 'https'.` ) );
+				}
+				Server.Log.trace( `WebServer - HttpServer Initialized.` );
+
+				//---------------------------------------------------------------------
+				// Create and Initialize the SocketIO Transport.
+				if ( WebServerSettings.SocketTransport
+					&& WebServerSettings.SocketTransport.enabled )
+				{
+					_module.SocketTransport = SRC_SOCKETIO.Create( Server, _module, WebServerSettings );
 				}
 
+				//---------------------------------------------------------------------
+				// PreInitialize Callback
+				if ( Callbacks && Callbacks.PreInitialize ) { await Callbacks.PreInitialize( Server, _module, WebServerSettings ); }
 
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Create the HTTP Server
-				//
-				//=====================================================================
-				//=====================================================================
+				//---------------------------------------------------------------------
+				// Initialize the Express Transport.
+				if ( WebServerSettings.ExpressTransport
+					&& WebServerSettings.ExpressTransport.enabled
+					&& _module.ExpressTransport )
+				{
+					SRC_EXPRESS.Initialize( Server, _module, _module.ExpressTransport, WebServerSettings );
+					Server.Log.trace( `WebServer - ExpressTransport Initialized.` );
+				}
 
+				//---------------------------------------------------------------------
+				// Initialize the SocketIO Transport.
+				if ( WebServerSettings.SocketTransport
+					&& WebServerSettings.SocketTransport.enabled
+					&& _module.SocketTransport )
+				{
+					SRC_SOCKETIO.Initialize( Server, _module, _module.SocketTransport, WebServerSettings );
+					Server.Log.trace( `WebServer - SocketTransport Initialized.` );
+				}
 
-				_module.HttpServer = LIB_HTTP.createServer( _module.ExpressRouter );
-				Server.Log.trace( `WebServer - server initialization complete.` );
+				//---------------------------------------------------------------------
+				// PreStartup Callback
+				if ( Callbacks && Callbacks.PreStartup ) { await Callbacks.PreStartup( Server, _module, WebServerSettings ); }
 
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Callback: PreStartup
-				//
-				//=====================================================================
-				//=====================================================================
-
-
-				if ( Callbacks && Callbacks.PreInitialize ) { await Callbacks.PreStartup( Server, _module.ExpressRouter ); }
-
-
-				//=====================================================================
-				//=====================================================================
-				//
-				//		Start the Web Server
-				//
-				//=====================================================================
-				//=====================================================================
-
-
+				//---------------------------------------------------------------------
 				// Begin accepting connections.
 				await new Promise(
 					function ( resolve, reject )
 					{
 						_module.HttpServer.listen(
-							WebServerSettings.port,
-							WebServerSettings.address,
+							WebServerSettings.HttpServer.port,
+							WebServerSettings.HttpServer.address,
 							function ( err ) 
 							{
 								if ( err ) { reject( err ); }
@@ -651,23 +333,43 @@ exports.Construct =
 				let address = _module.HttpServer.address();
 				Server.Log.trace( `WebServer is listening at [${address.address}:${address.port}].` );
 
-				// Start the Socket Server.
-				if ( _module.SocketServer )
-				{
-					// _module.SocketServer.Listen();
-					_module.SocketServer.attach( _module.HttpServer );
-					Server.Log.trace( `SocketServer has attached to the WebServer.` );
-				}
+				// // Start the Socket Server.
+				// if ( _module.SocketTransport )
+				// {
+				// 	// _module.SocketTransport.Listen();
+				// 	_module.SocketTransport.attach( _module.HttpServer );
+				// 	Server.Log.trace( `SocketTransport has attached to the WebServer.` );
+				// }
 
 				// Return
 				return { ok: true };
 			};
 
 
+		//=====================================================================
+		//=====================================================================
+		//
+		//		StopWebServer
+		//
+		//=====================================================================
+		//=====================================================================
+
+
 		//---------------------------------------------------------------------
 		_module.StopWebServer =
 			async function StopWebServer()
 			{
+				if ( _module.SocketTransport )
+				{
+					_module.SocketTransport.close();
+					_module.SocketTransport = null;
+					Server.Log.trace( `SocketTransport has stopped.` );
+				}
+				if ( _module.ExpressTransport )
+				{
+					_module.ExpressTransport = null;
+					Server.Log.trace( `ExpressTransport has stopped.` );
+				}
 				if ( _module.HttpServer ) 
 				{
 					if ( _module.HttpServer.listening ) 
@@ -684,14 +386,7 @@ exports.Construct =
 							} );
 					}
 					_module.HttpServer = null;
-					_module.ExpressRouter = null;
 					Server.Log.trace( `WebServer has stopped.` );
-				}
-				if ( _module.SocketServer )
-				{
-					_module.SocketServer.close();
-					_module.SocketServer = null;
-					Server.Log.trace( `SocketServer has stopped.` );
 				}
 				return { ok: true };
 			};

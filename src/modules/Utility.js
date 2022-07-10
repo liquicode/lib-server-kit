@@ -49,6 +49,7 @@ exports.zulu_timestamp = zulu_timestamp;
 exports.async_make_get_request = async_make_get_request;
 exports.async_download_file = async_download_file;
 exports.get_safe_filename = get_safe_filename;
+exports.invalid_parameter_value_message = invalid_parameter_value_message;
 
 
 //---------------------------------------------------------------------
@@ -404,5 +405,12 @@ function get_safe_filename( filename, fill_char = '-' )
 	filename = filename.replace( '=', fill_char );
 	// Return the sanitized filename.
 	return filename;
+}
+
+
+//---------------------------------------------------------------------
+function invalid_parameter_value_message( ParameterName, ParameterValue, Description )
+{
+	return `Invalid value [${ParameterValue}] for parameter '${ParameterName}'. ${Description}`;
 }
 

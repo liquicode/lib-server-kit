@@ -36,6 +36,19 @@
 			"internalConsoleOptions": "openOnSessionStart",
 		},
 		{
+			"name": "Test Config",
+			"type": "pwa-node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"outputCapture": "std",
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/tests/TestConfig/TestConfig.js",
+			"args": [],
+			"internalConsoleOptions": "openOnSessionStart",
+		},
+		{
 			"name": "------------------------------------------",
 		},
 		{

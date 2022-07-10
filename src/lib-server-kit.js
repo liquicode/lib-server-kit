@@ -1,12 +1,20 @@
 'use strict';
 
+
+//---------------------------------------------------------------------
 const LIB_FS = require( 'fs' );
 const LIB_PATH = require( 'path' );
 
 
 //---------------------------------------------------------------------
 exports.NewServer =
-	function ( ApplicationName, ApplicationPath, WriteDefaults = false )
+	function ( ApplicationName, ApplicationPath,
+		ServerOptions = {
+			WriteDefaults: false,
+			WriteSettings: false,
+			ConfigPath: '',
+			ConfigObject: null,
+		} )
 	{
 		if ( !LIB_FS.existsSync( ApplicationPath ) ) { throw new Error( `The application path does not exist [${ApplicationPath}].` ); }
 
@@ -97,30 +105,55 @@ exports.NewServer =
 				let service_name = service.ServiceDefinition.name;
 				server[ service_name ] = service;
 				server.Services[ service_name ] = service;
+				// Register the service module configuration.
 				server.Config.Defaults[ service_name ] = service.GetDefaults();
 			}
 		};
 
+
 		server.Services = {};
-		load_services( LIB_PATH.join( __dirname, 'services' ) );	// Load server-kit Services
-		load_services( ResolveApplicationPath( 'services' ) );		// Load Application Services
+		// Load server-kit Services
+		load_services( LIB_PATH.join( __dirname, 'services' ) );
+		// Load Application Services
+		load_services( ResolveApplicationPath( 'services' ) );
+
+		// Register the Log module configuration.
 		server.Config.Defaults.Log = server.Log.GetDefaults();
 
-		// Initialize Config Module.
-		server.Config.ResetSettings();
 
-		// Load the application's config file.
+		//---------------------------------------------------------------------
+		// Initialize Config Module
+		//---------------------------------------------------------------------
+
+
 		let defaults_filename = ResolveApplicationPath( `${ApplicationName}.defaults.json` );
 		let settings_filename = ResolveApplicationPath( `${ApplicationName}.settings.json` );
-		if ( WriteDefaults )
+		server.Config.ResetSettings();
+
+		// Write the application's Defaults file.
+		if ( ServerOptions.WriteDefaults )
 		{
 			server.Config.SaveDefaults( defaults_filename );
 		}
-		if ( LIB_FS.existsSync( settings_filename ) ) 
+
+		// Build the application's config.
+		if ( ServerOptions.ConfigPath )
 		{
-			let content = LIB_FS.readFileSync( settings_filename, 'utf8' );
-			let config = JSON.parse( content );
-			server.Config.MergeSettings( config );
+			let path = ResolveApplicationPath( ServerOptions.ConfigPath );
+			if ( LIB_FS.existsSync( path ) )
+			{
+				server.Config.MergePath( path );
+			}
+		}
+		if ( ServerOptions.ConfigObject )
+		{
+			server.Config.MergeSettings( ServerOptions.ConfigObject );
+		}
+
+		// Write the application's Settings file.
+		if ( ServerOptions.WriteSettings )
+		{
+			server.Config.SaveSettings( settings_filename );
 		}
 
 
@@ -130,72 +163,35 @@ exports.NewServer =
 
 
 		server.Initialize =
-			function Intialize( SettingsFilenameOrObject )
+			function Intialize()
 			{
-				let log_trace = [];
-				// log_trace.push( `Initialized module [Package].` );
-				if ( WriteDefaults )
-				{
-					log_trace.push( `Wrote configuration defaults to file [${defaults_filename}].` );
-				}
-				if ( LIB_FS.existsSync( settings_filename ) ) 
-				{
-					log_trace.push( `Merged configuration settings from file [${settings_filename}].` );
-				}
-				log_trace.push( `Initialized module [Config].` );
-
-				// Customize the configuration with the supplied settings.
-				if ( typeof SettingsFilenameOrObject === 'undefined' ) { }
-				else if ( typeof SettingsFilenameOrObject === 'string' )
-				{
-					// Load configuration settings from a specific application defined file.
-					let content = null;
-					let filename = SettingsFilenameOrObject;
-					if ( LIB_FS.existsSync( filename ) )
-					{
-						// Read realtive to cwd.
-						content = LIB_FS.readFileSync( filename, 'utf8' );
-					}
-					else if ( LIB_FS.existsSync( ResolveApplicationPath( filename ) ) )
-					{
-						// Read realtive to ApplicationPath.
-						filename = ResolveApplicationPath( filename );
-						content = LIB_FS.readFileSync( filename, 'utf8' );
-					}
-					if ( content )
-					{
-						let config = JSON.parse( content );
-						server.Config.MergeSettings( config );
-						log_trace.push( `Merged configuration from settings file [${filename}].` );
-					}
-					else
-					{
-						log_trace.push( `Warning: Unable to find settings file [${SettingsFilenameOrObject}].` );
-					}
-				}
-				else if ( typeof SettingsFilenameOrObject === 'object' )
-				{
-					// Load settings directly from the given object.
-					server.Config.MergeSettings( SettingsFilenameOrObject );
-					log_trace.push( `Merged configuration from settings object: ${JSON.stringify( SettingsFilenameOrObject )}` );
-				}
-				else
-				{
-					throw new Error( `The parameter [Settings] was supplied but contains an invalid value: [${SettingsFilenameOrObject}].` );
-				}
-
-				// Set the runtime environment.
-				if ( server.Config.Settings.AppInfo.environment )
-				{
-					process.env.NODE_ENV = server.Config.Settings.AppInfo.environment;
-					log_trace.push( `Runtime environment set to: ${process.env.NODE_ENV}` );
-				}
 
 				// Initialize Log Module.
 				server.Log.SetSettings( server.Config.Settings.Log );
 				server.Log.Initialize();
 				log_trace.forEach( item => server.Log.trace( item ) ); // Display accumulated trace messages.
 				server.Log.trace( `Initialized module [Log].` );
+
+				// Report config initialization.
+				if ( ServerOptions.WriteDefaults )
+				{
+					server.Log.trace( `Wrote configuration defaults to file [${defaults_filename}].` );
+				}
+				if ( ServerOptions.WriteSettings ) 
+				{
+					server.Log.trace( `Wrote configuration settings to file [${settings_filename}].` );
+					server.Log.warn( `WARNING!`
+						+ ` The settings file [${settings_filename}] contains all of your server's private settings and keys.`
+						+ ` This is made available to document and debug your server configuration.`
+						+ ` DO NOT include this file in backups or in source code repositories.` );
+				}
+
+				// Set the runtime environment.
+				if ( server.Config.Settings.AppInfo.environment )
+				{
+					process.env.NODE_ENV = server.Config.Settings.AppInfo.environment;
+					server.Log.trace( `Runtime environment set to: ${process.env.NODE_ENV}` );
+				}
 
 				// WebServer
 				server.WebServer.SetSettings( server.Config.Settings.WebServer );

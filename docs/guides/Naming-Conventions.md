@@ -14,3 +14,6 @@ objects and values, while snake_case is used for the primitive elements which ac
 Parameter names for function arguments are always in PascalCase.
 The function itself may be PascalCase or snake_case, depending on its visibility within the scope.
 
+Variable and function names may be preceeded by an underscore '_' character to denote a certain amount
+of obfuscation to the name.
+This is also done to avoid clashing with other names in the same scope.

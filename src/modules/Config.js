@@ -5,6 +5,7 @@
 const MODULE_BASE = require( '../base/ModuleBase.js' );
 const LIB_FS = require( 'fs' );
 const LIB_PATH = require( 'path' );
+const LIB_MERGE_CONFIG = require( 'merge-config' );
 
 
 //---------------------------------------------------------------------
@@ -37,7 +38,24 @@ exports.Construct =
 		module.MergeSettings =
 			function MergeSettings( Settings )
 			{
-				module.Settings = Server.Utility.merge_objects( module.Settings, Settings );
+				// module.Settings = Server.Utility.merge_objects( module.Settings, Settings );
+				let config = new LIB_MERGE_CONFIG();
+				config.merge( module.Settings );
+				config.merge( Settings );
+				module.Settings = config.get();
+				return;
+			};
+
+
+		//---------------------------------------------------------------------
+		module.MergePath =
+			function MergePath( FilenameOrPath )
+			{
+				// module.Settings = Server.Utility.merge_objects( module.Settings, Settings );
+				let config = new LIB_MERGE_CONFIG();
+				config.merge( module.Settings );
+				config.file( FilenameOrPath );
+				module.Settings = config.get();
 				return;
 			};
 

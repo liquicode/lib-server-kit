@@ -1,14 +1,14 @@
 {
 	"AppInfo": {
 		"name": "MathsServer",
-		"version": "",
-		"description": "",
+		"version": "0.0.1",
+		"description": "A test application using lib-server-kit.",
 		"homepage": "",
 		"environment": "development"
 	},
 	"WebServer": {
 		"address": "localhost",
-		"port": 80,
+		"port": 4200,
 		"temp_path": "~temp",
 		"report_routes": false,
 		"JsonBodyParser": {
@@ -44,7 +44,7 @@
 		},
 		"Session": {
 			"enabled": true,
-			"secret": "CHANGE THIS TO A RANDOM SECRET",
+			"secret": "fgHrHtvtnRB3mwVSRoFtuy9ZQPRW3N9X",
 			"cookie": {},
 			"resave": false,
 			"saveUninitialized": true
@@ -58,7 +58,7 @@
 		},
 		"Passport": {
 			"Local": {
-				"enabled": false,
+				"enabled": true,
 				"Users": [
 					{
 						"user_id": "admin@internal",
@@ -68,14 +68,14 @@
 			},
 			"Auth0": {
 				"enabled": false,
-				"domain": "auth0-domain",
-				"client_id": "auth0-client-id",
-				"client_secret": "auth0-client-secret",
-				"callback_url": "auth0-callback-url"
+				"domain": "dev-ed79zk3f.us.auth0.com",
+				"client_id": "UpKopmW2ky855tXd9075YIlXJ7ISkFXJ",
+				"client_secret": "h5d5mqfum5eKvzf3dTBKacogIiSaLnK90qUizA9VjLB2yuFPMfpnLoU0E6e0gc5R",
+				"callback_url": "http://localhost:4200/auth0_callback"
 			}
 		},
 		"SocketServer": {
-			"enabled": false,
+			"enabled": true,
 			"socket_api_client": "web/files/_socket-api-client.js"
 		}
 	},
@@ -99,77 +99,5 @@
 			}
 		}
 	},
-	"Maths": {},
-	"Log": {
-		"Console": {
-			"enabled": true,
-			"DeviceName": "console",
-			"LogLevels": "TDIWEF",
-			"OutputGroup": false,
-			"OutputDate": false,
-			"OutputTime": true,
-			"OutputMilliseconds": true,
-			"OutputTimezone": false,
-			"OutputSeverity": true,
-			"OutputSeverityWords": true
-		},
-		"Shell": {
-			"enabled": false,
-			"DeviceName": "shell",
-			"LogLevels": "TDIWEF",
-			"OutputGroup": false,
-			"OutputDate": false,
-			"OutputTime": true,
-			"OutputMilliseconds": true,
-			"OutputTimezone": false,
-			"OutputSeverity": true,
-			"OutputSeverityWords": true,
-			"Shell": {
-				"ColorizeEntireLine": true,
-				"TraceColors": {
-					"Forecolor": 90,
-					"Effect": 2
-				},
-				"DebugColors": {
-					"Forecolor": 90,
-					"Effect": 1
-				},
-				"InfoColors": {
-					"Forecolor": 97,
-					"Effect": ""
-				},
-				"WarnColors": {
-					"Forecolor": 33,
-					"Effect": ""
-				},
-				"ErrorColors": {
-					"Forecolor": 31,
-					"Effect": ""
-				},
-				"FatalColors": {
-					"Forecolor": 31,
-					"Effect": 7
-				}
-			}
-		},
-		"File": {
-			"enabled": false,
-			"DeviceName": "file",
-			"LogLevels": "IWEF",
-			"OutputGroup": false,
-			"OutputDate": true,
-			"OutputTime": true,
-			"OutputMilliseconds": true,
-			"OutputTimezone": true,
-			"OutputSeverity": true,
-			"OutputSeverityWords": true,
-			"File": {
-				"log_path": "",
-				"log_filename": "server",
-				"log_extension": "log",
-				"use_hourly_logfiles": false,
-				"use_daily_logfiles": false
-			}
-		}
-	}
+	"Maths": {}
 }
