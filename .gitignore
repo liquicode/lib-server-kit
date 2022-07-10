@@ -20,5 +20,5 @@ nbproject
 .build-env
 build/__secrets
 
-# *.defaults.json
+*.defaults.json
 *.settings.json
