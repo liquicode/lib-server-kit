@@ -1,0 +1,10 @@
+{
+	"AppInfo": {
+		"environment": "development"
+	},
+	"WebServer": {
+		"HttpServer": {
+			"port": 4200
+		}
+	}
+}

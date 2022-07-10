@@ -74,12 +74,7 @@ block content
 
 				table.w3-table
 					tr 
-						th
-
-						//- if( '|ListAll|DeleteAll|'.indexOf( locals.PageFunction ) > 0 )
-						//- 	th Name
-						//- 	th Email
-
+						th.w3-rightbar.w3-padding-small.w3-center.no-line-break View Edit Delete
 						th(
 							ng-repeat="field in Page.Server.ItemDefinition.Fields"
 						)

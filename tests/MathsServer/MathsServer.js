@@ -4,9 +4,9 @@
 const LIB_SERVER_KIT = require( '../../src/lib-server-kit' );
 
 let server_options = {
-	WriteDefaults: true,
-	WriteSettings: true,
-	ConfigPath: '',
+	write_defaults: true,	// Writes 'TestConfig.defaults.json'.
+	write_settings: true,	// Writes 'TestConfig.settings.json'.
+	config_path: 'config',	// Merges, alphabetically, all json/yaml files in path. (can be a filename)
 	ConfigObject: { Log: { Console: { enabled: true }, Shell: { enabled: false } } },
 };
 const Server = LIB_SERVER_KIT.NewServer( 'MathsServer', __dirname, server_options );

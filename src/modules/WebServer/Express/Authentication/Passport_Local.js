@@ -67,7 +67,7 @@ exports.Use =
 
 			// Authenticate the user.
 			let authenticated = false;
-			let users = WebServerSettings.Passport.Local.Users;
+			let users = WebServerSettings.Express.Authentication.Passport_Local.Users;
 			for ( let user_index = 0; user_index < users.length; user_index++ )
 			{
 				if ( username === users[ user_index ].user_id.toLowerCase().trim() )
@@ -99,7 +99,7 @@ exports.Use =
 		async function SignupUser( username, password )
 		{
 			username = username.toLowerCase().trim();
-			let users = WebServerSettings.Passport.Local.Users;
+			let users = WebServerSettings.Express.Authentication.Passport_Local.Users;
 
 			// Check if user already exists.
 			for ( let user_index = 0; user_index < users.length; user_index++ )
@@ -156,32 +156,96 @@ exports.Use =
 
 
 		{
-			let Urls = {
-				home_url: `/${WebServerSettings.Urls.home_url}`,
-				signup_url: `/${WebServerSettings.Urls.signup_url}`,
-				login_url: `/${WebServerSettings.Urls.login_url}`,
-				logout_url: `/${WebServerSettings.Urls.logout_url}`,
+			let server_path = WebServer.ExpressServerPath( WebServerSettings );
+
+			let urls = {
+				home: `${server_path}`,
+				login: `${server_path}${WebServerSettings.Express.Authentication.Pages.login_url}`,
+				logout: `${server_path}${WebServerSettings.Express.Authentication.Pages.logout_url}`,
+				signup: `${server_path}${WebServerSettings.Express.Authentication.Pages.signup_url}`,
+			};
+
+			let views = {
+				home: WebServerSettings.Express.ClientSupport.Views.home_view,
+				login: WebServerSettings.Express.Authentication.Pages.login_view,
+				logout: WebServerSettings.Express.Authentication.Pages.logout_view,
+				signup: WebServerSettings.Express.Authentication.Pages.signup_view,
 			};
 
 
 			//---------------------------------------------------------------------
+			// Login
+			ExpressTransport.get( urls.login,
+				WebServer.AuthenticationGate( WebServerSettings, false ),
+				async function ( request, response, next ) 
+				{
+					await Server.WebServer.RequestProcessor( request, response, next,
+						async function ( request, response, next )
+						{
+							response.render( views.login, { Server: Server, User: request.user } );
+							return;
+						}
+						, true );
+				}
+			);
+			ExpressTransport.post( urls.login,
+				WebServer.AuthenticationGate( WebServerSettings, false ),
+				LIB_PASSPORT.authenticate( 'local', { failureRedirect: urls.login_url } ),
+				async function ( request, response, next ) 
+				{
+					// Determine the url to redirect to after a successful login.
+					let requested_url = urls.home;
+					if ( request.session.redirect_url_after_login ) { requested_url = request.session.redirect_url_after_login; }
+					if ( !requested_url ) { requested_url = '/'; }
+					// Send the next url.
+					response.send( requested_url );
+					return;
+				}
+			);
+
+
+			//---------------------------------------------------------------------
+			// LogOut
+			ExpressTransport.get( urls.logout,
+				WebServer.AuthenticationGate( WebServerSettings, true ),
+				async function ( request, response, next ) 
+				{
+					await Server.WebServer.RequestProcessor( request, response, next,
+						async function ( request, response, next )
+						{
+							response.render( views.logout, { Server: Server, User: request.user } );
+							return;
+						}
+						, true );
+				}
+			);
+			ExpressTransport.post( urls.logout,
+				WebServer.AuthenticationGate( WebServerSettings, true ),
+				async function ( request, response, next )
+				{
+					request.logout();
+					// response.redirect( Urls.home_url );
+					response.send( 'OK' );
+				}
+			);
+
+
+			//---------------------------------------------------------------------
 			// SignUp
-			ExpressTransport.get( Urls.signup_url,
+			ExpressTransport.get( urls.signup,
 				WebServer.AuthenticationGate( WebServerSettings, false ),
 				async function ( request, response, next )
 				{
 					await Server.WebServer.RequestProcessor( request, response, next,
 						async function ( request, response, next )
 						{
-							response.render(
-								WebServerSettings.Urls.signup_url,
-								{ Server: Server, User: request.user } );
+							response.render( views.signup, { Server: Server, User: request.user } );
 							return;
 						}
 						, true );
 				}
 			);
-			ExpressTransport.post( Urls.signup_url,
+			ExpressTransport.post( urls.signup,
 				WebServer.AuthenticationGate( WebServerSettings, false ),
 				async function ( request, response, next )
 				{
@@ -198,7 +262,7 @@ exports.Use =
 						request.session.passport.user = user;
 
 						// Determine the url to redirect to after a successful signup.
-						let requested_url = Urls.home_url;
+						let requested_url = urls.home_url;
 						if ( request.session.returnTo ) { requested_url = request.session.returnTo; }
 						if ( !requested_url ) { requested_url = '/'; }
 
@@ -216,66 +280,6 @@ exports.Use =
 				// LIB_PASSPORT.authenticate( 'local', { failureRedirect: Urls.signup_url } ),
 			);
 
-
-			//---------------------------------------------------------------------
-			// Login
-			ExpressTransport.get( Urls.login_url,
-				WebServer.AuthenticationGate( WebServerSettings, false ),
-				async function ( request, response, next ) 
-				{
-					await Server.WebServer.RequestProcessor( request, response, next,
-						async function ( request, response, next )
-						{
-							response.render(
-								WebServerSettings.Urls.login_url,
-								{ Server: Server, User: request.user } );
-							return;
-						}
-						, true );
-				}
-			);
-			ExpressTransport.post( Urls.login_url,
-				WebServer.AuthenticationGate( WebServerSettings, false ),
-				LIB_PASSPORT.authenticate( 'local', { failureRedirect: Urls.login_url } ),
-				async function ( request, response, next ) 
-				{
-					// Determine the url to redirect to after a successful login.
-					let requested_url = Urls.home_url;
-					if ( request.session.returnTo ) { requested_url = request.session.returnTo; }
-					if ( !requested_url ) { requested_url = '/'; }
-					// Send the next url.
-					response.send( requested_url );
-					return;
-				}
-			);
-
-
-			//---------------------------------------------------------------------
-			// LogOut
-			ExpressTransport.get( Urls.logout_url,
-				WebServer.AuthenticationGate( WebServerSettings, true ),
-				async function ( request, response, next ) 
-				{
-					await Server.WebServer.RequestProcessor( request, response, next,
-						async function ( request, response, next )
-						{
-							response.render(
-								WebServerSettings.Urls.logout_url,
-								{ Server: Server, User: request.user } );
-							return;
-						}
-						, true );
-				}
-			);
-			ExpressTransport.post( Urls.logout_url,
-				WebServer.AuthenticationGate( WebServerSettings, true ),
-				async function ( request, response, next )
-				{
-					request.logout();
-					// response.redirect( Urls.home_url );
-					response.send( 'OK' );
-				}
-			);
 
 		}
 

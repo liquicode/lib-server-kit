@@ -1,0 +1,11 @@
+{
+	"AppInfo": {
+		"environment": "production"
+	},
+	"WebServer": {
+		"HttpServer": {
+			"protocol": "https",
+			"port": 80
+		}
+	}
+}

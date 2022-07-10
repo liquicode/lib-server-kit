@@ -211,13 +211,16 @@ exports.Use =
 			let service_name = service_names[ index ];
 			let service = Server[ service_name ];
 
+			let server_path = WebServer.ExpressServerPath( WebServerSettings );
+			let services_path = WebServer.ExpressServicesPath( WebServerSettings );
+
 			// Add the service API
-			let endpoint_count = add_http_service_endpoints( service, `/api/${service.ServiceDefinition.name}` );
-			Server.Log.trace( `Added ${endpoint_count} http routes for [/api/${service.ServiceDefinition.name}] functions.` );
+			let endpoint_count = add_http_service_endpoints( service, `${services_path}${service.ServiceDefinition.name}` );
+			Server.Log.trace( `Added ${endpoint_count} express routes for [${services_path}${service.ServiceDefinition.name}] functions.` );
 
 			// Add the service pages
-			let page_count = add_http_page_endpoints( service, `/ui/${service.ServiceDefinition.name}` );
-			Server.Log.trace( `Added ${page_count} http routes for [/ui/${service.ServiceDefinition.name}] pages.` );
+			let page_count = add_http_page_endpoints( service, `${server_path}${service.ServiceDefinition.name}` );
+			Server.Log.trace( `Added ${page_count} express routes for [${server_path}${service.ServiceDefinition.name}] pages.` );
 		}
 
 

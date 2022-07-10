@@ -123,7 +123,7 @@ app.controller(
 			function ItemSharingUrl()
 			{
 				if ( Page.Item === null ) { return ''; }
-				return `/ui/${Page.Server.ServiceDefinition.name}/Share?ItemID=${Page.Item.__info.id}`;
+				return `/${Page.Server.ServiceDefinition.name}/Share?ItemID=${Page.Item.__info.id}`;
 			};
 
 

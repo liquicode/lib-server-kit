@@ -11,6 +11,7 @@
 
 
 //---------------------------------------------------------------------
+const LIB_FS = require( 'fs' );
 const LIB_EXPRESS = require( 'express' );
 const LIB_EXPRESS_SESSION = require( 'express-session' );
 const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
@@ -53,7 +54,7 @@ exports.Initialize =
 			&& WebServerSettings.Express.DataHandling.JsonBodyParser.enabled )
 		{
 			ExpressTransport.use( LIB_EXPRESS.json( WebServerSettings.Express.DataHandling.JsonBodyParser.Settings ) );
-			Server.Log.trace( `WebServer.Express.DataHandling.JsonBodyParser initialized` );
+			Server.Log.trace( `WebServer.Express.DataHandling.JsonBodyParser is initialized.` );
 		}
 
 
@@ -62,7 +63,7 @@ exports.Initialize =
 			&& WebServerSettings.Express.DataHandling.UrlEncodedParser.enabled )
 		{
 			ExpressTransport.use( LIB_EXPRESS.urlencoded( WebServerSettings.Express.DataHandling.UrlEncodedParser.Settings ) );
-			Server.Log.trace( `WebServer.Express.DataHandling.UrlEncodedParser initialized` );
+			Server.Log.trace( `WebServer.Express.DataHandling.UrlEncodedParser is initialized.` );
 		}
 
 
@@ -71,7 +72,7 @@ exports.Initialize =
 			&& WebServerSettings.Express.DataHandling.FileUpload.enabled )
 		{
 			ExpressTransport.use( LIB_EXPRESS_FILEUPLOAD( WebServerSettings.Express.DataHandling.FileUpload.Settings ) );
-			Server.Log.trace( `WebServer.Express.DataHandling.FileUpload initialized` );
+			Server.Log.trace( `WebServer.Express.DataHandling.FileUpload is initialized.` );
 		}
 
 
@@ -91,7 +92,7 @@ exports.Initialize =
 			// - Enable CORS (see: https://medium.com/@alexishevia/using-cors-in-express-cac7e29b005b)
 			// ExpressTransport.use( LIB_CORS( { origin: '*' } ) );
 			ExpressTransport.use( LIB_CORS( WebServerSettings.Express.Security.Cors.Settings ) );
-			Server.Log.trace( `WebServer.Express.Security.Cors initialized` );
+			Server.Log.trace( `WebServer.Express.Security.Cors is initialized.` );
 		}
 
 		// if ( WebServerSettings.Helmet && WebServerSettings.Helmet.enabled )
@@ -120,7 +121,7 @@ exports.Initialize =
 				ExpressTransport.set( 'trust proxy', 1 );
 			}
 
-			Server.Log.trace( `WebServer.Express.Session initialized` );
+			Server.Log.trace( `WebServer.Express.Session is initialized.` );
 		}
 
 
@@ -139,12 +140,12 @@ exports.Initialize =
 			if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Local' )
 			{
 				SRC_AUTHENTICATION_PASSPORT_LOCAL.Use( Server, WebServer, ExpressTransport, WebServerSettings );
-				Server.Log.trace( `WebServer.Express.Authentication using [Passport_Local]` );
+				Server.Log.trace( `WebServer.Express.Authentication is using [Passport_Local].` );
 			}
 			else if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Auth0' )
 			{
 				SRC_AUTHENTICATION_PASSPORT_AUTH0.Use( Server, WebServer, ExpressTransport, WebServerSettings );
-				Server.Log.trace( `WebServer.Express.Authentication using [Passport_Auth0]` );
+				Server.Log.trace( `WebServer.Express.Authentication is using [Passport_Auth0].` );
 			}
 			else
 			{
@@ -153,7 +154,7 @@ exports.Initialize =
 					WebServerSettings.Express.Authentication.authentication_engine,
 					`Must be either 'Passport_Local' or 'Passport_Auth0'.` ) );
 			}
-			Server.Log.trace( `WebServer.Express.Authentication initialized` );
+			Server.Log.trace( `WebServer.Express.Authentication is initialized.` );
 		}
 
 
@@ -166,8 +167,6 @@ exports.Initialize =
 		//=====================================================================
 
 
-		if ( WebServerSettings.Express.ClientSupport
-			&& WebServerSettings.Express.ClientSupport.enabled )
 		{
 
 			//---------------------------------------------------------------------
@@ -175,8 +174,22 @@ exports.Initialize =
 			if ( WebServerSettings.Express.ClientSupport.public_files )
 			{
 				let path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.public_files );
-				ExpressTransport.use( WebServerSettings.Express.ClientSupport.root_url, LIB_EXPRESS.static( path ) );
-				Server.Log.trace( `WebServer.Express.ClientSupport using public folder [${path}]` );
+				LIB_FS.mkdirSync( path, { recursive: true } );
+				ExpressTransport.use( WebServerSettings.Express.ClientSupport.server_url, LIB_EXPRESS.static( path ) );
+				Server.Log.trace( `WebServer.Express.ClientSupport using public folder [${path}].` );
+			}
+
+			//---------------------------------------------------------------------
+			// Serve views.
+			if ( WebServerSettings.Express.ClientSupport.Views
+				&& WebServerSettings.Express.ClientSupport.Views.view_engine )
+			{
+				let engine = WebServerSettings.Express.ClientSupport.Views.view_engine;
+				let path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.Views.view_files );
+				LIB_FS.mkdirSync( path, { recursive: true } );
+				ExpressTransport.set( 'view engine', engine );
+				ExpressTransport.set( 'views', path );
+				Server.Log.trace( `WebServer.Express.ClientSupport using '${engine}' views from folder [${path}].` );
 			}
 
 			//---------------------------------------------------------------------
@@ -187,31 +200,18 @@ exports.Initialize =
 				let code = SRC_GENERATE_CLIENT.GenerateClient( Server, WebServerSettings );
 				let filename = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.client_api_file );
 				LIB_FS.writeFileSync( filename, code );
-				Server.Log.trace( `WebServer.Express.ClientSupport generated client file [${filename}]` );
-			}
-
-			//---------------------------------------------------------------------
-			// Serve views.
-			if ( WebServerSettings.Express.ClientSupport.Views
-				&& WebServerSettings.Express.ClientSupport.Views.view_engine )
-			{
-				let engine = WebServerSettings.Express.ClientSupport.Views.view_engine;
-				let path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.Views.view_files );
-				ExpressTransport.set( 'view engine', engine );
-				ExpressTransport.set( 'views', path );
-				Server.Log.trace( `WebServer.Express.ClientSupport using '${engine}' views from folder [${path}]` );
+				Server.Log.trace( `WebServer.Express.ClientSupport generated client file [${filename}].` );
 			}
 
 			//---------------------------------------------------------------------
 			// Install root route.
 			{
-				let url_prefix = WebServerSettings.Express.ClientSupport.server_url;
-				if ( !url_prefix.startsWith( '/' ) ) { url_prefix = '/' + url_prefix; }
-				if ( !url_prefix.endsWith( '/' ) ) { url_prefix = url_prefix + '/'; }
+				let server_path = WebServer.ExpressServerPath( WebServerSettings );
+				let home_view = WebServerSettings.Express.ClientSupport.Views.home_view;
 
 				//---------------------------------------------------------------------
 				// Default root route.
-				ExpressTransport.get( url_prefix,
+				ExpressTransport.get( server_path,
 					WebServer.AuthenticationGate( WebServerSettings, false ),
 					async function ( request, response, next ) 
 					{
@@ -219,59 +219,16 @@ exports.Initialize =
 							async function ( request, response, next )
 							{
 								// log_request( request );
-								response.render(
-									WebServerSettings.Express.ClientSupport.Views.home_page,
-									{ Server: Server, User: request.user } );
+								response.render( home_view, { Server: Server, User: request.user } );
 								return;
 							}
 							, true );
 					} );
-				Server.Log.trace( `WebServer.Express.ClientSupport added root route '${url_prefix}' to view [${WebServerSettings.Express.ClientSupport.Views.home_page}]` );
-
-				// let Urls = {
-				// 	root_url: `/`,
-				// 	home_url: `/${WebServerSettings.Authentication.Urls.home_url}`,
-				// 	user_url: `/${WebServerSettings.Authentication.Urls.user_url}`,
-				// };
-
-				// //---------------------------------------------------------------------
-				// // Default home route.
-				// ExpressTransport.get( WebServerSettings.Authentication.Urls.home_url,
-				// 	WebServer.AuthenticationGate( WebServerSettings, false ),
-				// 	async function ( request, response, next ) 
-				// 	{
-				// 		await Server.WebServer.RequestProcessor( request, response, next,
-				// 			async function ( request, response, next )
-				// 			{
-				// 				// log_request( request );
-				// 				response.render(
-				// 					WebServerSettings.Authentication.Urls.home_page,
-				// 					{ Server: Server, User: request.user } );
-				// 				return;
-				// 			}
-				// 			, true );
-				// 	} );
-
-				// //---------------------------------------------------------------------
-				// // Default user route.
-				// ExpressTransport.get( Urls.user_url,
-				// 	WebServer.AuthenticationGate( WebServerSettings, true ),
-				// 	async function ( request, response, next ) 
-				// 	{
-				// 		await Server.WebServer.RequestProcessor( request, response, next,
-				// 			async function ( request, response, next )
-				// 			{
-				// 				response.render(
-				// 					WebServerSettings.Authentication.Urls.user_url,
-				// 					{ Server: Server, User: request.user } );
-				// 			}
-				// 			, true );
-				// 		return;
-				// 	} );
+				Server.Log.trace( `WebServer.Express.ClientSupport added root route '${server_path}' to view [${home_view}].` );
 
 			}
 
-			Server.Log.trace( `WebServer.Express.ClientSupport initialized` );
+			Server.Log.trace( `WebServer.Express.ClientSupport is initialized.` );
 		}
 
 

@@ -33,7 +33,7 @@ html
 		script( src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.1.0/uuidv4.min.js" )
 
 		//- Server APIs
-		script( type='text/javascript' src='/_http-api-client.js' )
+		script( type='text/javascript' src='/_express-api-client.js' )
 		script( type='text/javascript' src='/_socket-api-client.js' )
 
 		//- Application Source
@@ -79,7 +79,7 @@ body
 						if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' )
 							.w3-bar-item.w3-border-bottom
 							//- a.w3-bar-item.w3-button.no-wrap( href="/api/SystemUsers/FindMany" ) System Users
-							a.w3-bar-item.w3-button.no-wrap( href="/ui/SystemUsers/List" ) System Users
+							a.w3-bar-item.w3-button.no-wrap( href="/SystemUsers/List" ) System Users
 
 			else
 

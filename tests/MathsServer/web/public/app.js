@@ -35,6 +35,8 @@ var app = angular.module(
 
 //---------------------------------------------------------------------
 app.constant( "moment", moment );
+app.constant( "ExpressApi", ExpressApi );
+app.constant( "ExpressPages", ExpressPages );
 
 
 //---------------------------------------------------------------------

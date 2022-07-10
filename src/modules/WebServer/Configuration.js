@@ -35,14 +35,14 @@ exports.GetDefaults =
 				//---------------------------------------------------------------------
 
 				ClientSupport: {
-					server_url: '',						// Root address for this server.
+					server_url: '',						// Root path for this server.
 					services_url: '',					// Path to services and functions.
 					public_files: 'web/public',			// Local folder of public files.
 					client_api_file: 'web/public/_express-api-client.js',
 					Views: {
 						view_engine: 'pug',				// Only 'pug' is supported.
 						view_files: 'web/views',		// Local folder of view files.
-						home_page: 'home',				// Name of default view to use.
+						home_view: 'home',				// Name of default view to use for root route.
 					},
 				}, // ~ ClientSupport
 
@@ -138,12 +138,13 @@ exports.GetDefaults =
 					enabled: true,
 					authentication_engine: 'Passport_Local',
 
-					Urls: {
-						home_url: 'home',
+					Pages: {
 						login_url: 'auth/login',
+						login_view: 'auth/login',
 						logout_url: 'auth/logout',
+						logout_view: 'auth/logout',
 						signup_url: 'auth/signup',
-						user_url: 'auth/user',
+						signup_view: 'auth/signup',
 					},
 
 					AnonymousUser: {

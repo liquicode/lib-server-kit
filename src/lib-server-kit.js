@@ -10,10 +10,10 @@ const LIB_PATH = require( 'path' );
 exports.NewServer =
 	function ( ApplicationName, ApplicationPath,
 		ServerOptions = {
-			WriteDefaults: false,
-			WriteSettings: false,
-			ConfigPath: '',
-			ConfigObject: null,
+			write_defaults: false,	// Writes '<ApplicationPath>/<ApplicationName>.defaults.json'.
+			write_settings: false,	// Writes '<ApplicationPath>/<ApplicationName>.settings.json'.
+			config_path: '',			// Merges, alphabetically, all json/yaml files in path. (can be a filename)
+			ConfigObject: null,		// Merge an explicit object with the configuration. This is applied last.
 		} )
 	{
 		if ( !LIB_FS.existsSync( ApplicationPath ) ) { throw new Error( `The application path does not exist [${ApplicationPath}].` ); }
@@ -131,15 +131,15 @@ exports.NewServer =
 		server.Config.ResetSettings();
 
 		// Write the application's Defaults file.
-		if ( ServerOptions.WriteDefaults )
+		if ( ServerOptions.write_defaults )
 		{
 			server.Config.SaveDefaults( defaults_filename );
 		}
 
 		// Build the application's config.
-		if ( ServerOptions.ConfigPath )
+		if ( ServerOptions.config_path )
 		{
-			let path = ResolveApplicationPath( ServerOptions.ConfigPath );
+			let path = ResolveApplicationPath( ServerOptions.config_path );
 			if ( LIB_FS.existsSync( path ) )
 			{
 				server.Config.MergePath( path );
@@ -151,7 +151,7 @@ exports.NewServer =
 		}
 
 		// Write the application's Settings file.
-		if ( ServerOptions.WriteSettings )
+		if ( ServerOptions.write_settings )
 		{
 			server.Config.SaveSettings( settings_filename );
 		}
@@ -169,20 +169,19 @@ exports.NewServer =
 				// Initialize Log Module.
 				server.Log.SetSettings( server.Config.Settings.Log );
 				server.Log.Initialize();
-				log_trace.forEach( item => server.Log.trace( item ) ); // Display accumulated trace messages.
 				server.Log.trace( `Initialized module [Log].` );
 
 				// Report config initialization.
-				if ( ServerOptions.WriteDefaults )
+				if ( ServerOptions.write_defaults )
 				{
 					server.Log.trace( `Wrote configuration defaults to file [${defaults_filename}].` );
 				}
-				if ( ServerOptions.WriteSettings ) 
+				if ( ServerOptions.write_settings ) 
 				{
 					server.Log.trace( `Wrote configuration settings to file [${settings_filename}].` );
 					server.Log.warn( `WARNING!`
 						+ ` The settings file [${settings_filename}] contains all of your server's private settings and keys.`
-						+ ` This is made available to document and debug your server configuration.`
+						+ ` This is available to help document and debug your server's configuration.`
 						+ ` DO NOT include this file in backups or in source code repositories.` );
 				}
 

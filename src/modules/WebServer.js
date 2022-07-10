@@ -13,7 +13,7 @@
 //---------------------------------------------------------------------
 const SRC_MODULE_BASE = require( '../base/ModuleBase.js' );
 
-const LIB_FS = require( 'fs' );
+// const LIB_FS = require( 'fs' );
 // const LIB_PATH = require( 'path' );
 const LIB_HTTP = require( 'http' );
 const LIB_HTTPS = require( 'https' );
@@ -78,12 +78,36 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
+		_module.ExpressServerPath =
+			function ExpressServerPath( WebServerSettings )
+			{
+				let url = WebServerSettings.Express.ClientSupport.server_url;
+				if ( !url.startsWith( '/' ) ) { url = '/' + url; }
+				if ( !url.endsWith( '/' ) ) { url = url + '/'; }
+				return url;
+			};
+
+
+		//---------------------------------------------------------------------
+		_module.ExpressServicesPath =
+			function ExpressServicesPath( WebServerSettings )
+			{
+				let url = WebServerSettings.Express.ClientSupport.server_url;
+				if ( !url.startsWith( '/' ) ) { url = '/' + url; }
+				if ( !url.endsWith( '/' ) ) { url = url + '/'; }
+				url += WebServerSettings.Express.ClientSupport.services_url;
+				if ( !url.endsWith( '/' ) ) { url = url + '/'; }
+				return url;
+			};
+
+
+		//---------------------------------------------------------------------
 		_module.AuthenticationGate =
 			function AuthenticationGate( WebServerSettings, RequiresAuthentication )
 			{
 				let middleware = null;
-				if ( WebServerSettings.Authentication
-					&& WebServerSettings.Authentication.enabled
+				if ( WebServerSettings.Express.Authentication
+					&& WebServerSettings.Express.Authentication.enabled
 					&& RequiresAuthentication )
 				{
 					middleware =
@@ -92,10 +116,11 @@ exports.Construct =
 							if ( request.user ) { return next(); }
 							if ( request.session )
 							{
-								request.session.returnTo = request.originalUrl;
+								// request.session.returnTo = request.originalUrl;
+								request.session.redirect_url_after_login = request.originalUrl;
 							}
-							let url = WebServerSettings.Authentication.Urls.login_url;
-							if ( !url.startsWith( '/' ) ) { url = '/' + url; }
+							let url = _module.ExpressServerPath( WebServerSettings );
+							url += WebServerSettings.Express.Authentication.Pages.login_url;
 							response.redirect( url );
 						};
 				}
@@ -105,7 +130,7 @@ exports.Construct =
 						function ( request, response, next )
 						{
 							if ( request.user ) { return next(); }
-							request.user = JSON.parse( JSON.stringify( WebServerSettings.Authentication.AnonymousUser ) );
+							request.user = JSON.parse( JSON.stringify( WebServerSettings.Express.Authentication.AnonymousUser ) );
 							return next();
 						};
 				}
@@ -241,8 +266,8 @@ exports.Construct =
 
 				//---------------------------------------------------------------------
 				// Create the Express Transport.
-				if ( WebServerSettings.ExpressTransport
-					&& WebServerSettings.ExpressTransport.enabled )
+				if ( WebServerSettings.Express
+					&& WebServerSettings.Express.enabled )
 				{
 					_module.ExpressTransport = SRC_EXPRESS.Create( Server, _module, WebServerSettings );
 				}
@@ -278,12 +303,12 @@ exports.Construct =
 						WebServerSettings.HttpServer.protocol,
 						`Must be either 'http' or 'https'.` ) );
 				}
-				Server.Log.trace( `WebServer - HttpServer Initialized.` );
+				Server.Log.trace( `WebServer.HttpServer is initialized.` );
 
 				//---------------------------------------------------------------------
 				// Create and Initialize the SocketIO Transport.
-				if ( WebServerSettings.SocketTransport
-					&& WebServerSettings.SocketTransport.enabled )
+				if ( WebServerSettings.SocketIO
+					&& WebServerSettings.SocketIO.enabled )
 				{
 					_module.SocketTransport = SRC_SOCKETIO.Create( Server, _module, WebServerSettings );
 				}
@@ -294,22 +319,22 @@ exports.Construct =
 
 				//---------------------------------------------------------------------
 				// Initialize the Express Transport.
-				if ( WebServerSettings.ExpressTransport
-					&& WebServerSettings.ExpressTransport.enabled
+				if ( WebServerSettings.Express
+					&& WebServerSettings.Express.enabled
 					&& _module.ExpressTransport )
 				{
 					SRC_EXPRESS.Initialize( Server, _module, _module.ExpressTransport, WebServerSettings );
-					Server.Log.trace( `WebServer - ExpressTransport Initialized.` );
+					Server.Log.trace( `WebServer.Express is initialized.` );
 				}
 
 				//---------------------------------------------------------------------
 				// Initialize the SocketIO Transport.
-				if ( WebServerSettings.SocketTransport
-					&& WebServerSettings.SocketTransport.enabled
+				if ( WebServerSettings.SocketIO
+					&& WebServerSettings.SocketIO.enabled
 					&& _module.SocketTransport )
 				{
 					SRC_SOCKETIO.Initialize( Server, _module, _module.SocketTransport, WebServerSettings );
-					Server.Log.trace( `WebServer - SocketTransport Initialized.` );
+					Server.Log.trace( `WebServer.SocketIO is initialized.` );
 				}
 
 				//---------------------------------------------------------------------
@@ -331,7 +356,7 @@ exports.Construct =
 							} );
 					} );
 				let address = _module.HttpServer.address();
-				Server.Log.trace( `WebServer is listening at [${address.address}:${address.port}].` );
+				Server.Log.trace( `WebServer.HttpServer is listening at [${address.address}:${address.port}].` );
 
 				// // Start the Socket Server.
 				// if ( _module.SocketTransport )
@@ -363,12 +388,12 @@ exports.Construct =
 				{
 					_module.SocketTransport.close();
 					_module.SocketTransport = null;
-					Server.Log.trace( `SocketTransport has stopped.` );
+					Server.Log.trace( `WebServer.SocketIO is stopped.` );
 				}
 				if ( _module.ExpressTransport )
 				{
 					_module.ExpressTransport = null;
-					Server.Log.trace( `ExpressTransport has stopped.` );
+					Server.Log.trace( `WebServer.Express is stopped.` );
 				}
 				if ( _module.HttpServer ) 
 				{
@@ -386,7 +411,7 @@ exports.Construct =
 							} );
 					}
 					_module.HttpServer = null;
-					Server.Log.trace( `WebServer has stopped.` );
+					Server.Log.trace( `WebServer.HttpSerer is stopped.` );
 				}
 				return { ok: true };
 			};

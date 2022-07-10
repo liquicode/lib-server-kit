@@ -96,7 +96,7 @@ app.controller(
 		Page.ItemCreateUrl =
 			function ItemCreateUrl()
 			{
-				return `/ui/${Page.Server.ServiceDefinition.name}/Item?PageOp=Create`;
+				return `/${Page.Server.ServiceDefinition.name}/Item?PageOp=Create`;
 			};
 
 
@@ -104,7 +104,7 @@ app.controller(
 		Page.ItemViewUrl =
 			function ItemViewUrl( object )
 			{
-				return `/ui/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__info.id}&PageOp=Read`;
+				return `/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__info.id}&PageOp=Read`;
 			};
 
 
@@ -112,7 +112,7 @@ app.controller(
 		Page.ItemEditUrl =
 			function ItemEditUrl( object )
 			{
-				return `/ui/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__info.id}&PageOp=Update`;
+				return `/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__info.id}&PageOp=Update`;
 			};
 
 
@@ -120,7 +120,7 @@ app.controller(
 		Page.ItemDeleteUrl =
 			function ItemDeleteUrl( object )
 			{
-				return `/ui/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__info.id}&PageOp=Delete`;
+				return `/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__info.id}&PageOp=Delete`;
 			};
 
 

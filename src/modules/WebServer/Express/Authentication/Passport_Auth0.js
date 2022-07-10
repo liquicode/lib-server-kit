@@ -88,14 +88,14 @@ exports.Use =
 
 
 		{
-			let ParentPath = '/';
-			let Urls = {
-				home_url: `${ParentPath}${WebServerSettings.Urls.home_url}`,
-				signup_url: `${ParentPath}${WebServerSettings.Urls.signup_url}`,
-				login_url: `${ParentPath}${WebServerSettings.Urls.login_url}`,
-				logout_url: `${ParentPath}${WebServerSettings.Urls.logout_url}`,
-			};
+			let server_path = WebServer.ExpressServerPath( WebServerSettings );
 
+			let urls = {
+				home: `${server_path}`,
+				login: `${server_path}${WebServerSettings.Express.Authentication.Pages.login_url}`,
+				logout: `${server_path}${WebServerSettings.Express.Authentication.Pages.logout_url}`,
+				signup: `${server_path}${WebServerSettings.Express.Authentication.Pages.signup_url}`,
+			};
 
 			//---------------------------------------------------------------------
 			ExpressTransport.get( '/auth0_callback',
@@ -105,21 +105,21 @@ exports.Use =
 						function ( error, user, info )
 						{
 							if ( error ) { return next( error ); }
-							if ( !user ) { return response.redirect( Urls.login_url ); }
+							if ( !user ) { return response.redirect( urls.login ); }
 							request.logIn( user,
 								function ( error )
 								{
 									if ( error ) { return next( error ); }
 									const returnTo = request.session.returnTo;
 									delete request.session.returnTo;
-									response.redirect( returnTo || Urls.home_url );
+									response.redirect( returnTo || urls.home );
 								} );
 						} )( request, response, next );
 				} );
 
 
 			//---------------------------------------------------------------------
-			ExpressTransport.get( Urls.signup_url,
+			ExpressTransport.get( urls.signup,
 				Server.WebServer.NotRequiresLogin,
 				async function ( request, response, next )
 				{
@@ -130,7 +130,7 @@ exports.Use =
 
 
 			//---------------------------------------------------------------------
-			ExpressTransport.get( Urls.login_url,
+			ExpressTransport.get( urls.login,
 				Server.WebServer.NotRequiresLogin,
 				LIB_PASSPORT.authenticate( 'auth0',
 					{
@@ -138,13 +138,13 @@ exports.Use =
 					} ),
 				async function ( request, response ) 
 				{
-					response.redirect( Urls.home_url );
+					response.redirect( urls.home );
 				}
 			);
 
 
 			//---------------------------------------------------------------------
-			ExpressTransport.get( Urls.logout_url,
+			ExpressTransport.get( urls.logout,
 				Server.WebServer.RequiresLogin,
 				async function ( request, response, next )
 				{
@@ -164,7 +164,7 @@ exports.Use =
 					url.search = LIB_QUERYSTRING.stringify(
 						{
 							client_id: WebServerSettings.Passport.Auth0.client_id,
-							returnTo: get_server_address( request ) + Urls.home_url,
+							returnTo: get_server_address( request ) + urls.home,
 						} );
 					response.redirect( url );
 
