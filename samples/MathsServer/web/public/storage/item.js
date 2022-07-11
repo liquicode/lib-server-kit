@@ -63,7 +63,7 @@ app.controller(
 			function ItemInfo()
 			{
 				if ( Page.Item === null ) { return ''; }
-				return JSON.stringify( Page.Item.__info, null, '    ' );
+				return JSON.stringify( Page.Item.__, null, '    ' );
 			};
 
 
@@ -123,7 +123,7 @@ app.controller(
 			function ItemSharingUrl()
 			{
 				if ( Page.Item === null ) { return ''; }
-				return `/${Page.Server.ServiceDefinition.name}/Share?ItemID=${Page.Item.__info.id}`;
+				return `/${Page.Server.ServiceDefinition.name}/Share?ItemID=${Page.Item.__.id}`;
 			};
 
 
@@ -142,7 +142,7 @@ app.controller(
 								return;
 							}
 							Page.Item = api_result.result;
-							Page.ItemID = Page.Item.__info.id;
+							Page.ItemID = Page.Item.__.id;
 							$scope.$apply();
 						} );
 				}

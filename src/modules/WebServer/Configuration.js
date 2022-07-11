@@ -27,16 +27,17 @@ exports.GetDefaults =
 			//---------------------------------------------------------------------
 
 			Express: {
-				enabled: true,
-				report_routes: true,					// Reports all routes added on startup.
+				enabled: false,
+				server_path: '',					// Root path for this server.
+				services_path: '',					// Path to services and functions. (e.g. 'api')
+				report_routes: false,				// Reports all routes added on startup.
 
 				//---------------------------------------------------------------------
 				// Client Support
 				//---------------------------------------------------------------------
 
 				ClientSupport: {
-					server_url: '',						// Root path for this server.
-					services_url: '',					// Path to services and functions.
+					enabled: false,
 					public_files: 'web/public',			// Local folder of public files.
 					client_api_file: 'web/public/_express-api-client.js',
 					Views: {
@@ -110,7 +111,7 @@ exports.GetDefaults =
 				//---------------------------------------------------------------------
 
 				Session: {
-					enabled: true,
+					enabled: false,
 					set_express_trust_proxy: false,
 					Settings: { // https://github.com/expressjs/session
 						secret: 'CHANGE THIS TO A RANDOM SECRET',
@@ -135,7 +136,7 @@ exports.GetDefaults =
 				//---------------------------------------------------------------------
 
 				Authentication: {
-					enabled: true,
+					enabled: false,
 					authentication_engine: 'Passport_Local',
 
 					Pages: {
@@ -161,7 +162,7 @@ exports.GetDefaults =
 					//---------------------------------------------------------------------
 					// Passport Authentication: email and password
 					Passport_Local: { // https://github.com/jaredhanson/passport-local
-						Users: [ { user_id: 'admin@internal', password: 'password' } ],
+						Users: [ { user_id: 'admin@system', password: 'password' } ],
 						Settings: {
 						},
 					},
@@ -189,6 +190,7 @@ exports.GetDefaults =
 				enabled: false,
 
 				ClientSupport: {
+					enabled: false,
 					socket_api_client: 'web/public/_socket-api-client.js',
 				},
 

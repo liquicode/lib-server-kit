@@ -114,14 +114,14 @@ block content
 							h5.w3-center Owner :
 						.w3-threequarter.w3-padding-small
 							.w3-row
-								.w3-small {{ Page.Item.__info.owner_id }}
+								.w3-small {{ Page.Item.__.owner_id }}
 
 					.w3-row
 						.w3-quarter.w3-padding-small
 							h5.w3-center Readers :
 						.w3-threequarter.w3-padding-small
 							.w3-row(
-								ng-repeat="user_id in Page.Item.__info.readers"
+								ng-repeat="user_id in Page.Item.__.readers"
 							)
 								.w3-small {{ user_id }}
 
@@ -130,7 +130,7 @@ block content
 							h5.w3-center Writers :
 						.w3-threequarter.w3-padding-small
 							.w3-row(
-								ng-repeat="user_id in Page.Item.__info.writers"
+								ng-repeat="user_id in Page.Item.__.writers"
 							)
 								.w3-small {{ user_id }}
 
@@ -138,9 +138,9 @@ block content
 						.w3-quarter.w3-padding-small
 							h5.w3-center Public :
 						.w3-threequarter.w3-padding-small
-							.w3-row( ng-show="Page.Item.__info.public" )
+							.w3-row( ng-show="Page.Item.__.public" )
 								.w3-small Yes
-							.w3-row( ng-show="!Page.Item.__info.public" )
+							.w3-row( ng-show="!Page.Item.__.public" )
 								.w3-small No
 
 

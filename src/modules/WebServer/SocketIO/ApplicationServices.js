@@ -11,7 +11,7 @@
 
 
 exports.Use =
-	function Use( Server, WebServer, Socket, WebServerSettings )
+	function Use( Server, WebServer, WebServerSettings )
 	{
 
 
@@ -36,7 +36,7 @@ exports.Use =
 				if ( endpoint.verbs.includes( 'call' ) )
 				{
 					// Invoke the endpoint function.
-					Socket.on( full_endpoint_name,
+					WebServer.SocketIO.IO.on( full_endpoint_name,
 						async function ( Message ) 
 						{
 							let api_result = { ok: true };
@@ -44,13 +44,13 @@ exports.Use =
 							try
 							{
 								api_result.result = await endpoint.invoke( this_session.User, ...Message.Payload );
-								if ( Message.callback_name ) { Socket.emit( Message.callback_name, api_result ); }
+								if ( Message.callback_name ) { WebServer.SocketIO.IO.emit( Message.callback_name, api_result ); }
 							}
 							catch ( error )
 							{
 								console.error( error );
 								api_result.error = error.message;
-								if ( Message.callback_name ) { Socket.emit( Message.callback_name, api_result ); }
+								if ( Message.callback_name ) { WebServer.SocketIO.IO.emit( Message.callback_name, api_result ); }
 							}
 						} );
 					endpoint_count++;

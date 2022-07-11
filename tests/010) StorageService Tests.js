@@ -5,8 +5,8 @@ const LIB_PATH = require( 'path' );
 const LIB_ASSERT = require( 'assert' );
 
 const LIB_SERVER_KIT = require( LIB_PATH.resolve( __dirname, '../src/lib-server-kit.js' ) );
-let application_name = 'MathsServer';
-let application_path = LIB_PATH.resolve( __dirname, 'MathsServer' );
+let application_name = 'TestServer';
+let application_path = __dirname;
 let Server = null;
 
 const SRC_STORAGE_SERVICE = require( LIB_PATH.resolve( __dirname, '../src/base/StorageService.js' ) );
@@ -30,8 +30,7 @@ describe( `010) StorageService Tests`,
 			function ()
 			{
 				Server = LIB_SERVER_KIT.NewServer( application_name, application_path );
-				let settings = { Log: { Console: { enabled: true }, Shell: { enabled: false } } };
-				Server.Initialize( settings );
+				Server.Initialize();
 				return;
 			}
 		);
@@ -110,8 +109,8 @@ describe( `010) StorageService Tests`,
 				// Create an empty object.
 				let managed_object = await storage.StorageCreateOne( OwnerUser, {} );
 				LIB_ASSERT.ok( managed_object );
-				LIB_ASSERT.ok( managed_object.__info.id );
-				LIB_ASSERT.strictEqual( managed_object.__info.owner_id, OwnerUser.user_id );
+				LIB_ASSERT.ok( managed_object.__.id );
+				LIB_ASSERT.strictEqual( managed_object.__.owner_id, OwnerUser.user_id );
 				LIB_ASSERT.strictEqual( managed_object.name, "" );
 				LIB_ASSERT.strictEqual( managed_object.number, 0 );
 
@@ -131,13 +130,13 @@ describe( `010) StorageService Tests`,
 				let test_object = { name: "Test Name", number: 3.14 };
 				let managed_object = await storage.StorageCreateOne( OwnerUser, test_object );
 				LIB_ASSERT.ok( managed_object );
-				LIB_ASSERT.ok( managed_object.__info.id );
-				LIB_ASSERT.strictEqual( managed_object.__info.owner_id, OwnerUser.user_id );
+				LIB_ASSERT.ok( managed_object.__.id );
+				LIB_ASSERT.strictEqual( managed_object.__.owner_id, OwnerUser.user_id );
 				LIB_ASSERT.strictEqual( managed_object.name, "Test Name" );
 				LIB_ASSERT.strictEqual( managed_object.number, 3.14 );
 
 				// Delete the object.
-				let count = await storage.StorageDeleteOne( OwnerUser, managed_object.__info.id );
+				let count = await storage.StorageDeleteOne( OwnerUser, managed_object.__.id );
 				LIB_ASSERT.strictEqual( count, 1 );
 
 				// Count all objects.

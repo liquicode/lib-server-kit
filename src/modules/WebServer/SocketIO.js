@@ -24,17 +24,20 @@ const SRC_GENERATE_CLIENT = require( './SocketIO/GenerateClient.js' );
 exports.Create =
 	function Create( Server, WebServer, WebServerSettings )
 	{
-		return LIB_SOCKET_IO( WebServer.HttpServer );
+		let SocketIO = {
+			IO: LIB_SOCKET_IO( WebServer.HttpServer ), 
+		}
+		return SocketIO;
 	};
 
 
 //---------------------------------------------------------------------
 exports.Initialize =
-	function Initialize( Server, WebServer, SocketTransport, WebServerSettings )
+	function Initialize( Server, WebServer, WebServerSettings )
 	{
 
 		//---------------------------------------------------------------------
-		SocketTransport.on( 'connection',
+		WebServer.SocketIO.IO.on( 'connection',
 			( Socket ) =>
 			{
 				Server.Log.trace( `New socket connection received.` );

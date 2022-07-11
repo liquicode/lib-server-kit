@@ -183,11 +183,13 @@ exports.Construct =
 				// Create a user object that is owned by that user.
 				async function create_user( ThisUserInfo )
 				{
-					let user_prototype = service.NewServiceObject( ThisUserInfo )
+					let user_prototype = service.NewServiceObject( ThisUserInfo );
 					let new_user = await service.Storage.CreateOne( LIB_USER_STORAGE.StorageAdministrator(), user_prototype );
-					let info = service.Storage.GetUserInfo( new_user );
-					let count = await service.Storage.SetOwner( ThisUserInfo, info.id ); // Users own their accounts.
+					let info = service.Storage.GetStorageInfo( new_user );
+					let count = await service.Storage.SetOwner( LIB_USER_STORAGE.StorageAdministrator(), ThisUserInfo.user_id, info.id ); // Users own their accounts.
+					if ( !count ) { Server.Log.warn( `Unable to set ownership of the new user object.` ); }
 					new_user = await service.Storage.FindOne( ThisUserInfo, info.id );
+					if ( !new_user ) { Server.Log.warn( `Unable to retrieve the new user object.` ); }
 					return new_user;
 				}
 
@@ -228,7 +230,7 @@ exports.Construct =
 				}
 
 				//---------------------------------------------------------------------
-				Server.Log.info( `Accepted SystemUser: ${JSON.stringify( service.Storage.GetUserData( found_user ) )}` );
+				Server.Log.info( `Accepted SystemUser: ${JSON.stringify( service.Storage.GetStorageData( found_user ) )}` );
 				api_response.object = found_user;
 				return api_response;
 			};

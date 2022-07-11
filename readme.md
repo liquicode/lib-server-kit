@@ -23,23 +23,41 @@ Features
 - All service functions are callable via web-socket calls.
 - All service functions are callable via command line.
 - A unified user interface (pages and code) is available for all storage services.
-- Control initialization flow via callbacks.
+- Control server initialization flow via callbacks.
 
 
-TODO
+Getting Started
 ---------------------------------------------------------------------
 
-- Service Pages
-	- Define pages within services that are exposed as http endpoints.
-	- Reimplement the auth pages from `StartWebServer` as service pages.
+Install via NPM:
+```bash
+npm install @liquicode/lib-server-kit
+```
 
-- Persistent Sessions
-	- implement one or more persistence strategies (e.g. files, sqlite, etc.) for sessions.
+```javascript
+// Include the library in your source code
+const LIB_SERVER_KIT = require( '@liquicode/lib-server-kit' );
 
-- Socket Security: Is there anything that can help secure socket.io communication?
+// Create a new server
+let server = LIB_SERVER_KIT.NewServer( 'FirstServer', __dirname );
 
-- What to do about `_http-api-client.js`?
+// Initialize the server
+server.Initialize();
+// Services are loaded and now ready for use.
 
-- Switch configuration management to [merge-config](https://www.npmjs.com/package/merge-config)?
-	- Supports yaml as well as json and hjson.
-	- hjson allows relaxed syntax and comments in json source.
+// Start the web server
+await server.WebServer.StartWebServer();
+// Services can now be called on configured transports (e.g. Express, socket.io).
+
+// Stop the web server
+await server.WebServer.StopWebServer();
+```
+
+
+Project Links
+---------------------------------------------------------------------
+
+- [Library Source Code](https://github.com/liquicode/lib-server-kit)
+- [Library Docs Site](http://lib-server-kit.liquicode.com)
+- [Library NPM Page](https://www.npmjs.com/package/@liquicode/lib-server-kit)
+

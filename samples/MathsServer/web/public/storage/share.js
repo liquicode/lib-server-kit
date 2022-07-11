@@ -58,7 +58,7 @@ app.controller(
 			function ItemInfo()
 			{
 				if ( Page.Item === null ) { return ''; }
-				return JSON.stringify( Page.Item.__info, null, '    ' );
+				return JSON.stringify( Page.Item.__, null, '    ' );
 			};
 
 

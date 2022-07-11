@@ -11,9 +11,17 @@
 
 - Concepts
 
+	- [Naming Conventions](guides/Naming-Conventions.md)
 	- [Configuration](guides/Configuration.md)
-	- [Server Startup](guides/ServerStartup.md)
+	- [Server Startup](guides/Server-Startup.md)
 	- [Webserver Configuration](guides/Webserver-Configuration.md)
+
+<hr>
+
+- Flows
+
+	- [Authentication Flow](flows/Authentication-Flow.md)
+	- [Service Call Flow](flows/Service-Call-Flow.md)
 
 <hr>
 

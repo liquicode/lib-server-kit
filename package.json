@@ -2,15 +2,53 @@
 	"name": "@liquicode/lib-server-kit",
 	"version": "0.0.3",
 	"description": "A toolkit for developing functional node servers.",
+	"homepage": "http://lib-server-kit.liquicode.com",
+	"license": "MIT",
+	"public": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/liquicode/lib-server-kit"
+	},
+	"authors": [
+		{
+			"name": "Andre' G. Bowlin",
+			"email": "agbowlin@gmail.com",
+			"homepage": "http://liquicode.com"
+		}
+	],
 	"main": "src/lib-server-kit.js",
-	"homepage": "",
-	"license": "",
-	"repository": {},
-	"private": false,
+	"files": [
+		"readme.md",
+		"license.md",
+		"VERSION",
+		"dist/*",
+		"docs/*",
+		"samples/*",
+		"src/*",
+		"tests/*"
+	],
+	"ignore": [
+		".*",
+		"~*",
+		"bower_components",
+		"node_modules",
+		"build"
+	],
+	"keywords": [
+		"javascript",
+		"js",
+		"nodejs",
+		"node",
+		"express",
+		"socketio",
+		"mongo",
+		"mongodb",
+		"authentication"
+	],
 	"dependencies": {
 		"@liquicode/lib-json": "^0.1.5",
 		"@liquicode/lib-logger": "^0.2.2",
-		"@liquicode/lib-user-storage": "^0.1.1",
+		"@liquicode/lib-user-storage": "^0.2.0",
 		"body-parser": "^1.19.0",
 		"cors": "^2.8.5",
 		"express": "^4.17.1",

@@ -11,7 +11,7 @@
 
 
 exports.Use =
-	function Use( Server, WebServer, ExpressTransport, WebServerSettings )
+	function Use( Server, WebServer, WebServerSettings )
 	{
 
 
@@ -85,33 +85,29 @@ exports.Use =
 				// Add endpoints for each http verb.
 				if ( endpoint.verbs.includes( 'get' ) )
 				{
-					ExpressTransport.get( `${ParentPath}/${endpoint.name}`,
-						// ( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-						WebServer.AuthenticationGate( WebServerSettings, endpoint.requires_login ),
+					WebServer.Express.App.get( `${ParentPath}/${endpoint.name}`,
+						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						http_service_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'post' ) )
 				{
-					ExpressTransport.post( `${ParentPath}/${endpoint.name}`,
-						// ( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-						WebServer.AuthenticationGate( WebServerSettings, endpoint.requires_login ),
+					WebServer.Express.App.post( `${ParentPath}/${endpoint.name}`,
+						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						http_service_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'put' ) )
 				{
-					ExpressTransport.put( `${ParentPath}/${endpoint.name}`,
-						// ( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-						WebServer.AuthenticationGate( WebServerSettings, endpoint.requires_login ),
+					WebServer.Express.App.put( `${ParentPath}/${endpoint.name}`,
+						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						http_service_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'delete' ) )
 				{
-					ExpressTransport.delete( `${ParentPath}/${endpoint.name}`,
-						// ( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-						WebServer.AuthenticationGate( WebServerSettings, endpoint.requires_login ),
+					WebServer.Express.App.delete( `${ParentPath}/${endpoint.name}`,
+						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						http_service_handler );
 					endpoint_count++;
 				}
@@ -166,33 +162,29 @@ exports.Use =
 				// Add endpoints for each http verb.
 				if ( endpoint.verbs.includes( 'get' ) )
 				{
-					ExpressTransport.get( `${ParentPath}/${endpoint.name}`,
-						// ( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-						WebServer.AuthenticationGate( WebServerSettings, endpoint.requires_login ),
+					WebServer.Express.App.get( `${ParentPath}/${endpoint.name}`,
+						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						http_page_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'post' ) )
 				{
-					ExpressTransport.post( `${ParentPath}/${endpoint.name}`,
-						// ( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-						WebServer.AuthenticationGate( WebServerSettings, endpoint.requires_login ),
+					WebServer.Express.App.post( `${ParentPath}/${endpoint.name}`,
+						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						http_page_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'put' ) )
 				{
-					ExpressTransport.put( `${ParentPath}/${endpoint.name}`,
-						// ( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-						WebServer.AuthenticationGate( WebServerSettings, endpoint.requires_login ),
+					WebServer.Express.App.put( `${ParentPath}/${endpoint.name}`,
+						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						http_page_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'delete' ) )
 				{
-					ExpressTransport.delete( `${ParentPath}/${endpoint.name}`,
-						// ( endpoint.requires_login ? Server.WebServer.RequiresLogin : Server.WebServer.NotRequiresLogin ),
-						WebServer.AuthenticationGate( WebServerSettings, endpoint.requires_login ),
+					WebServer.Express.App.delete( `${ParentPath}/${endpoint.name}`,
+						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						http_page_handler );
 					endpoint_count++;
 				}
@@ -211,8 +203,8 @@ exports.Use =
 			let service_name = service_names[ index ];
 			let service = Server[ service_name ];
 
-			let server_path = WebServer.ExpressServerPath( WebServerSettings );
-			let services_path = WebServer.ExpressServicesPath( WebServerSettings );
+			let server_path = WebServer.Express.ServerPath();
+			let services_path = WebServer.Express.ServicesPath();
 
 			// Add the service API
 			let endpoint_count = add_http_service_endpoints( service, `${services_path}${service.ServiceDefinition.name}` );

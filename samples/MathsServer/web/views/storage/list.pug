@@ -102,7 +102,7 @@ block content
 								i.fa.fa-trash-alt.w3-text-red
 
 						if( '|ListAll|DeleteAll|'.indexOf( locals.PageFunction ) > 0 )
-							td {{ item.__info.owner_id }}
+							td {{ item.__.owner_id }}
 
 						td(
 							ng-repeat="field in Page.Server.ItemDefinition.Fields"

@@ -4,24 +4,36 @@ const LIB_PATH = require( 'path' );
 const LIB_ASSERT = require( 'assert' );
 
 const LIB_SERVER_KIT = require( LIB_PATH.resolve( __dirname, '../src/lib-server-kit.js' ) );
-let application_name = 'MathsServer';
-let application_path = LIB_PATH.resolve( __dirname, 'MathsServer' );
-let Server = null;
+let application_name = 'TestServer';
+let application_path = __dirname;
 
 //---------------------------------------------------------------------
 describe( `021) Maths WebService Tests`,
 	function ()
 	{
 
+		let Server = null;
+		let service_address = null;
 
 		//---------------------------------------------------------------------
 		before(
 			async function ()
 			{
-				Server = LIB_SERVER_KIT.NewServer( application_name, application_path );
-				let settings = { Log: { Console: { enabled: true }, Shell: { enabled: false } } };
-				Server.Initialize( settings );
+				let server_options = {
+					ConfigObject: {
+						WebServer: {
+							Express: {
+								enabled: true,
+								// report_routes: true,
+							},
+						},
+					},
+				};
+				Server = LIB_SERVER_KIT.NewServer( application_name, application_path, server_options );
+				Server.Initialize();
 				await Server.WebServer.StartWebServer();
+				service_address = Server.WebServer.Express.ServerAddress();
+				service_address += Server.WebServer.Express.ServicesPath();
 				return;
 			}
 		);
@@ -47,7 +59,7 @@ describe( `021) Maths WebService Tests`,
 				LIB_ASSERT.ok( Server );
 				LIB_ASSERT.ok( Server.WebServer );
 				let address = Server.WebServer.HttpServer.address();
-				let url = `http://${address.address}:${address.port}/api/Maths/Add?A=3&B=4`;
+				let url = `${service_address}Maths/Add?A=3&B=4`;
 				let result = await Server.Utility.async_make_get_request( url );
 				result = JSON.parse( result.toString() );
 				LIB_ASSERT.ok( result.ok );
@@ -63,7 +75,7 @@ describe( `021) Maths WebService Tests`,
 				LIB_ASSERT.ok( Server );
 				LIB_ASSERT.ok( Server.WebServer );
 				let address = Server.WebServer.HttpServer.address();
-				let url = `http://${address.address}:${address.port}/api/Maths/Subtract?A=3&B=4`;
+				let url = `${service_address}Maths/Subtract?A=3&B=4`;
 				let result = await Server.Utility.async_make_get_request( url );
 				result = JSON.parse( result.toString() );
 				LIB_ASSERT.ok( result.ok );
@@ -79,7 +91,7 @@ describe( `021) Maths WebService Tests`,
 				LIB_ASSERT.ok( Server );
 				LIB_ASSERT.ok( Server.WebServer );
 				let address = Server.WebServer.HttpServer.address();
-				let url = `http://${address.address}:${address.port}/api/Maths/Multiply?A=3&B=4`;
+				let url = `${service_address}Maths/Multiply?A=3&B=4`;
 				let result = await Server.Utility.async_make_get_request( url );
 				result = JSON.parse( result.toString() );
 				LIB_ASSERT.ok( result.ok );
@@ -95,7 +107,7 @@ describe( `021) Maths WebService Tests`,
 				LIB_ASSERT.ok( Server );
 				LIB_ASSERT.ok( Server.WebServer );
 				let address = Server.WebServer.HttpServer.address();
-				let url = `http://${address.address}:${address.port}/api/Maths/Divide?A=3&B=4`;
+				let url = `${service_address}Maths/Divide?A=3&B=4`;
 				let result = await Server.Utility.async_make_get_request( url );
 				result = JSON.parse( result.toString() );
 				LIB_ASSERT.ok( result.ok );

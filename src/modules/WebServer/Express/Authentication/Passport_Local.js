@@ -176,7 +176,7 @@ exports.Use =
 			//---------------------------------------------------------------------
 			// Login
 			ExpressTransport.get( urls.login,
-				WebServer.AuthenticationGate( WebServerSettings, false ),
+				WebServer.Express.AuthenticationGate( false ),
 				async function ( request, response, next ) 
 				{
 					await Server.WebServer.RequestProcessor( request, response, next,
@@ -189,7 +189,7 @@ exports.Use =
 				}
 			);
 			ExpressTransport.post( urls.login,
-				WebServer.AuthenticationGate( WebServerSettings, false ),
+				WebServer.Express.AuthenticationGate( false ),
 				LIB_PASSPORT.authenticate( 'local', { failureRedirect: urls.login_url } ),
 				async function ( request, response, next ) 
 				{
@@ -207,7 +207,7 @@ exports.Use =
 			//---------------------------------------------------------------------
 			// LogOut
 			ExpressTransport.get( urls.logout,
-				WebServer.AuthenticationGate( WebServerSettings, true ),
+				WebServer.Express.AuthenticationGate( true ),
 				async function ( request, response, next ) 
 				{
 					await Server.WebServer.RequestProcessor( request, response, next,
@@ -220,7 +220,7 @@ exports.Use =
 				}
 			);
 			ExpressTransport.post( urls.logout,
-				WebServer.AuthenticationGate( WebServerSettings, true ),
+				WebServer.Express.AuthenticationGate( true ),
 				async function ( request, response, next )
 				{
 					request.logout();
@@ -233,7 +233,7 @@ exports.Use =
 			//---------------------------------------------------------------------
 			// SignUp
 			ExpressTransport.get( urls.signup,
-				WebServer.AuthenticationGate( WebServerSettings, false ),
+				WebServer.Express.AuthenticationGate( false ),
 				async function ( request, response, next )
 				{
 					await Server.WebServer.RequestProcessor( request, response, next,
@@ -246,7 +246,7 @@ exports.Use =
 				}
 			);
 			ExpressTransport.post( urls.signup,
-				WebServer.AuthenticationGate( WebServerSettings, false ),
+				WebServer.Express.AuthenticationGate( false ),
 				async function ( request, response, next )
 				{
 					try

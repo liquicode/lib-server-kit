@@ -33,8 +33,8 @@ exports.Construct =
 
 		// Initialized during StartWebServer()
 		_module.HttpServer = null;
-		_module.ExpressTransport = null;
-		_module.SocketTransport = null;
+		_module.Express = null;
+		_module.SocketIO = null;
 
 
 		const SRC_CONFIGURATION = require( './WebServer/Configuration.js' );
@@ -77,65 +77,65 @@ exports.Construct =
 		//---------------------------------------------------------------------
 
 
-		//---------------------------------------------------------------------
-		_module.ExpressServerPath =
-			function ExpressServerPath( WebServerSettings )
-			{
-				let url = WebServerSettings.Express.ClientSupport.server_url;
-				if ( !url.startsWith( '/' ) ) { url = '/' + url; }
-				if ( !url.endsWith( '/' ) ) { url = url + '/'; }
-				return url;
-			};
+		// //---------------------------------------------------------------------
+		// _module.ExpressServerPath =
+		// 	function ExpressServerPath( WebServerSettings )
+		// 	{
+		// 		let url = WebServerSettings.Express.ClientSupport.server_url;
+		// 		if ( !url.startsWith( '/' ) ) { url = '/' + url; }
+		// 		if ( !url.endsWith( '/' ) ) { url = url + '/'; }
+		// 		return url;
+		// 	};
 
 
-		//---------------------------------------------------------------------
-		_module.ExpressServicesPath =
-			function ExpressServicesPath( WebServerSettings )
-			{
-				let url = WebServerSettings.Express.ClientSupport.server_url;
-				if ( !url.startsWith( '/' ) ) { url = '/' + url; }
-				if ( !url.endsWith( '/' ) ) { url = url + '/'; }
-				url += WebServerSettings.Express.ClientSupport.services_url;
-				if ( !url.endsWith( '/' ) ) { url = url + '/'; }
-				return url;
-			};
+		// //---------------------------------------------------------------------
+		// _module.ExpressServicesPath =
+		// 	function ExpressServicesPath( WebServerSettings )
+		// 	{
+		// 		let url = WebServerSettings.Express.ClientSupport.server_url;
+		// 		if ( !url.startsWith( '/' ) ) { url = '/' + url; }
+		// 		if ( !url.endsWith( '/' ) ) { url = url + '/'; }
+		// 		url += WebServerSettings.Express.ClientSupport.services_url;
+		// 		if ( !url.endsWith( '/' ) ) { url = url + '/'; }
+		// 		return url;
+		// 	};
 
 
-		//---------------------------------------------------------------------
-		_module.AuthenticationGate =
-			function AuthenticationGate( WebServerSettings, RequiresAuthentication )
-			{
-				let middleware = null;
-				if ( WebServerSettings.Express.Authentication
-					&& WebServerSettings.Express.Authentication.enabled
-					&& RequiresAuthentication )
-				{
-					middleware =
-						function ( request, response, next )
-						{
-							if ( request.user ) { return next(); }
-							if ( request.session )
-							{
-								// request.session.returnTo = request.originalUrl;
-								request.session.redirect_url_after_login = request.originalUrl;
-							}
-							let url = _module.ExpressServerPath( WebServerSettings );
-							url += WebServerSettings.Express.Authentication.Pages.login_url;
-							response.redirect( url );
-						};
-				}
-				else
-				{
-					middleware =
-						function ( request, response, next )
-						{
-							if ( request.user ) { return next(); }
-							request.user = JSON.parse( JSON.stringify( WebServerSettings.Express.Authentication.AnonymousUser ) );
-							return next();
-						};
-				}
-				return middleware;
-			};
+		// //---------------------------------------------------------------------
+		// _module.AuthenticationGate =
+		// 	function AuthenticationGate( WebServerSettings, RequiresAuthentication )
+		// 	{
+		// 		let middleware = null;
+		// 		if ( WebServerSettings.Express.Authentication
+		// 			&& WebServerSettings.Express.Authentication.enabled
+		// 			&& RequiresAuthentication )
+		// 		{
+		// 			middleware =
+		// 				function ( request, response, next )
+		// 				{
+		// 					if ( request.user ) { return next(); }
+		// 					if ( request.session )
+		// 					{
+		// 						// request.session.returnTo = request.originalUrl;
+		// 						request.session.redirect_url_after_login = request.originalUrl;
+		// 					}
+		// 					let url = _module.ExpressServerPath( WebServerSettings );
+		// 					url += WebServerSettings.Express.Authentication.Pages.login_url;
+		// 					response.redirect( url );
+		// 				};
+		// 		}
+		// 		else
+		// 		{
+		// 			middleware =
+		// 				function ( request, response, next )
+		// 				{
+		// 					if ( request.user ) { return next(); }
+		// 					request.user = JSON.parse( JSON.stringify( WebServerSettings.Express.Authentication.AnonymousUser ) );
+		// 					return next();
+		// 				};
+		// 		}
+		// 		return middleware;
+		// 	};
 
 
 		// //---------------------------------------------------------------------
@@ -257,28 +257,28 @@ exports.Construct =
 			async function StartWebServer( Callbacks = null )
 			{
 				if ( _module.HttpServer ) { throw new Error( `HttpServer is already running. Call the StopWebServer() function.` ); }
-				if ( _module.ExpressTransport ) { throw new Error( `ExpressTransport is already running. Call the StopWebServer() function.` ); }
-				if ( _module.SocketTransport ) { throw new Error( `SocketTransport is already running. Call the StopWebServer() function.` ); }
+				if ( _module.Express ) { throw new Error( `Express is already running. Call the StopWebServer() function.` ); }
+				if ( _module.SocketIO ) { throw new Error( `SocketIO is already running. Call the StopWebServer() function.` ); }
 
 				const WebServerSettings = Server.Config.Settings.WebServer;
-				_module.ExpressTransport = null;
-				_module.SocketTransport = null;
+				_module.Express = null;
+				_module.SocketIO = null;
 
 				//---------------------------------------------------------------------
 				// Create the Express Transport.
 				if ( WebServerSettings.Express
 					&& WebServerSettings.Express.enabled )
 				{
-					_module.ExpressTransport = SRC_EXPRESS.Create( Server, _module, WebServerSettings );
+					_module.Express = SRC_EXPRESS.Create( Server, _module, WebServerSettings );
 				}
 
 				//---------------------------------------------------------------------
 				// Create the HTTP Server.
 				if ( WebServerSettings.HttpServer.protocol === 'http' )
 				{
-					if ( _module.ExpressTransport )
+					if ( _module.Express )
 					{
-						_module.HttpServer = LIB_HTTP.createServer( _module.ExpressTransport );
+						_module.HttpServer = LIB_HTTP.createServer( _module.Express.App );
 					}
 					else
 					{
@@ -287,9 +287,9 @@ exports.Construct =
 				}
 				else if ( WebServerSettings.HttpServer.protocol === 'https' )
 				{
-					if ( _module.ExpressTransport )
+					if ( _module.Express )
 					{
-						_module.HttpServer = LIB_HTTPS.createServer( _module.ExpressTransport );
+						_module.HttpServer = LIB_HTTPS.createServer( _module.Express.App );
 					}
 					else
 					{
@@ -310,7 +310,7 @@ exports.Construct =
 				if ( WebServerSettings.SocketIO
 					&& WebServerSettings.SocketIO.enabled )
 				{
-					_module.SocketTransport = SRC_SOCKETIO.Create( Server, _module, WebServerSettings );
+					_module.SocketIO = SRC_SOCKETIO.Create( Server, _module, WebServerSettings );
 				}
 
 				//---------------------------------------------------------------------
@@ -321,9 +321,9 @@ exports.Construct =
 				// Initialize the Express Transport.
 				if ( WebServerSettings.Express
 					&& WebServerSettings.Express.enabled
-					&& _module.ExpressTransport )
+					&& _module.Express )
 				{
-					SRC_EXPRESS.Initialize( Server, _module, _module.ExpressTransport, WebServerSettings );
+					SRC_EXPRESS.Initialize( Server, _module, WebServerSettings );
 					Server.Log.trace( `WebServer.Express is initialized.` );
 				}
 
@@ -331,9 +331,9 @@ exports.Construct =
 				// Initialize the SocketIO Transport.
 				if ( WebServerSettings.SocketIO
 					&& WebServerSettings.SocketIO.enabled
-					&& _module.SocketTransport )
+					&& _module.SocketIO )
 				{
-					SRC_SOCKETIO.Initialize( Server, _module, _module.SocketTransport, WebServerSettings );
+					SRC_SOCKETIO.Initialize( Server, _module, WebServerSettings );
 					Server.Log.trace( `WebServer.SocketIO is initialized.` );
 				}
 
@@ -359,11 +359,11 @@ exports.Construct =
 				Server.Log.trace( `WebServer.HttpServer is listening at [${address.address}:${address.port}].` );
 
 				// // Start the Socket Server.
-				// if ( _module.SocketTransport )
+				// if ( _module.SocketIO )
 				// {
-				// 	// _module.SocketTransport.Listen();
-				// 	_module.SocketTransport.attach( _module.HttpServer );
-				// 	Server.Log.trace( `SocketTransport has attached to the WebServer.` );
+				// 	// _module.SocketIO.IO.Listen();
+				// 	_module.SocketIO.IO.attach( _module.HttpServer );
+				// 	Server.Log.trace( `SocketIO has attached to the WebServer.` );
 				// }
 
 				// Return
@@ -384,15 +384,18 @@ exports.Construct =
 		_module.StopWebServer =
 			async function StopWebServer()
 			{
-				if ( _module.SocketTransport )
+				if ( _module.SocketIO )
 				{
-					_module.SocketTransport.close();
-					_module.SocketTransport = null;
+					if ( _module.SocketIO.IO )
+					{
+						_module.SocketIO.IO.close();
+					}
+					_module.SocketIO = null;
 					Server.Log.trace( `WebServer.SocketIO is stopped.` );
 				}
-				if ( _module.ExpressTransport )
+				if ( _module.Express )
 				{
-					_module.ExpressTransport = null;
+					_module.Express = null;
 					Server.Log.trace( `WebServer.Express is stopped.` );
 				}
 				if ( _module.HttpServer ) 
