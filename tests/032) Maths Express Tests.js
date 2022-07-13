@@ -8,11 +8,12 @@ let application_name = 'TestServer';
 let application_path = __dirname;
 
 //---------------------------------------------------------------------
-describe( `021) Maths WebService Tests`,
+describe( `032) Maths Express Tests`,
 	function ()
 	{
 
 		let Server = null;
+		let server_address = null;
 		let service_address = null;
 
 		//---------------------------------------------------------------------
@@ -20,7 +21,7 @@ describe( `021) Maths WebService Tests`,
 			async function ()
 			{
 				let server_options = {
-					ConfigObject: {
+					Settings: {
 						WebServer: {
 							Express: {
 								enabled: true,
@@ -32,8 +33,8 @@ describe( `021) Maths WebService Tests`,
 				Server = LIB_SERVER_KIT.NewServer( application_name, application_path, server_options );
 				Server.Initialize();
 				await Server.WebServer.StartWebServer();
-				service_address = Server.WebServer.Express.ServerAddress();
-				service_address += Server.WebServer.Express.ServicesPath();
+				server_address = Server.WebServer.Express.ServerAddress();
+				service_address = server_address + Server.WebServer.Express.ServicesPath();
 				return;
 			}
 		);
@@ -58,12 +59,11 @@ describe( `021) Maths WebService Tests`,
 			{
 				LIB_ASSERT.ok( Server );
 				LIB_ASSERT.ok( Server.WebServer );
-				let address = Server.WebServer.HttpServer.address();
-				let url = `${service_address}Maths/Add?A=3&B=4`;
-				let result = await Server.Utility.async_make_get_request( url );
-				result = JSON.parse( result.toString() );
-				LIB_ASSERT.ok( result.ok );
-				LIB_ASSERT.strictEqual( result.result, 7 );
+				let response = await Server.Utility.async_request( 'get', `${service_address}Maths/Add`, { A: 3, B: 4 } );
+				LIB_ASSERT.ok( response );
+				LIB_ASSERT.ok( response.data );
+				LIB_ASSERT.ok( response.data.ok );
+				LIB_ASSERT.strictEqual( response.data.result, 7 );
 				return;
 			} );
 
@@ -74,12 +74,11 @@ describe( `021) Maths WebService Tests`,
 			{
 				LIB_ASSERT.ok( Server );
 				LIB_ASSERT.ok( Server.WebServer );
-				let address = Server.WebServer.HttpServer.address();
-				let url = `${service_address}Maths/Subtract?A=3&B=4`;
-				let result = await Server.Utility.async_make_get_request( url );
-				result = JSON.parse( result.toString() );
-				LIB_ASSERT.ok( result.ok );
-				LIB_ASSERT.strictEqual( result.result, -1 );
+				let response = await Server.Utility.async_request( 'get', `${service_address}Maths/Subtract`, { A: 3, B: 4 } );
+				LIB_ASSERT.ok( response );
+				LIB_ASSERT.ok( response.data );
+				LIB_ASSERT.ok( response.data.ok );
+				LIB_ASSERT.strictEqual( response.data.result, -1 );
 				return;
 			} );
 
@@ -90,12 +89,11 @@ describe( `021) Maths WebService Tests`,
 			{
 				LIB_ASSERT.ok( Server );
 				LIB_ASSERT.ok( Server.WebServer );
-				let address = Server.WebServer.HttpServer.address();
-				let url = `${service_address}Maths/Multiply?A=3&B=4`;
-				let result = await Server.Utility.async_make_get_request( url );
-				result = JSON.parse( result.toString() );
-				LIB_ASSERT.ok( result.ok );
-				LIB_ASSERT.strictEqual( result.result, 12 );
+				let response = await Server.Utility.async_request( 'get', `${service_address}Maths/Multiply`, { A: 3, B: 4 } );
+				LIB_ASSERT.ok( response );
+				LIB_ASSERT.ok( response.data );
+				LIB_ASSERT.ok( response.data.ok );
+				LIB_ASSERT.strictEqual( response.data.result, 12 );
 				return;
 			} );
 
@@ -106,12 +104,11 @@ describe( `021) Maths WebService Tests`,
 			{
 				LIB_ASSERT.ok( Server );
 				LIB_ASSERT.ok( Server.WebServer );
-				let address = Server.WebServer.HttpServer.address();
-				let url = `${service_address}Maths/Divide?A=3&B=4`;
-				let result = await Server.Utility.async_make_get_request( url );
-				result = JSON.parse( result.toString() );
-				LIB_ASSERT.ok( result.ok );
-				LIB_ASSERT.strictEqual( result.result, 0.75 );
+				let response = await Server.Utility.async_request( 'get', `${service_address}Maths/Divide`, { A: 3, B: 4 } );
+				LIB_ASSERT.ok( response );
+				LIB_ASSERT.ok( response.data );
+				LIB_ASSERT.ok( response.data.ok );
+				LIB_ASSERT.strictEqual( response.data.result, 0.75 );
 				return;
 			} );
 

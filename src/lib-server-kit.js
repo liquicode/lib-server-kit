@@ -7,13 +7,25 @@ const LIB_PATH = require( 'path' );
 
 
 //---------------------------------------------------------------------
+const SRC_MODULE_BASE = require( LIB_PATH.join( __dirname, 'base', 'ModuleBase.js' ) );
+const SRC_SERVICE_BASE = require( LIB_PATH.join( __dirname, 'base', 'ServiceBase.js' ) );
+const SRC_STORAGE_SERVICE = require( LIB_PATH.join( __dirname, 'base', 'StorageService.js' ) );
+
+const MODULES_PATH = LIB_PATH.join( __dirname, 'modules' );
+const SRC_UTILTIY_MODULE = require( LIB_PATH.join( MODULES_PATH, 'Utility.js' ) );
+const SRC_CONFIG_MODULE = require( LIB_PATH.join( MODULES_PATH, 'Config.js' ) );
+const SRC_LOG_MODULE = require( LIB_PATH.join( MODULES_PATH, 'Log.js' ) );
+const SRC_WEBSERVER_MODULE = require( LIB_PATH.join( MODULES_PATH, 'WebServer.js' ) );
+
+
+//---------------------------------------------------------------------
 exports.NewServer =
 	function ( ApplicationName, ApplicationPath,
 		ServerOptions = {
-			write_defaults: false,	// Writes '<ApplicationPath>/<ApplicationName>.defaults.json'.
-			write_settings: false,	// Writes '<ApplicationPath>/<ApplicationName>.settings.json'.
+			write_defaults: false,		// Writes '<ApplicationPath>/<ApplicationName>.defaults.json'.
+			write_settings: false,		// Writes '<ApplicationPath>/<ApplicationName>.settings.json'.
 			config_path: '',			// Merges, alphabetically, all json/yaml files in path. (can be a filename)
-			ConfigObject: null,		// Merge an explicit object with the configuration. This is applied last.
+			Settings: null,				// Merge an explicit object with the configuration. This is applied last.
 		} )
 	{
 		if ( !LIB_FS.existsSync( ApplicationPath ) ) { throw new Error( `The application path does not exist [${ApplicationPath}].` ); }
@@ -28,9 +40,9 @@ exports.NewServer =
 
 		// Expose some construction functions.
 		{
-			server.NewModule = require( LIB_PATH.join( __dirname, 'base', 'ModuleBase.js' ) ).NewModule;
-			server.NewService = require( LIB_PATH.join( __dirname, 'base', 'ServiceBase.js' ) ).NewService;
-			server.NewStorageService = require( LIB_PATH.join( __dirname, 'base', 'StorageService.js' ) ).NewStorageService;
+			server.NewModule = SRC_MODULE_BASE.NewModule;
+			server.NewService = SRC_SERVICE_BASE.NewService;
+			server.NewStorageService = SRC_STORAGE_SERVICE.NewStorageService;
 		}
 
 
@@ -50,20 +62,11 @@ exports.NewServer =
 		//---------------------------------------------------------------------
 
 
-		let modules_path = LIB_PATH.join( __dirname, 'modules' );
-
-		// // Load the application's package.json file.
-		// {
-		// 	let filename = LIB_PATH.join( ApplicationPath, 'package.json' );
-		// 	if ( !LIB_FS.existsSync( filename ) ) { throw new Error( `A [package.json] file was not found in the application path [${ApplicationPath}].` ); }
-		// 	server.Package = require( filename );
-		// }
-
 		// Load the internal utility functions.
-		server.Utility = require( LIB_PATH.join( modules_path, 'Utility.js' ) );
+		server.Utility = SRC_UTILTIY_MODULE;
 
 		// Load the configuration module.
-		server.Config = require( LIB_PATH.join( modules_path, 'Config.js' ) ).Construct( server );
+		server.Config = SRC_CONFIG_MODULE.Construct( server );
 		server.Config.Defaults.AppInfo = {
 			// name: server.Package.name,
 			// version: server.Package.version,
@@ -77,11 +80,11 @@ exports.NewServer =
 		};
 
 		// Load the logging module.
-		server.Log = require( LIB_PATH.join( modules_path, 'Log.js' ) ).Construct( server );
-		// NOTE: Delay insertion of the Defaults block until after the services.
+		server.Log = SRC_LOG_MODULE.Construct( server );
+		// NOTE: Delay insertion of the Defaults block until after the services are loaded.
 
 		// Load the WebServer module.
-		server.WebServer = require( LIB_PATH.join( modules_path, 'WebServer.js' ) ).Construct( server );
+		server.WebServer = SRC_WEBSERVER_MODULE.Construct( server );
 		server.Config.Defaults.WebServer = server.WebServer.GetDefaults();
 
 
@@ -145,9 +148,9 @@ exports.NewServer =
 				server.Config.MergePath( path );
 			}
 		}
-		if ( ServerOptions.ConfigObject )
+		if ( ServerOptions.Settings )
 		{
-			server.Config.MergeSettings( ServerOptions.ConfigObject );
+			server.Config.MergeSettings( ServerOptions.Settings );
 		}
 
 		// Write the application's Settings file.
@@ -197,7 +200,7 @@ exports.NewServer =
 				server.WebServer.Initialize();
 				server.Log.trace( `Initialized module [WebServer].` );
 
-				// Configure Services
+				// Configuration.jse Services
 				{
 					let service_names = Object.keys( server.Services );
 					for ( let index = 0; index < service_names.length; index++ )

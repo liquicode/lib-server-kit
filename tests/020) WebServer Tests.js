@@ -28,21 +28,6 @@ describe( `020) WebServer Tests`,
 
 
 		//---------------------------------------------------------------------
-		it( `should start the web server`,
-			async function ()
-			{
-				LIB_ASSERT.ok( Server );
-				LIB_ASSERT.ok( Server.WebServer );
-				await Server.WebServer.StartWebServer();
-				LIB_ASSERT.ok( Server.WebServer.HttpServer );
-				LIB_ASSERT.ok( Server.WebServer.HttpServer.listening );
-				LIB_ASSERT.ok( !Server.WebServer.Express );
-				LIB_ASSERT.ok( !Server.WebServer.SocketIO );
-				return;
-			} );
-
-
-		//---------------------------------------------------------------------
 		it( `should have loaded the SystemUsers service`,
 			async function ()
 			{
@@ -84,6 +69,21 @@ describe( `020) WebServer Tests`,
 				LIB_ASSERT.ok( Server.Maths.ItemDefinition );
 				LIB_ASSERT.ok( Server.Maths.ItemDefinition.name === 'GenericObject' );
 				LIB_ASSERT.ok( Server.Maths.ItemDefinition.Fields );
+				return;
+			} );
+
+
+		//---------------------------------------------------------------------
+		it( `should start the web server`,
+			async function ()
+			{
+				LIB_ASSERT.ok( Server );
+				LIB_ASSERT.ok( Server.WebServer );
+				await Server.WebServer.StartWebServer();
+				LIB_ASSERT.ok( Server.WebServer.HttpServer );
+				LIB_ASSERT.ok( Server.WebServer.HttpServer.listening );
+				LIB_ASSERT.ok( !Server.WebServer.Express );
+				LIB_ASSERT.ok( !Server.WebServer.SocketIO );
 				return;
 			} );
 

@@ -19,7 +19,7 @@ const LIB_PASSPORT_LOCAL = require( 'passport-local' );
 
 //---------------------------------------------------------------------
 exports.Use =
-	function Use( Server, WebServer, ExpressTransport, WebServerSettings )
+	function Use( Server, WebServer, WebServerSettings )
 	{
 
 		//---------------------------------------------------------------------
@@ -150,13 +150,13 @@ exports.Use =
 		//---------------------------------------------------------------------
 		// Configure the router.
 		LIB_PASSPORT.use( strategy );
-		ExpressTransport.use( LIB_PASSPORT.initialize() );
-		ExpressTransport.use( LIB_PASSPORT.session() );
-		ExpressTransport.use( LIB_PASSPORT.authenticate( 'session' ) );
+		WebServer.Express.App.use( LIB_PASSPORT.initialize() );
+		WebServer.Express.App.use( LIB_PASSPORT.session() );
+		WebServer.Express.App.use( LIB_PASSPORT.authenticate( 'session' ) );
 
 
 		{
-			let server_path = WebServer.ExpressServerPath( WebServerSettings );
+			let server_path = WebServer.Express.ServerPath( WebServerSettings );
 
 			let urls = {
 				home: `${server_path}`,
@@ -175,7 +175,7 @@ exports.Use =
 
 			//---------------------------------------------------------------------
 			// Login
-			ExpressTransport.get( urls.login,
+			WebServer.Express.App.get( urls.login,
 				WebServer.Express.AuthenticationGate( false ),
 				async function ( request, response, next ) 
 				{
@@ -188,7 +188,7 @@ exports.Use =
 						, true );
 				}
 			);
-			ExpressTransport.post( urls.login,
+			WebServer.Express.App.post( urls.login,
 				WebServer.Express.AuthenticationGate( false ),
 				LIB_PASSPORT.authenticate( 'local', { failureRedirect: urls.login_url } ),
 				async function ( request, response, next ) 
@@ -206,7 +206,7 @@ exports.Use =
 
 			//---------------------------------------------------------------------
 			// LogOut
-			ExpressTransport.get( urls.logout,
+			WebServer.Express.App.get( urls.logout,
 				WebServer.Express.AuthenticationGate( true ),
 				async function ( request, response, next ) 
 				{
@@ -219,7 +219,7 @@ exports.Use =
 						, true );
 				}
 			);
-			ExpressTransport.post( urls.logout,
+			WebServer.Express.App.post( urls.logout,
 				WebServer.Express.AuthenticationGate( true ),
 				async function ( request, response, next )
 				{
@@ -232,7 +232,7 @@ exports.Use =
 
 			//---------------------------------------------------------------------
 			// SignUp
-			ExpressTransport.get( urls.signup,
+			WebServer.Express.App.get( urls.signup,
 				WebServer.Express.AuthenticationGate( false ),
 				async function ( request, response, next )
 				{
@@ -245,7 +245,7 @@ exports.Use =
 						, true );
 				}
 			);
-			ExpressTransport.post( urls.signup,
+			WebServer.Express.App.post( urls.signup,
 				WebServer.Express.AuthenticationGate( false ),
 				async function ( request, response, next )
 				{

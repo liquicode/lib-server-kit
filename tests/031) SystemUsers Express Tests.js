@@ -4,27 +4,70 @@ const LIB_PATH = require( 'path' );
 const LIB_ASSERT = require( 'assert' );
 
 const LIB_SERVER_KIT = require( LIB_PATH.resolve( __dirname, '../src/lib-server-kit.js' ) );
-let application_name = 'TestServer';
-let application_path = __dirname;
-let Server = null;
-
-let Admin = { user_id: 'admin', user_role: 'admin' };
-let Super = { user_id: 'super', user_role: 'super' };
-let User = { user_id: 'user', user_role: 'user' };
 
 
 //---------------------------------------------------------------------
-describe( `021) SystemUsers Service Tests`,
+describe( `031) SystemUsers Express Tests`,
 	function ()
 	{
+		const application_name = 'TestServer';
+		const application_path = __dirname;
+
+		let Server = null;
+		let server_address = null;
+		let service_address = null;
+		let login_url = null;
+
+		const Admin = { user_id: 'admin', user_role: 'admin' };
+		const Super = { user_id: 'super', user_role: 'super' };
+		const User = { user_id: 'user', user_role: 'user' };
+
+
+		let ServicesClient = null;
 
 
 		//---------------------------------------------------------------------
 		before(
 			async function ()
 			{
-				Server = LIB_SERVER_KIT.NewServer( application_name, application_path );
+				let server_options = {
+					Settings: {
+						WebServer: {
+							Express: {
+								enabled: true,
+								// report_routes: true,
+								Session: {
+									enabled: true,
+								},
+								Authentication: {
+									enabled: true,
+								},
+							},
+						},
+					},
+				};
+				Server = LIB_SERVER_KIT.NewServer( application_name, application_path, server_options );
 				Server.Initialize();
+				await Server.WebServer.StartWebServer();
+				server_address = Server.WebServer.Express.ServerAddress();
+				service_address = server_address + Server.WebServer.Express.ServicesPath();
+				login_url = `${service_address}${Server.Config.Settings.WebServer.Express.Authentication.Pages.login_url}`;
+				// Authenticate as admin.
+				try
+				{
+					let response = await Server.Utility.async_request(
+						'post', login_url, {
+						username: 'admin@system',
+						password: 'password',
+					} );
+					LIB_ASSERT.ok( response );
+					LIB_ASSERT.ok( response.status === 200 );
+					LIB_ASSERT.ok( response.statusText === 'OK' );
+				}
+				catch ( error )
+				{
+					LIB_ASSERT.fail( error.message );
+				}
 				return;
 			}
 		);
@@ -34,6 +77,10 @@ describe( `021) SystemUsers Service Tests`,
 		after(
 			async function ()
 			{
+				if ( !Server ) { return; }
+				if ( !Server.WebServer ) { return; }
+				if ( !Server.WebServer.HttpServer.listening ) { return; }
+				await Server.WebServer.StopWebServer();
 				return;
 			}
 		);
@@ -43,15 +90,14 @@ describe( `021) SystemUsers Service Tests`,
 		it( `should create admin-owned users`,
 			async function ()
 			{
-				LIB_ASSERT.ok( Server );
-				LIB_ASSERT.ok( Server.SystemUsers );
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 0 );
+				LIB_ASSERT.ok( ServicesClient );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageCount( Admin ) === 0 );
 
 				// Create users directly into the storage by calling CreateOne.
 				// CreateOne will create the object bu assign ownership to the calling user.
 
 				// Create an Admin user.
-				let _admin = await Server.SystemUsers.StorageCreateOne( Admin, Admin );
+				let _admin = await ServicesClient.SystemUsers.StorageCreateOne( Admin, Admin );
 				LIB_ASSERT.ok( _admin );										// User was created
 				LIB_ASSERT.ok( _admin.user_id === Admin.user_id );				// User has the correct user_id
 				LIB_ASSERT.ok( _admin.user_role === Admin.user_role );			// User has the correct user_role
@@ -59,24 +105,24 @@ describe( `021) SystemUsers Service Tests`,
 				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 1 );
 
 				// Create a Super user.
-				let _super = await Server.SystemUsers.StorageCreateOne( Admin, Super );
+				let _super = await ServicesClient.SystemUsers.StorageCreateOne( Admin, Super );
 				LIB_ASSERT.ok( _super );										// User was created
 				LIB_ASSERT.ok( _super.user_id === Super.user_id );				// User has the correct user_id
 				LIB_ASSERT.ok( _super.user_role === Super.user_role );			// User has the correct user_role
 				LIB_ASSERT.ok( _super.__.owner_id === Admin.user_id );			// User is owned by the Admin
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 2 );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageCount( Admin ) === 2 );
 
 				// Create a normal user.
-				let _user = await Server.SystemUsers.StorageCreateOne( Admin, User );
+				let _user = await ServicesClient.SystemUsers.StorageCreateOne( Admin, User );
 				LIB_ASSERT.ok( _user );											// User was created
 				LIB_ASSERT.ok( _user.user_id === User.user_id );				// User has the correct user_id
 				LIB_ASSERT.ok( _user.user_role === User.user_role );			// User has the correct user_role
 				LIB_ASSERT.ok( _user.__.owner_id === Admin.user_id );			// User is owned by the Admin
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 3 );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageCount( Admin ) === 3 );
 
 				// Delete all of the users.
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageDeleteMany( Admin ) === 3 );
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 0 );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageDeleteMany( Admin ) === 3 );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageCount( Admin ) === 0 );
 
 				return;
 			} );
@@ -86,9 +132,8 @@ describe( `021) SystemUsers Service Tests`,
 		it( `should create self-owned users`,
 			async function ()
 			{
-				LIB_ASSERT.ok( Server );
-				LIB_ASSERT.ok( Server.SystemUsers );
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 0 );
+				LIB_ASSERT.ok( ServicesClient );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageCount( Admin ) === 0 );
 
 				// Perform a signup operation by calling FindOrCreateUser.
 				// FindOrCreateUser will create a user if it doesnt already exist
@@ -100,7 +145,7 @@ describe( `021) SystemUsers Service Tests`,
 				let api_result = null;
 
 				// Create an Admin user.
-				api_result = await Server.SystemUsers.FindOrCreateUser( Admin );
+				api_result = await ServicesClient.SystemUsers.FindOrCreateUser( Admin );
 				LIB_ASSERT.ok( api_result );
 				LIB_ASSERT.ok( api_result.ok );
 				LIB_ASSERT.ok( !api_result.error );
@@ -109,10 +154,10 @@ describe( `021) SystemUsers Service Tests`,
 				LIB_ASSERT.ok( _admin.user_id === Admin.user_id );				// User has the correct user_id
 				LIB_ASSERT.ok( _admin.user_role === Admin.user_role );			// User has the correct user_role
 				LIB_ASSERT.ok( _admin.__.owner_id === Admin.user_id );			// User is owned by the Admin
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 1 );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageCount( Admin ) === 1 );
 
 				// Create a Super user.
-				api_result = await Server.SystemUsers.FindOrCreateUser( Super );
+				api_result = await ServicesClient.SystemUsers.FindOrCreateUser( Super );
 				LIB_ASSERT.ok( api_result );
 				LIB_ASSERT.ok( api_result.ok );
 				LIB_ASSERT.ok( !api_result.error );
@@ -121,10 +166,10 @@ describe( `021) SystemUsers Service Tests`,
 				LIB_ASSERT.ok( _super.user_id === Super.user_id );				// User has the correct user_id
 				LIB_ASSERT.ok( _super.user_role === Super.user_role );			// User has the correct user_role
 				LIB_ASSERT.ok( _super.__.owner_id === Super.user_id );			// User is owned by the user
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 2 );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageCount( Admin ) === 2 );
 
 				// Create a normal user.
-				api_result = await Server.SystemUsers.FindOrCreateUser( User );
+				api_result = await ServicesClient.SystemUsers.FindOrCreateUser( User );
 				LIB_ASSERT.ok( api_result );
 				LIB_ASSERT.ok( api_result.ok );
 				LIB_ASSERT.ok( !api_result.error );
@@ -133,11 +178,11 @@ describe( `021) SystemUsers Service Tests`,
 				LIB_ASSERT.ok( _user.user_id === User.user_id );				// User has the correct user_id
 				LIB_ASSERT.ok( _user.user_role === User.user_role );			// User has the correct user_role
 				LIB_ASSERT.ok( _user.__.owner_id === User.user_id );			// User is owned by the user
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 3 );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageCount( Admin ) === 3 );
 
 				// Delete all of the users.
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageDeleteMany( Admin ) === 3 );
-				LIB_ASSERT.ok( await Server.SystemUsers.StorageCount( Admin ) === 0 );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageDeleteMany( Admin ) === 3 );
+				LIB_ASSERT.ok( await ServicesClient.SystemUsers.StorageCount( Admin ) === 0 );
 
 				return;
 			} );

@@ -64,6 +64,8 @@ exports.Construct =
 		_module.Initialize =
 			function Initialize()
 			{
+				// Analyze the application's Settings.
+				SRC_CONFIGURATION.AnalyzeSettings( Server );
 				return;
 			};
 

@@ -215,7 +215,7 @@ exports.Initialize =
 		{
 			if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Local' )
 			{
-				SRC_AUTHENTICATION_PASSPORT_LOCAL.Use( Server, WebServer, WebServer.Express, WebServerSettings );
+				SRC_AUTHENTICATION_PASSPORT_LOCAL.Use( Server, WebServer, WebServerSettings );
 				Server.Log.trace( `WebServer.Express.Authentication is using [Passport_Local].` );
 			}
 			else if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Auth0' )

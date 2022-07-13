@@ -14,8 +14,8 @@
 const LIB_FS = require( 'fs' );
 const LIB_HTTP = require( 'http' );
 const LIB_HTTPS = require( 'https' );
-const LIB_CRYPTO = require( 'crypto' );
 const LIB_JSON = require( '@liquicode/lib-json' );
+const LIB_AXIOS = require( 'axios' );
 
 
 //=====================================================================
@@ -32,22 +32,30 @@ exports.clone = clone;
 exports.sleep = sleep;
 exports.random = random;
 exports.unique_id = unique_id;
+
 exports.read_json_file = read_json_file;
 exports.write_json_file = write_json_file;
 exports.json_parse = json_parse;
 exports.json_stringify = json_stringify;
+
 exports.replace_all = replace_all;
+
 exports.is_undefined = is_undefined;
 exports.assign_if_defined = assign_if_defined;
 exports.value_missing_null_empty = value_missing_null_empty;
 exports.value_exists = value_exists;
 exports.missing_parameter_error = missing_parameter_error;
+
 exports.merge_objects = merge_objects;
+
 exports.format_timestamp = format_timestamp;
 exports.string_compare = string_compare;
 exports.zulu_timestamp = zulu_timestamp;
+
+exports.async_request = async_request;
 exports.async_make_get_request = async_make_get_request;
 exports.async_download_file = async_download_file;
+
 exports.get_safe_filename = get_safe_filename;
 exports.invalid_parameter_value_message = invalid_parameter_value_message;
 
@@ -306,6 +314,24 @@ function zulu_timestamp()
 {
 	return ( new Date() ).toISOString();
 };
+
+
+//---------------------------------------------------------------------
+async function async_request( method, url, data )
+{
+	return new Promise(
+		( resolve, reject ) =>
+		{
+			LIB_AXIOS( {
+				method: method,
+				url: url,
+				data: data,
+				withCredentials: true,
+			} )
+				.then( function ( response ) { resolve( response ); } )
+				.catch( function ( error ) { reject( error ); } );
+		} );
+}
 
 
 //---------------------------------------------------------------------

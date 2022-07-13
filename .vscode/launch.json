@@ -103,7 +103,45 @@
 			"internalConsoleOptions": "openOnSessionStart",
 		},
 		{
-			"name": "Test: 032) Maths Service Express Tests",
+			"name": "Test: 030) Express Tests",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
+			"args": [
+				"-u",
+				"bdd",
+				"tests/030*.js",
+				"--timeout",
+				"0",
+			],
+			"outputCapture": "std",
+			"internalConsoleOptions": "openOnSessionStart",
+		},
+		{
+			"name": "Test: 031) SystemUsers Express Tests",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
+			"args": [
+				"-u",
+				"bdd",
+				"tests/031*.js",
+				"--timeout",
+				"0",
+			],
+			"outputCapture": "std",
+			"internalConsoleOptions": "openOnSessionStart",
+		},
+		{
+			"name": "Test: 032) Maths Express Tests",
 			"type": "node",
 			"request": "launch",
 			"skipFiles": [
@@ -115,6 +153,25 @@
 				"-u",
 				"bdd",
 				"tests/032*.js",
+				"--timeout",
+				"0",
+			],
+			"outputCapture": "std",
+			"internalConsoleOptions": "openOnSessionStart",
+		},
+		{
+			"name": "Test: 040) SocketIO Tests",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
+			"args": [
+				"-u",
+				"bdd",
+				"tests/040*.js",
 				"--timeout",
 				"0",
 			],

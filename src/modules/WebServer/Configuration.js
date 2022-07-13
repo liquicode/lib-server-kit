@@ -1,5 +1,7 @@
 'use strict';
 
+const { Server } = require( 'socket.io' );
+
 
 //=====================================================================
 //=====================================================================
@@ -204,7 +206,25 @@ exports.GetDefaults =
 
 //---------------------------------------------------------------------
 exports.AnalyzeSettings =
-	function AnalyzeSettings( WebServerSettings )
+	function AnalyzeSettings( Server )
 	{
+		let WebServerSettings = Server.Config.Settings.WebServer;
+		if ( WebServerSettings )
+		{
+			if ( WebServerSettings.Express
+				&& WebServerSettings.Express.enabled )
+			{
+				if ( WebServerSettings.Express.Authentication
+					&& WebServerSettings.Express.Authentication.enabled )
+				{
+					if ( !WebServerSettings.Express.Session
+						|| !WebServerSettings.Express.Session.enabled )
+					{
+						Server.Log.warn( `The WebServer Session module must be enabled because Authentication depends on it.` );
+					}
+
+				}
+			}
+		}
 		return;
 	};

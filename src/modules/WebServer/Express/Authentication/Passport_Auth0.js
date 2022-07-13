@@ -19,7 +19,7 @@ const LIB_PASSPORT_AUTH0 = require( 'passport-auth0' );
 
 //---------------------------------------------------------------------
 exports.Use =
-	function Use( Server, WebServer, ExpressTransport, WebServerSettings )
+	function Use( Server, WebServer, WebServerSettings )
 	{
 
 		//---------------------------------------------------------------------
@@ -82,9 +82,9 @@ exports.Use =
 		//---------------------------------------------------------------------
 		// Configure the router.
 		LIB_PASSPORT.use( strategy );
-		ExpressTransport.use( LIB_PASSPORT.initialize() );
-		ExpressTransport.use( LIB_PASSPORT.session() );
-		ExpressTransport.use( LIB_PASSPORT.authenticate( 'session' ) );
+		WebServer.Express.App.use( LIB_PASSPORT.initialize() );
+		WebServer.Express.App.use( LIB_PASSPORT.session() );
+		WebServer.Express.App.use( LIB_PASSPORT.authenticate( 'session' ) );
 
 
 		{
@@ -98,7 +98,7 @@ exports.Use =
 			};
 
 			//---------------------------------------------------------------------
-			ExpressTransport.get( '/auth0_callback',
+			WebServer.Express.App.get( '/auth0_callback',
 				async function ( request, response, next )
 				{
 					LIB_PASSPORT.authenticate( 'auth0',
@@ -119,8 +119,8 @@ exports.Use =
 
 
 			//---------------------------------------------------------------------
-			ExpressTransport.get( urls.signup,
-				Server.WebServer.NotRequiresLogin,
+			WebServer.Express.App.get( urls.signup,
+				WebServer.Express.AuthenticationGate( false ),
 				async function ( request, response, next )
 				{
 					// response.redirect( Urls.home_url );
@@ -130,8 +130,8 @@ exports.Use =
 
 
 			//---------------------------------------------------------------------
-			ExpressTransport.get( urls.login,
-				Server.WebServer.NotRequiresLogin,
+			WebServer.Express.App.get( urls.login,
+				WebServer.Express.AuthenticationGate( false ),
 				LIB_PASSPORT.authenticate( 'auth0',
 					{
 						scope: 'openid email profile'
@@ -144,8 +144,8 @@ exports.Use =
 
 
 			//---------------------------------------------------------------------
-			ExpressTransport.get( urls.logout,
-				Server.WebServer.RequiresLogin,
+			WebServer.Express.App.get( urls.logout,
+				WebServer.Express.AuthenticationGate( true ),
 				async function ( request, response, next )
 				{
 					function get_server_address( request )
@@ -160,10 +160,10 @@ exports.Use =
 					}
 
 					request.logout();
-					let url = new LIB_URL.URL( `https://${WebServerSettings.Passport.Auth0.domain}/v2/logout` );
+					let url = new LIB_URL.URL( `https://${WebServerSettings.Express.Authentication.Passport_Auth0.Settings.domain}/v2/logout` );
 					url.search = LIB_QUERYSTRING.stringify(
 						{
-							client_id: WebServerSettings.Passport.Auth0.client_id,
+							client_id: WebServerSettings.Express.Authentication.Passport_Auth0.Settings.client_id,
 							returnTo: get_server_address( request ) + urls.home,
 						} );
 					response.redirect( url );
