@@ -50,6 +50,16 @@ exports.GetDefaults =
 				}, // ~ ClientSupport
 
 				//---------------------------------------------------------------------
+				// Swagger
+				//---------------------------------------------------------------------
+
+				Swagger: {
+					enabled: false,
+					swagger_ui_path: 'swagger',
+					open_api_file: '',
+				}, // ~ Swagger
+
+				//---------------------------------------------------------------------
 				// Data Handling
 				//---------------------------------------------------------------------
 
@@ -151,7 +161,7 @@ exports.GetDefaults =
 					},
 
 					AnonymousUser: {
-						user_id: 'anonymous@internal',
+						user_id: 'anonymous@server',
 						user_role: 'public',
 						user_name: 'Anonymous',
 						image_url: '',
@@ -164,7 +174,7 @@ exports.GetDefaults =
 					//---------------------------------------------------------------------
 					// Passport Authentication: email and password
 					Passport_Local: { // https://github.com/jaredhanson/passport-local
-						Users: [ { user_id: 'admin@system', password: 'password' } ],
+						Users: [ { user_id: 'admin@server', password: 'password' } ],
 						Settings: {
 						},
 					},

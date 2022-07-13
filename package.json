@@ -64,6 +64,7 @@
 		"pug": "^3.0.2",
 		"querystring": "^0.2.1",
 		"socket.io": "^4.5.1",
+		"swagger-ui-express": "^4.5.0",
 		"uuid": "^8.3.2",
 		"yargs": "^17.2.1"
 	},

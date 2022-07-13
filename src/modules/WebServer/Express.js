@@ -24,6 +24,7 @@ const SRC_AUTHENTICATION_PASSPORT_LOCAL = require( './Express/Authentication/Pas
 const SRC_AUTHENTICATION_PASSPORT_AUTH0 = require( './Express/Authentication/Passport_Auth0.js' );
 const SRC_APPLICATION_SERVICES = require( './Express/ApplicationServices.js' );
 const SRC_GENERATE_CLIENT = require( './Express/GenerateClient.js' );
+const SRC_SWAGGER = require( './Express/Swagger.js' );
 
 
 //---------------------------------------------------------------------
@@ -253,7 +254,7 @@ exports.Initialize =
 			{
 				let path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.public_files );
 				LIB_FS.mkdirSync( path, { recursive: true } );
-				WebServer.Express.App.use( WebServerSettings.Express.ClientSupport.server_url, LIB_EXPRESS.static( path ) );
+				WebServer.Express.App.use( WebServer.Express.ServerPath(), LIB_EXPRESS.static( path ) );
 				Server.Log.trace( `WebServer.Express.ClientSupport using public folder [${path}].` );
 			}
 
@@ -307,6 +308,23 @@ exports.Initialize =
 			}
 
 			Server.Log.trace( `WebServer.Express.ClientSupport is initialized.` );
+		}
+
+
+		//=====================================================================
+		//=====================================================================
+		//
+		//		Swagger
+		//
+		//=====================================================================
+		//=====================================================================
+
+
+		if ( WebServerSettings.Express.Swagger
+			&& WebServerSettings.Express.Swagger.enabled )
+		{
+			SRC_SWAGGER.Use( Server, WebServer, WebServerSettings );
+			Server.Log.trace( `WebServer.Express.Swagger is initialized.` );
 		}
 
 

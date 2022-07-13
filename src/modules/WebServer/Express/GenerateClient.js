@@ -11,8 +11,8 @@ function GenerateClient( Server, WebServerSettings )
 	let code = '';
 	let server_name = Server.Config.Settings.AppInfo.name;
 	let service_names = Object.keys( Server.Services );
-	let server_path = Server.WebServer.ExpressServerPath( WebServerSettings );
-	let service_path = Server.WebServer.ExpressServicesPath( WebServerSettings );
+	let server_path = Server.WebServer.Express.ServerPath( WebServerSettings );
+	let service_path = Server.WebServer.Express.ServicesPath( WebServerSettings );
 	let timestamp = ( new Date() ).toISOString();
 	let timestamp_local = ( new Date() ).toString();
 

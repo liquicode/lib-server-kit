@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Express Api Client File for: MathsServer
-// Generated:  2022-07-10T09:58:11.875Z
-//   Sun Jul 10 2022 05:58:11 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-13T21:06:44.256Z
+//   Wed Jul 13 2022 17:06:44 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var ExpressApi = {};
@@ -30,13 +30,13 @@ ExpressApi.ExpressMessage = function ( Method, Address, Payload, Callback )
 
 ExpressApi.SystemUsers = {};
 ExpressApi.SystemUsers.API = {};
-ExpressApi.SystemUsers.get_StorageCount = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/SystemUsers/StorageCount', {Criteria:Criteria}, Callback ); }
-ExpressApi.SystemUsers.get_StorageFindOne = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/SystemUsers/StorageFindOne', {Criteria:Criteria}, Callback ); }
-ExpressApi.SystemUsers.get_StorageFindMany = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/SystemUsers/StorageFindMany', {Criteria:Criteria}, Callback ); }
-ExpressApi.SystemUsers.get_StorageCreateOne = function ( Prototype, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/SystemUsers/StorageCreateOne', {Prototype:Prototype}, Callback ); }
-ExpressApi.SystemUsers.get_StorageWriteOne = function ( Criteria, DataObject, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/SystemUsers/StorageWriteOne', {Criteria:Criteria, DataObject:DataObject}, Callback ); }
-ExpressApi.SystemUsers.get_StorageDeleteOne = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/SystemUsers/StorageDeleteOne', {Criteria:Criteria}, Callback ); }
-ExpressApi.SystemUsers.get_StorageDeleteMany = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/SystemUsers/StorageDeleteMany', {Criteria:Criteria}, Callback ); }
+ExpressApi.SystemUsers.get_StorageCount = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/SystemUsers/StorageCount', {Criteria:Criteria}, Callback ); }
+ExpressApi.SystemUsers.get_StorageFindOne = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/SystemUsers/StorageFindOne', {Criteria:Criteria}, Callback ); }
+ExpressApi.SystemUsers.get_StorageFindMany = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/SystemUsers/StorageFindMany', {Criteria:Criteria}, Callback ); }
+ExpressApi.SystemUsers.get_StorageCreateOne = function ( Prototype, Callback ) { ExpressApi.ExpressMessage( 'get', '/SystemUsers/StorageCreateOne', {Prototype:Prototype}, Callback ); }
+ExpressApi.SystemUsers.get_StorageWriteOne = function ( Criteria, DataObject, Callback ) { ExpressApi.ExpressMessage( 'get', '/SystemUsers/StorageWriteOne', {Criteria:Criteria, DataObject:DataObject}, Callback ); }
+ExpressApi.SystemUsers.get_StorageDeleteOne = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/SystemUsers/StorageDeleteOne', {Criteria:Criteria}, Callback ); }
+ExpressApi.SystemUsers.get_StorageDeleteMany = function ( Criteria, Callback ) { ExpressApi.ExpressMessage( 'get', '/SystemUsers/StorageDeleteMany', {Criteria:Criteria}, Callback ); }
 ExpressPages.SystemUsers = {};
 ExpressPages.SystemUsers.List = "/SystemUsers/List";
 ExpressPages.SystemUsers.Item = "/SystemUsers/Item";
@@ -44,8 +44,8 @@ ExpressPages.SystemUsers.Share = "/SystemUsers/Share";
 
 ExpressApi.Maths = {};
 ExpressApi.Maths.API = {};
-ExpressApi.Maths.get_Add = function ( A, B, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/Maths/Add', {A:A, B:B}, Callback ); }
-ExpressApi.Maths.get_Subtract = function ( A, B, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/Maths/Subtract', {A:A, B:B}, Callback ); }
-ExpressApi.Maths.get_Multiply = function ( A, B, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/Maths/Multiply', {A:A, B:B}, Callback ); }
-ExpressApi.Maths.get_Divide = function ( A, B, Callback ) { ExpressApi.ExpressMessage( 'get', '/api/Maths/Divide', {A:A, B:B}, Callback ); }
+ExpressApi.Maths.get_Add = function ( A, B, Callback ) { ExpressApi.ExpressMessage( 'get', '/Maths/Add', {A:A, B:B}, Callback ); }
+ExpressApi.Maths.get_Subtract = function ( A, B, Callback ) { ExpressApi.ExpressMessage( 'get', '/Maths/Subtract', {A:A, B:B}, Callback ); }
+ExpressApi.Maths.get_Multiply = function ( A, B, Callback ) { ExpressApi.ExpressMessage( 'get', '/Maths/Multiply', {A:A, B:B}, Callback ); }
+ExpressApi.Maths.get_Divide = function ( A, B, Callback ) { ExpressApi.ExpressMessage( 'get', '/Maths/Divide', {A:A, B:B}, Callback ); }
 ExpressPages.Maths = {};

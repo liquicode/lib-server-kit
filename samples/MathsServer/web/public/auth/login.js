@@ -21,7 +21,7 @@ app.controller(
 			Server: window.SERVER_DATA,
 			// user_email: '',
 			// password: '',
-			user_email: "admin@internal",
+			user_email: "admin@server",
 			password: "password",
 			message: 'Waiting for Login'
 		};
