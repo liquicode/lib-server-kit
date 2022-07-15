@@ -110,6 +110,7 @@ exports.Construct =
 			title: 'User Email',
 			description: 'Email address of the user.',
 			type: 'string',
+			format: 'email',
 			readonly: true,
 		};
 
@@ -136,7 +137,8 @@ exports.Construct =
 			name: 'image_url',
 			title: 'Image URL',
 			description: 'URL of the image associated with this acoount.',
-			type: 'image_url',
+			type: 'string',
+			format: 'image_url',
 			readonly: false,
 		};
 

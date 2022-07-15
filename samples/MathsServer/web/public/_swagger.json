@@ -1,0 +1,442 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "MathsServer Server API",
+        "description": "Maths Server: For making maths.",
+        "version": ""
+    },
+    "servers": [
+        {
+            "url": "http://localhost:4200/",
+            "description": "development server"
+        }
+    ],
+    "components": {
+        "schemas": {
+            "ApiResult": {
+                "type": "object",
+                "properties": {
+                    "ok": {
+                        "type": "boolean"
+                    },
+                    "origin": {
+                        "type": "string"
+                    },
+                    "error": {
+                        "type": "string"
+                    },
+                    "result": {}
+                },
+                "example": {
+                    "ok": true,
+                    "origin": "service/call",
+                    "error": null,
+                    "result": {
+                        "foo": "bar"
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/SystemUsers/StorageCount": {
+            "get": {
+                "summary": "Returns the number of objects matching the given Criteria.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/SystemUsers/StorageFindOne": {
+            "get": {
+                "summary": "Returns the first object matching the given Criteria.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/SystemUsers/StorageFindMany": {
+            "get": {
+                "summary": "Returns an array of all objects matching the given Criteria.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/SystemUsers/StorageCreateOne": {
+            "get": {
+                "summary": "Creates and stores a new object based upon the given Prototype; Returns the stored object.",
+                "parameters": [
+                    {
+                        "name": "Prototype",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/SystemUsers/StorageWriteOne": {
+            "get": {
+                "summary": "Overwrites values from DataObject to the first object matching the given Criteria; Returns the number of objects updated.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "DataObject",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/SystemUsers/StorageDeleteOne": {
+            "get": {
+                "summary": "Deletes the first object matching the given Criteria; Returns the number of objects deleted.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/SystemUsers/StorageDeleteMany": {
+            "get": {
+                "summary": "Deletes all objects matching the given Criteria; Returns the number of objects deleted.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Maths/Add": {
+            "get": {
+                "summary": "Returns the sum of two numbers. (A + B)",
+                "parameters": [
+                    {
+                        "name": "A",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "B",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Maths/Subtract": {
+            "get": {
+                "summary": "Returns the difference of two numbers. (A - B)",
+                "parameters": [
+                    {
+                        "name": "A",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "B",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Maths/Multiply": {
+            "get": {
+                "summary": "Returns the product of two numbers. (A * B)",
+                "parameters": [
+                    {
+                        "name": "A",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "B",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Maths/Divide": {
+            "get": {
+                "summary": "Returns the ratio of two numbers. (A / B)",
+                "parameters": [
+                    {
+                        "name": "A",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "B",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

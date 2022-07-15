@@ -23,8 +23,8 @@ const LIB_CORS = require( 'cors' );
 const SRC_AUTHENTICATION_PASSPORT_LOCAL = require( './Express/Authentication/Passport_Local.js' );
 const SRC_AUTHENTICATION_PASSPORT_AUTH0 = require( './Express/Authentication/Passport_Auth0.js' );
 const SRC_APPLICATION_SERVICES = require( './Express/ApplicationServices.js' );
-const SRC_GENERATE_CLIENT = require( './Express/GenerateClient.js' );
-const SRC_SWAGGER = require( './Express/Swagger.js' );
+const SRC_GENERATE_CLIENT_EXPRESS = require( './Express/GenerateClient/Express.js' );
+const SRC_GENERATE_CLIENT_SWAGGER = require( './Express/GenerateClient/Swagger.js' );
 
 
 //---------------------------------------------------------------------
@@ -87,8 +87,7 @@ exports.Create =
 								// request.session.returnTo = request.originalUrl;
 								request.session.redirect_url_after_login = request.originalUrl;
 							}
-							let url = _module.ExpressServerPath( WebServerSettings );
-							url += WebServerSettings.Express.Authentication.Pages.login_url;
+							let url = `${Express.ServerPath()}${WebServerSettings.Express.Authentication.Pages.login_url}`;
 							response.redirect( url );
 						};
 				}
@@ -276,7 +275,7 @@ exports.Initialize =
 			if ( WebServerSettings.Express.ClientSupport.client_api_file )
 			{
 				// Generate the api client for javascript.
-				let code = SRC_GENERATE_CLIENT.GenerateClient( Server, WebServerSettings );
+				let code = SRC_GENERATE_CLIENT_EXPRESS.Generate( Server, WebServer, WebServerSettings );
 				let filename = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.client_api_file );
 				LIB_FS.writeFileSync( filename, code );
 				Server.Log.trace( `WebServer.Express.ClientSupport generated client file [${filename}].` );
@@ -323,7 +322,29 @@ exports.Initialize =
 		if ( WebServerSettings.Express.Swagger
 			&& WebServerSettings.Express.Swagger.enabled )
 		{
-			SRC_SWAGGER.Use( Server, WebServer, WebServerSettings );
+			let swagger_doc = SRC_GENERATE_CLIENT_SWAGGER.Generate( Server, WebServer, WebServerSettings );
+
+			//---------------------------------------------------------------------
+			// Generate the opan api file.
+			if ( WebServerSettings.Express.Swagger.open_api_file )
+			{
+				let path = Server.ResolveApplicationPath( WebServerSettings.Express.Swagger.open_api_file );
+				LIB_FS.writeFileSync( path, JSON.stringify( swagger_doc, null, '    ' ) );
+				Server.Log.trace( `WebServer.Express.Swagger generated open api file [${path}].` );
+			}
+
+
+			//---------------------------------------------------------------------
+			// Mount the swagger ui path.
+			if ( WebServerSettings.Express.Swagger.swagger_ui_path )
+			{
+				const LIB_SWAGGER_UI_EXPRESS = require( 'swagger-ui-express' );
+
+				let route = `${WebServer.Express.ServicesPath()}${WebServerSettings.Express.Swagger.swagger_ui_path}`;
+				WebServer.Express.App.use( route, LIB_SWAGGER_UI_EXPRESS.serve, LIB_SWAGGER_UI_EXPRESS.setup( swagger_doc ) );
+				Server.Log.trace( `WebServer.Express.Swagger mounted route [${route}].` );
+			}
+
 			Server.Log.trace( `WebServer.Express.Swagger is initialized.` );
 		}
 

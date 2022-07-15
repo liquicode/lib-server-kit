@@ -1,12 +1,18 @@
 'use strict';
 
 
-//---------------------------------------------------------------------
-exports.GenerateClient = GenerateClient;
+//=====================================================================
+//=====================================================================
+//
+//		Generate Javascript Client API
+//
+//=====================================================================
+//=====================================================================
 
 
 //---------------------------------------------------------------------
-function GenerateClient( Server, WebServerSettings )
+exports.Generate =
+	function Generate( Server, WebServer, WebServerSettings )
 {
 	let code = '';
 	let server_name = Server.Config.Settings.AppInfo.name;
@@ -115,36 +121,3 @@ ExpressApi.ExpressMessage = function ( Method, Address, Payload, Callback )
 	// Return the code.
 	return code;
 };
-
-
-
-//---------------------------------------------------------------------
-// function Generate_HttpApiClient( Server, Service, Code, Options )
-// {
-// 	let service_name = Service.ServiceDefinition.name;
-
-// 	Code += `
-// // ${service_name} Service Client
-// Server.${service_name} =
-// {
-// 	API: {},
-// 	Pages: {},
-// };
-// `;
-
-// 	// Service API Client.
-// 	let endpoints = Service.ServiceDefinition.Endpoints;
-// 	let endpoint_names = Object.keys( endpoints );
-// 	for ( let index = 0; index < endpoint_names.length; index++ )
-// 	{
-// 		let endpoint = endpoints[ endpoint_names[ index ] ];
-// 		Code += `
-// // ${service_name}.${endpoint.name}
-// `;
-// 	}
-
-// 	// Service Pages Client.
-
-// 	// Return the code.
-// 	return Code;
-// };

@@ -16,7 +16,7 @@ exports.Use =
 
 
 		//---------------------------------------------------------------------
-		function get_request_parameters( request, endpoint )
+		function get_express_request_parameters( request, endpoint )
 		{
 			let parameters = [];
 			for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
@@ -42,8 +42,43 @@ exports.Use =
 
 
 		//---------------------------------------------------------------------
-		function add_http_service_endpoints( Service, ParentPath )
+		function add_express_service_endpoints( Service, ParentPath )
 		{
+
+			//---------------------------------------------------------------------
+			// This is the actual request handler that services this endpoint.
+			async function express_request_handler( request, response, next ) 
+			{
+				// Get the endpoint parameters.
+				let parameters = get_express_request_parameters( request, endpoint );
+
+				//TODO: Validate user_role.
+
+				// Invoke the endpoint function.
+				// Wrap return values in a api_result object.
+				try
+				{
+					let api_result = {
+						ok: true,
+						origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
+						result: await endpoint.invoke( request.user, ...parameters ),
+					};
+					response.send( api_result );
+				}
+				catch ( error )
+				{
+					let api_result = {
+						ok: false,
+						origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
+						error: error.message,
+					};
+					Server.WebServer.ReportApiError( api_result, response );
+					return;
+				}
+				return;
+			}
+
+			//---------------------------------------------------------------------
 			// Add endpoints for this service.
 			let endpoint_count = 0;
 			let endpoint_names = Object.keys( Service.ServiceDefinition.Endpoints );
@@ -52,63 +87,33 @@ exports.Use =
 				let endpoint_name = endpoint_names[ endpoint_index ];
 				let endpoint = Service.ServiceDefinition.Endpoints[ endpoint_name ];
 
-				// This is the actual request handler that services this endpoint.
-				async function http_service_handler( request, response, next ) 
-				{
-					// Get the endpoint parameters.
-					let parameters = get_request_parameters( request, endpoint );
-
-					// Invoke the endpoint function.
-					// Wrap return values in a api_result object.
-					try
-					{
-						let api_result = {
-							ok: true,
-							origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
-							result: await endpoint.invoke( request.user, ...parameters ),
-						};
-						response.send( api_result );
-					}
-					catch ( error )
-					{
-						let api_result = {
-							ok: false,
-							origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
-							error: error.message,
-						};
-						Server.WebServer.ReportApiError( api_result, response );
-						return;
-					}
-					return;
-				}
-
 				// Add endpoints for each http verb.
 				if ( endpoint.verbs.includes( 'get' ) )
 				{
 					WebServer.Express.App.get( `${ParentPath}/${endpoint.name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						http_service_handler );
+						express_request_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'post' ) )
 				{
 					WebServer.Express.App.post( `${ParentPath}/${endpoint.name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						http_service_handler );
+						express_request_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'put' ) )
 				{
 					WebServer.Express.App.put( `${ParentPath}/${endpoint.name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						http_service_handler );
+						express_request_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'delete' ) )
 				{
 					WebServer.Express.App.delete( `${ParentPath}/${endpoint.name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						http_service_handler );
+						express_request_handler );
 					endpoint_count++;
 				}
 
@@ -119,7 +124,7 @@ exports.Use =
 
 
 		//---------------------------------------------------------------------
-		function add_http_page_endpoints( Service, ParentPath )
+		function add_express_page_endpoints( Service, ParentPath )
 		{
 			// Add endpoints for this service.
 			let endpoint_count = 0;
@@ -129,11 +134,12 @@ exports.Use =
 				let endpoint_name = endpoint_names[ endpoint_index ];
 				let endpoint = Service.ServiceDefinition.Pages[ endpoint_name ];
 
+				//---------------------------------------------------------------------
 				// This is the actual request handler that services this endpoint.
-				async function http_page_handler( request, response, next ) 
+				async function express_page_handler( request, response, next ) 
 				{
 					// Get the endpoint parameters.
-					let parameters = get_request_parameters( request, endpoint );
+					let parameters = get_express_request_parameters( request, endpoint );
 
 					// Render the endpoint page.
 					try
@@ -159,33 +165,34 @@ exports.Use =
 					return;
 				}
 
+				//---------------------------------------------------------------------
 				// Add endpoints for each http verb.
 				if ( endpoint.verbs.includes( 'get' ) )
 				{
 					WebServer.Express.App.get( `${ParentPath}/${endpoint.name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						http_page_handler );
+						express_page_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'post' ) )
 				{
 					WebServer.Express.App.post( `${ParentPath}/${endpoint.name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						http_page_handler );
+						express_page_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'put' ) )
 				{
 					WebServer.Express.App.put( `${ParentPath}/${endpoint.name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						http_page_handler );
+						express_page_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'delete' ) )
 				{
 					WebServer.Express.App.delete( `${ParentPath}/${endpoint.name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						http_page_handler );
+						express_page_handler );
 					endpoint_count++;
 				}
 
@@ -207,13 +214,19 @@ exports.Use =
 			let services_path = WebServer.Express.ServicesPath();
 
 			// Add the service API
-			let endpoint_count = add_http_service_endpoints( service, `${services_path}${service.ServiceDefinition.name}` );
+			let endpoint_count = add_express_service_endpoints( service, `${services_path}${service.ServiceDefinition.name}` );
 			Server.Log.trace( `Added ${endpoint_count} express routes for [${services_path}${service.ServiceDefinition.name}] functions.` );
 
 			// Add the service pages
-			let page_count = add_http_page_endpoints( service, `${server_path}${service.ServiceDefinition.name}` );
+			let page_count = add_express_page_endpoints( service, `${server_path}${service.ServiceDefinition.name}` );
 			Server.Log.trace( `Added ${page_count} express routes for [${server_path}${service.ServiceDefinition.name}] pages.` );
 		}
+
+
+		// Server.Endpoints.EachEndpoint( '',
+		// 	( Server, Service, Endpoint ) =>
+		// 	{
+		// 	} );
 
 
 		// //---------------------------------------------------------------------

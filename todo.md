@@ -1,16 +1,25 @@
 
 # TODO
 
-- Authentication Service
+- Develop: Authentication Service
 	- Exports authentication pages: signup, login, logout
 	- Uses the SystemUsers service to perform the signup and login functions.
 
-- Persistent Sessions
+- Implement: Persistent Sessions
 	- implement persistence strategies for sessions.
 		- filesystem
 		- sqlite
 		- mongodb
 		- mysql
+
+- Develop: Express.AuthorizationGate middleware
+
+- Convert WebServer.RequestProcessor to Express.RequestProcessor
+
+- Swagger
+	- authorization
+	- parameter data types
+	- service item definitions
 
 - Add Module: `Express.ClientSupport.Swagger`
 	- [https://swagger.io/](https://swagger.io/)

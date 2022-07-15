@@ -37,9 +37,9 @@ exports.Construct =
 		_module.SocketIO = null;
 
 
-		const SRC_CONFIGURATION = require( './WebServer/Configuration.js' );
-		const SRC_EXPRESS = require( './WebServer/Express.js' );
-		const SRC_SOCKETIO = require( './WebServer/SocketIO.js' );
+		const SRC_WEBSERVER_CONFIGURATION = require( './WebServer/Configuration.js' );
+		const SRC_WEBSERVER_EXPRESS = require( './WebServer/Express.js' );
+		const SRC_WEBSERVER_SOCKETIO = require( './WebServer/SocketIO.js' );
 
 
 		//---------------------------------------------------------------------
@@ -55,7 +55,7 @@ exports.Construct =
 		_module.GetDefaults =
 			function GetDefaults() 
 			{
-				let defaults = SRC_CONFIGURATION.GetDefaults();
+				let defaults = SRC_WEBSERVER_CONFIGURATION.GetDefaults();
 				return defaults;
 			};
 
@@ -65,7 +65,7 @@ exports.Construct =
 			function Initialize()
 			{
 				// Analyze the application's Settings.
-				SRC_CONFIGURATION.AnalyzeSettings( Server );
+				SRC_WEBSERVER_CONFIGURATION.AnalyzeSettings( Server );
 				return;
 			};
 
@@ -271,7 +271,7 @@ exports.Construct =
 				if ( WebServerSettings.Express
 					&& WebServerSettings.Express.enabled )
 				{
-					_module.Express = SRC_EXPRESS.Create( Server, _module, WebServerSettings );
+					_module.Express = SRC_WEBSERVER_EXPRESS.Create( Server, _module, WebServerSettings );
 				}
 
 				//---------------------------------------------------------------------
@@ -312,7 +312,7 @@ exports.Construct =
 				if ( WebServerSettings.SocketIO
 					&& WebServerSettings.SocketIO.enabled )
 				{
-					_module.SocketIO = SRC_SOCKETIO.Create( Server, _module, WebServerSettings );
+					_module.SocketIO = SRC_WEBSERVER_SOCKETIO.Create( Server, _module, WebServerSettings );
 				}
 
 				//---------------------------------------------------------------------
@@ -325,7 +325,7 @@ exports.Construct =
 					&& WebServerSettings.Express.enabled
 					&& _module.Express )
 				{
-					SRC_EXPRESS.Initialize( Server, _module, WebServerSettings );
+					SRC_WEBSERVER_EXPRESS.Initialize( Server, _module, WebServerSettings );
 					Server.Log.trace( `WebServer.Express is initialized.` );
 				}
 
@@ -335,7 +335,7 @@ exports.Construct =
 					&& WebServerSettings.SocketIO.enabled
 					&& _module.SocketIO )
 				{
-					SRC_SOCKETIO.Initialize( Server, _module, WebServerSettings );
+					SRC_WEBSERVER_SOCKETIO.Initialize( Server, _module, WebServerSettings );
 					Server.Log.trace( `WebServer.SocketIO is initialized.` );
 				}
 

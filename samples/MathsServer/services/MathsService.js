@@ -47,7 +47,7 @@ exports.Construct =
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.Add = {
 			name: 'Add',
-			description: 'Returns the sum of two numbers.',
+			description: 'Returns the sum of two numbers. (A + B)',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get', 'post' ],
@@ -63,7 +63,7 @@ exports.Construct =
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.Subtract = {
 			name: 'Subtract',
-			description: 'Returns the difference of two numbers.',
+			description: 'Returns the difference of two numbers. (A - B)',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get', 'post' ],
@@ -79,7 +79,7 @@ exports.Construct =
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.Multiply = {
 			name: 'Multiply',
-			description: 'Returns the product of two numbers.',
+			description: 'Returns the product of two numbers. (A * B)',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get', 'post' ],
@@ -95,7 +95,7 @@ exports.Construct =
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.Divide = {
 			name: 'Divide',
-			description: 'Returns the ratio of two numbers.',
+			description: 'Returns the ratio of two numbers. (A / B)',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get', 'post' ],

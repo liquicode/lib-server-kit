@@ -4,7 +4,7 @@
 const LIB_SERVER_KIT = require( '../../src/lib-server-kit' );
 
 let server_options = {
-	// write_defaults: true,	// Writes 'TestConfig.defaults.json'.
+	write_defaults: true,	// Writes 'TestConfig.defaults.json'.
 	write_settings: true,	// Writes 'TestConfig.settings.json'.
 	// config_path: 'config',	// Merges, alphabetically, all json/yaml files in path. (can be a filename)
 	Settings:
@@ -26,6 +26,7 @@ let server_options = {
 				},
 				Swagger: {
 					enabled: true,
+					open_api_file: 'web/public/_swagger.json',
 				},
 				Session: {
 					enabled: true,
