@@ -62,7 +62,7 @@ describe( `040) SocketIO Tests`,
 			{
 				LIB_ASSERT.ok( Server );
 				LIB_ASSERT.ok( Server.WebServer );
-				let url = `${service_address}auth/login?username=admin@internal&password=password`;
+				let url = `${service_address}auth/login?username=admin@server&password=password`;
 				let result = await Server.Utility.async_make_post_request( url );
 				result = JSON.parse( result.toString() );
 				LIB_ASSERT.ok( result );

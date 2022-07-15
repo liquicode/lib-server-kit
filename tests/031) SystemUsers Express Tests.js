@@ -57,7 +57,7 @@ describe( `031) SystemUsers Express Tests`,
 				{
 					let response = await Server.Utility.async_request(
 						'post', login_url, {
-						username: 'admin@system',
+						username: 'admin@server',
 						password: 'password',
 					} );
 					LIB_ASSERT.ok( response );

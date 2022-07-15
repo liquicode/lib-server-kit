@@ -45,8 +45,14 @@
                 "parameters": [
                     {
                         "name": "Criteria",
-                        "in": "query",
-                        "required": true
+                        "description": "Criteria of objects to count.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -79,8 +85,14 @@
                 "parameters": [
                     {
                         "name": "Criteria",
-                        "in": "query",
-                        "required": true
+                        "description": "Criteria of objects to find.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -113,8 +125,14 @@
                 "parameters": [
                     {
                         "name": "Criteria",
-                        "in": "query",
-                        "required": true
+                        "description": "Criteria of objects to find.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -147,8 +165,14 @@
                 "parameters": [
                     {
                         "name": "Prototype",
-                        "in": "query",
-                        "required": true
+                        "description": "The prototype (initial values) of the object to create.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -181,13 +205,25 @@
                 "parameters": [
                     {
                         "name": "Criteria",
-                        "in": "query",
-                        "required": true
+                        "description": "Criteria of objects to update.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "query"
                     },
                     {
                         "name": "DataObject",
-                        "in": "query",
-                        "required": true
+                        "description": "Object containing update values.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -220,8 +256,14 @@
                 "parameters": [
                     {
                         "name": "Criteria",
-                        "in": "query",
-                        "required": true
+                        "description": "Criteria of objects to delete.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -254,8 +296,14 @@
                 "parameters": [
                     {
                         "name": "Criteria",
-                        "in": "query",
-                        "required": true
+                        "description": "Criteria of objects to delete.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -288,13 +336,21 @@
                 "parameters": [
                     {
                         "name": "A",
-                        "in": "query",
-                        "required": true
+                        "description": "The first value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 3.14,
+                        "in": "query"
                     },
                     {
                         "name": "B",
-                        "in": "query",
-                        "required": true
+                        "description": "The second value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 2.718,
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -327,13 +383,21 @@
                 "parameters": [
                     {
                         "name": "A",
-                        "in": "query",
-                        "required": true
+                        "description": "The first value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 3.14,
+                        "in": "query"
                     },
                     {
                         "name": "B",
-                        "in": "query",
-                        "required": true
+                        "description": "The second value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 2.718,
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -366,13 +430,21 @@
                 "parameters": [
                     {
                         "name": "A",
-                        "in": "query",
-                        "required": true
+                        "description": "The first value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 3.14,
+                        "in": "query"
                     },
                     {
                         "name": "B",
-                        "in": "query",
-                        "required": true
+                        "description": "The second value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 2.718,
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -405,13 +477,21 @@
                 "parameters": [
                     {
                         "name": "A",
-                        "in": "query",
-                        "required": true
+                        "description": "The first value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 3.14,
+                        "in": "query"
                     },
                     {
                         "name": "B",
-                        "in": "query",
-                        "required": true
+                        "description": "The second value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 2.718,
+                        "in": "query"
                     }
                 ],
                 "responses": {

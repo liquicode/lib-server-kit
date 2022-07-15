@@ -71,13 +71,17 @@ describe( `010) StorageService Tests`,
 						name: 'name',
 						title: 'Name',
 						description: 'A silly name.',
-						type: 'string',
+						schema: {
+							type: 'string',
+						},
 					},
 					Number: {
 						name: 'number',
 						title: 'Number',
 						description: 'A silly number.',
-						type: 'number',
+						schema: {
+							type: 'number',
+						},
 					},
 				},
 			};

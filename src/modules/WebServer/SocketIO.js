@@ -16,7 +16,7 @@ const LIB_SOCKET_IO = require( 'socket.io' );
 
 
 //---------------------------------------------------------------------
-const SRC_APPLICATION_SERVICES = require( './SocketIO/ApplicationServices.js' );
+// const SRC_APPLICATION_SERVICES = require( './SocketIO/ApplicationServices.js' );
 const SRC_GENERATE_CLIENT = require( './SocketIO/GenerateClient.js' );
 
 
@@ -144,7 +144,7 @@ exports.Initialize =
 								async function ( Message ) 
 								{
 									let api_result = { ok: true };
-									Server.Log.info( `Socket call [${full_endpoint_name}] (by: ${this_session.User.user_id})` );
+									Server.Log.info( `|    |          | CALL ${full_endpoint_name} (by: ${this_session.User.user_id})` );
 									try
 									{
 										api_result.result = await endpoint.invoke( this_session.User, ...Message.Payload );

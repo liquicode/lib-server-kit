@@ -110,8 +110,121 @@ block content
 			//-=====================================================================
 			//-=====================================================================
 
-
 			.w3-section
+				.w3-border.w3-round-large.w3-white
+
+					each field in locals.ItemDefinition.Fields
+						.w3-row
+
+							.w3-quarter.w3-padding-small
+								h5.w3-center #{field.title} :
+
+							.w3-threequarter.w3-padding-small
+
+								.w3-row
+									.w3-small #{field.description} :
+
+								.w3-row
+
+									span( ng-show="!Page.IsFieldEditable( " + JSON.stringify(field) + ")" )
+										.w3-text-blue( ng-bind="Page.Item." + field.name + "" )
+
+									span( ng-show="Page.IsFieldEditable( " + JSON.stringify(field) + ")" )
+
+										if( !field.schema || !field.schema.type )
+											input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+												type="text"
+												ng-model="Page.Item." + field.name
+											)
+										else if( field.schema.type === 'boolean' )
+											input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+												type="text"
+												ng-model="Page.Item." + field.name
+											)
+										else if( field.schema.type === 'integer' )
+											input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+												type="text"
+												ng-model="Page.Item." + field.name
+											)
+										else if( field.schema.type === 'number' )
+											input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+												type="text"
+												ng-model="Page.Item." + field.name
+											)
+										else if( field.schema.type === 'string' )
+											if( !field.schema.type )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else if( field.schema.type === 'text' )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else if( field.schema.type === 'date' )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else if( field.schema.type === 'time' )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else if( field.schema.type === 'datetime' )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else if( field.schema.type === 'email' )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else if( field.schema.type === 'password' )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else if( field.schema.type === 'base64' )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else if( field.schema.type === 'url' )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else if( field.schema.type === 'image_url' )
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+											else
+												input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+													type="text"
+													ng-model="Page.Item." + field.name
+												)
+										else if( field.schema.type === 'array' )
+											input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+												type="text"
+												ng-model="Page.Item." + field.name
+											)
+										else if( field.schema.type === 'object' )
+											input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+												type="text"
+												ng-model="Page.Item." + field.name
+											)
+										else
+											input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+												type="text"
+												ng-model="Page.Item." + field.name
+											)
+
+
+			//- .w3-section
 				.w3-border.w3-round-large.w3-white(
 					ng-repeat="field in Page.ItemDefinition.Fields"
 				)
@@ -136,40 +249,40 @@ block content
 
 									input.w3-input.w3-sand.w3-round-large.w3-text-blue(
 										type="text"
-										ng-show="field.type === 'string'"
+										ng-show="field.schema.type === 'string'"
 										ng-model="Page.Item[field.name]"
 									)
 
 									input.w3-input.w3-sand.w3-round-large.w3-text-blue(
 										type="text"
-										ng-show="field.type === 'date'"
+										ng-show="field.schema.type === 'date'"
 										ng-model="Page.Item[field.name]"
 									)
 
 									input.w3-input.w3-sand.w3-round-large.w3-text-blue(
 										type="text"
-										ng-show="field.type === 'url'"
+										ng-show="field.schema.type === 'url'"
 										ng-model="Page.Item[field.name]"
 									)
 
 									input.w3-input.w3-sand.w3-round-large.w3-text-blue(
 										type="text"
-										ng-show="field.type === 'image_url'"
+										ng-show="field.schema.type === 'image_url'"
 										ng-model="Page.Item[field.name]"
 									)
 
 									input.w3-input.w3-sand.w3-round-large.w3-text-blue(
 										type="text"
-										ng-show="field.type === 'number'"
+										ng-show="field.schema.type === 'number'"
 										ng-model="Page.Item[field.name]"
 									)
 
 									.w3-text-blue(
-										ng-show="field.type === 'array'"
+										ng-show="field.schema.type === 'array'"
 									) {{ Page.Item[field.name].length }} items
 
 									.w3-text-blue(
-										ng-show="field.type === 'object'"
+										ng-show="field.schema.type === 'object'"
 									) {{ JSON.stringify( Page.Item[field.name] ) }}
 
 

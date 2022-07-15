@@ -73,7 +73,7 @@ describe( `030) Express Tests`,
 					let response = await Server.Utility.async_request(
 						'post', login_url,
 						{
-							username: 'admin@wrong-system',
+							username: 'admin@wrong-server',
 							password: 'password',
 						} );
 					LIB_ASSERT.fail( `it authenticated invalid credentials` );
@@ -100,7 +100,7 @@ describe( `030) Express Tests`,
 					let response = await Server.Utility.async_request(
 						'post', login_url,
 						{
-							username: 'admin@system',
+							username: 'admin@server',
 							password: 'wrong-password',
 						} );
 					LIB_ASSERT.fail( `it authenticated invalid credentials` );
@@ -127,7 +127,7 @@ describe( `030) Express Tests`,
 					let response = await Server.Utility.async_request(
 						'post', login_url,
 						{
-							username: 'admin@system',
+							username: 'admin@server',
 							password: 'password',
 						} );
 					LIB_ASSERT.ok( response );

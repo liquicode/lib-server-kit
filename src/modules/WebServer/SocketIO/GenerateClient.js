@@ -63,6 +63,7 @@ SocketApi.NewSocket =
 		{
 			// Define a Service Endpoint.
 			let endpoint = endpoints[ endpoint_names[ index ] ];
+			let endpoint_name = endpoint.name;
 			if ( endpoint.verbs.includes( 'call' ) )
 			{
 				let parameters = ``;
@@ -70,7 +71,7 @@ SocketApi.NewSocket =
 				for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
 				{
 					// Construct the parameters and payload.
-					let parameter_name = endpoint.parameters[ parameter_index ];
+					let parameter_name = endpoint.parameters[ parameter_index ].name;
 					parameters += parameter_name + ', ';
 					if ( payload ) { payload += ', '; };
 					payload += parameter_name;
@@ -79,9 +80,9 @@ SocketApi.NewSocket =
 				payload = `[${payload}]`;
 
 				// Define the endpoint.
-				code += `		socket.${service_name}.${endpoint.name}`;
+				code += `		socket.${service_name}.${endpoint_name}`;
 				code += ` = function ( ${parameters} )`;
-				code += ` { SocketApi.SocketMessage( socket, '${service_name}.${endpoint.name}', ${payload}, Callback ); }\n`;
+				code += ` { SocketApi.SocketMessage( socket, '${service_name}.${endpoint_name}', ${payload}, Callback ); }\n`;
 			}
 		}
 	}

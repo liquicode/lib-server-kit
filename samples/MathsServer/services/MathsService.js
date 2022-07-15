@@ -51,7 +51,20 @@ exports.Construct =
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get', 'post' ],
-			parameters: [ 'A', 'B' ],
+			parameters: [
+				{
+					name: 'A',
+					description: 'The first value in the operation.',
+					schema: { type: 'number' },
+					example: 3.14,
+				},
+				{
+					name: 'B',
+					description: 'The second value in the operation.',
+					schema: { type: 'number' },
+					example: 2.718,
+				},
+			],
 			invoke: async function ( User, A, B )
 			{
 				A = Number( A );
@@ -67,7 +80,20 @@ exports.Construct =
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get', 'post' ],
-			parameters: [ 'A', 'B' ],
+			parameters: [
+				{
+					name: 'A',
+					description: 'The first value in the operation.',
+					schema: { type: 'number' },
+					example: 3.14,
+				},
+				{
+					name: 'B',
+					description: 'The second value in the operation.',
+					schema: { type: 'number' },
+					example: 2.718,
+				},
+			],
 			invoke: async function ( User, A, B )
 			{
 				A = Number( A );
@@ -83,7 +109,20 @@ exports.Construct =
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get', 'post' ],
-			parameters: [ 'A', 'B' ],
+			parameters: [
+				{
+					name: 'A',
+					description: 'The first value in the operation.',
+					schema: { type: 'number' },
+					example: 3.14,
+				},
+				{
+					name: 'B',
+					description: 'The second value in the operation.',
+					schema: { type: 'number' },
+					example: 2.718,
+				},
+			],
 			invoke: async function ( User, A, B )
 			{
 				A = Number( A );
@@ -99,7 +138,20 @@ exports.Construct =
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get', 'post' ],
-			parameters: [ 'A', 'B' ],
+			parameters: [
+				{
+					name: 'A',
+					description: 'The first value in the operation.',
+					schema: { type: 'number' },
+					example: 3.14,
+				},
+				{
+					name: 'B',
+					description: 'The second value in the operation.',
+					schema: { type: 'number' },
+					example: 2.718,
+				},
+			],
 			invoke: async function ( User, A, B )
 			{
 				A = Number( A );

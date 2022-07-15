@@ -156,6 +156,16 @@ exports.NewStorageService =
 		service.ServiceDefinition.name = 'UnnamedStorage';
 		service.ServiceDefinition.title = 'Unnamed Storage';
 
+
+		//---------------------------------------------------------------------
+		//---------------------------------------------------------------------
+		//
+		//	Service Endpoints
+		//
+		//---------------------------------------------------------------------
+		//---------------------------------------------------------------------
+
+
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.StorageCount = {
 			name: 'StorageCount',
@@ -163,10 +173,19 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			parameters: [ 'Criteria' ],
+			// parameters: [ 'Criteria' ],
+			parameters: [
+				{
+					name: 'Criteria',
+					description: 'Criteria of objects to count.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+			],
 			// invoke: async function ( User, Criteria ) { return await service.StorageCount( User, Criteria ); },
 			invoke: service.StorageCount,
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.StorageFindOne = {
@@ -175,10 +194,19 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			parameters: [ 'Criteria' ],
+			// parameters: [ 'Criteria' ],
+			parameters: [
+				{
+					name: 'Criteria',
+					description: 'Criteria of objects to find.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+			],
 			// invoke: async function ( User, Criteria ) { return await service.StorageFindOne( User, Criteria ); },
 			invoke: service.StorageFindOne,
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.StorageFindMany = {
@@ -187,10 +215,19 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			parameters: [ 'Criteria' ],
+			// parameters: [ 'Criteria' ],
+			parameters: [
+				{
+					name: 'Criteria',
+					description: 'Criteria of objects to find.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+			],
 			// invoke: async function ( User, Criteria ) { return await service.StorageFindMany( User, Criteria ); },
 			invoke: service.StorageFindMany,
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.StorageCreateOne = {
@@ -199,10 +236,19 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			parameters: [ 'Prototype' ],
+			// parameters: [ 'Prototype' ],
+			parameters: [
+				{
+					name: 'Prototype',
+					description: 'The prototype (initial values) of the object to create.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+			],
 			// invoke: async function ( User, Prototype ) { return await service.StorageCreateOne( User, Prototype ); },
 			invoke: service.StorageCreateOne,
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.StorageWriteOne = {
@@ -211,10 +257,25 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			parameters: [ 'Criteria', 'DataObject' ],
+			// parameters: [ 'Criteria', 'DataObject' ],
+			parameters: [
+				{
+					name: 'Criteria',
+					description: 'Criteria of objects to update.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+				{
+					name: 'DataObject',
+					description: 'Object containing update values.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+			],
 			// invoke: async function ( User, Criteria, DataObject ) { return await service.StorageWriteOne( User, Criteria, DataObject ); },
 			invoke: service.StorageWriteOne,
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.StorageDeleteOne = {
@@ -223,10 +284,19 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			parameters: [ 'Criteria' ],
+			// parameters: [ 'Criteria' ],
+			parameters: [
+				{
+					name: 'Criteria',
+					description: 'Criteria of objects to delete.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+			],
 			// invoke: async function ( User, Criteria ) { return await service.StorageDeleteOne( User, Criteria ); },
 			invoke: service.StorageDeleteOne,
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.StorageDeleteMany = {
@@ -235,10 +305,19 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			parameters: [ 'Criteria' ],
+			// parameters: [ 'Criteria' ],
+			parameters: [
+				{
+					name: 'Criteria',
+					description: 'Criteria of objects to delete.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+			],
 			// invoke: async function ( User, Criteria ) { return await service.StorageDeleteMany( User, Criteria ); },
 			invoke: service.StorageDeleteMany,
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.StorageShare = {
@@ -247,10 +326,37 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			parameters: [ 'Criteria', 'Readers', 'Writers', 'MakePublic' ],
+			// parameters: [ 'Criteria', 'Readers', 'Writers', 'MakePublic' ],
+			parameters: [
+				{
+					name: 'Criteria',
+					description: 'Criteria of objects to share.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+				{
+					name: 'Readers',
+					description: 'Array of user_id to be added to the objects readers list.',
+					schema: { type: 'array' },
+					example: [ 'user1', 'user2' ],
+				},
+				{
+					name: 'Writers',
+					description: 'Array of user_id to be added to the objects writers list.',
+					schema: { type: 'array' },
+					example: [ 'user1', 'user2' ],
+				},
+				{
+					name: 'MakePublic',
+					description: 'Mark found objects as public.',
+					schema: { type: 'boolean' },
+					example: true,
+				},
+			],
 			// invoke: async function ( User, Criteria, Readers, Writers, MakePublic ) { return await StorageShare( User, Criteria, Readers, Writers, MakePublic ); },
 			invoke: service.StorageShare,
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Endpoints.StorageUnshare = {
@@ -259,10 +365,46 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			parameters: [ 'Criteria', 'NotReaders', 'NotWriters', 'MakeUnpublic' ],
+			// parameters: [ 'Criteria', 'NotReaders', 'NotWriters', 'MakeUnpublic' ],
+			parameters: [
+				{
+					name: 'Criteria',
+					description: 'Criteria of objects to unshare.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+				{
+					name: 'Readers',
+					description: 'Array of user_id to be removed from the objects readers list.',
+					schema: { type: 'array' },
+					example: [ 'user1', 'user2' ],
+				},
+				{
+					name: 'Writers',
+					description: 'Array of user_id to be removed from the objects writers list.',
+					schema: { type: 'array' },
+					example: [ 'user1', 'user2' ],
+				},
+				{
+					name: 'MakePublic',
+					description: 'Mark found objects as not public (i.e. private).',
+					schema: { type: 'boolean' },
+					example: true,
+				},
+			],
 			// invoke: async function ( User, Criteria, NotReaders, NotWriters, MakeUnpublic ) { return await service.StorageUnshare( User, Criteria, NotReaders, NotWriters, MakeUnpublic ); },
 			invoke: service.StorageUnshare,
 		};
+
+
+		//---------------------------------------------------------------------
+		//---------------------------------------------------------------------
+		//
+		//	Service Pages
+		//
+		//---------------------------------------------------------------------
+		//---------------------------------------------------------------------
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Pages.List = {
@@ -271,9 +413,18 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get' ],
-			parameters: [ 'Criteria' ],
+			// parameters: [ 'Criteria' ],
+			parameters: [
+				{
+					name: 'Criteria',
+					description: 'Criteria of objects to list.',
+					schema: { type: 'object' },
+					example: { foo: 'bar' },
+				},
+			],
 			view: 'storage/list',
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Pages.Item = {
@@ -282,9 +433,24 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get' ],
-			parameters: [ 'ItemID', 'PageOp' ],
+			// parameters: [ 'ItemID', 'PageOp' ],
+			parameters: [
+				{
+					name: 'ItemID',
+					description: 'ItemID of object to work with.',
+					schema: { type: 'string' },
+					example: 'b88d6048-725f-4f21-a8b0-e6de2de262e0',
+				},
+				{
+					name: 'PageOp',
+					description: 'Page operation: Create, Read, Update, or Delete',
+					schema: { type: 'string' },
+					example: 'Read',
+				},
+			],
 			view: 'storage/item',
 		};
+
 
 		//---------------------------------------------------------------------
 		service.ServiceDefinition.Pages.Share = {
@@ -293,7 +459,15 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'get' ],
-			parameters: [ 'ItemID' ],
+			// parameters: [ 'ItemID' ],
+			parameters: [
+				{
+					name: 'ItemID',
+					description: 'ItemID of object to work with.',
+					schema: { type: 'string' },
+					example: 'b88d6048-725f-4f21-a8b0-e6de2de262e0',
+				},
+			],
 			view: 'storage/share',
 		};
 

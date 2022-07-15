@@ -21,15 +21,15 @@ exports.Use =
 			let parameters = [];
 			for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
 			{
-				let parameter_name = endpoint.parameters[ parameter_index ];
-				let value = request.params[ parameter_name ];
+				let parameter = endpoint.parameters[ parameter_index ];
+				let value = request.params[ parameter.name ];
 				if ( typeof value === 'undefined' )
 				{
-					value = request.query[ parameter_name ];
+					value = request.query[ parameter.name ];
 				}
 				if ( typeof value === 'undefined' )
 				{
-					value = request.body[ parameter_name ];
+					value = request.body[ parameter.name ];
 				}
 				if ( typeof value === 'undefined' )
 				{
@@ -46,39 +46,6 @@ exports.Use =
 		{
 
 			//---------------------------------------------------------------------
-			// This is the actual request handler that services this endpoint.
-			async function express_request_handler( request, response, next ) 
-			{
-				// Get the endpoint parameters.
-				let parameters = get_express_request_parameters( request, endpoint );
-
-				//TODO: Validate user_role.
-
-				// Invoke the endpoint function.
-				// Wrap return values in a api_result object.
-				try
-				{
-					let api_result = {
-						ok: true,
-						origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
-						result: await endpoint.invoke( request.user, ...parameters ),
-					};
-					response.send( api_result );
-				}
-				catch ( error )
-				{
-					let api_result = {
-						ok: false,
-						origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
-						error: error.message,
-					};
-					Server.WebServer.ReportApiError( api_result, response );
-					return;
-				}
-				return;
-			}
-
-			//---------------------------------------------------------------------
 			// Add endpoints for this service.
 			let endpoint_count = 0;
 			let endpoint_names = Object.keys( Service.ServiceDefinition.Endpoints );
@@ -87,31 +54,64 @@ exports.Use =
 				let endpoint_name = endpoint_names[ endpoint_index ];
 				let endpoint = Service.ServiceDefinition.Endpoints[ endpoint_name ];
 
+				//---------------------------------------------------------------------
+				// This is the actual request handler that services this endpoint.
+				async function express_request_handler( request, response, next ) 
+				{
+					// Get the endpoint parameters.
+					let parameters = get_express_request_parameters( request, endpoint );
+
+					//TODO: Validate user_role.
+
+					// Invoke the endpoint function.
+					// Wrap return values in a api_result object.
+					try
+					{
+						let api_result = {
+							ok: true,
+							origin: `${Service.ServiceDefinition.name}/${endpoint_name}`,
+							result: await endpoint.invoke( request.user, ...parameters ),
+						};
+						response.send( api_result );
+					}
+					catch ( error )
+					{
+						let api_result = {
+							ok: false,
+							origin: `${Service.ServiceDefinition.name}/${endpoint_name}`,
+							error: error.message,
+						};
+						Server.WebServer.ReportApiError( api_result, response );
+						return;
+					}
+					return;
+				}
+
 				// Add endpoints for each http verb.
 				if ( endpoint.verbs.includes( 'get' ) )
 				{
-					WebServer.Express.App.get( `${ParentPath}/${endpoint.name}`,
+					WebServer.Express.App.get( `${ParentPath}/${endpoint_name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						express_request_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'post' ) )
 				{
-					WebServer.Express.App.post( `${ParentPath}/${endpoint.name}`,
+					WebServer.Express.App.post( `${ParentPath}/${endpoint_name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						express_request_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'put' ) )
 				{
-					WebServer.Express.App.put( `${ParentPath}/${endpoint.name}`,
+					WebServer.Express.App.put( `${ParentPath}/${endpoint_name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						express_request_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'delete' ) )
 				{
-					WebServer.Express.App.delete( `${ParentPath}/${endpoint.name}`,
+					WebServer.Express.App.delete( `${ParentPath}/${endpoint_name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						express_request_handler );
 					endpoint_count++;
@@ -156,7 +156,7 @@ exports.Use =
 					{
 						let api_result = {
 							ok: false,
-							origin: `${Service.ServiceDefinition.name}/${endpoint.name}`,
+							origin: `${Service.ServiceDefinition.name}/${endpoint_name}`,
 							error: error.message,
 						};
 						Server.WebServer.ReportApiError( api_result, response );
@@ -169,28 +169,28 @@ exports.Use =
 				// Add endpoints for each http verb.
 				if ( endpoint.verbs.includes( 'get' ) )
 				{
-					WebServer.Express.App.get( `${ParentPath}/${endpoint.name}`,
+					WebServer.Express.App.get( `${ParentPath}/${endpoint_name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						express_page_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'post' ) )
 				{
-					WebServer.Express.App.post( `${ParentPath}/${endpoint.name}`,
+					WebServer.Express.App.post( `${ParentPath}/${endpoint_name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						express_page_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'put' ) )
 				{
-					WebServer.Express.App.put( `${ParentPath}/${endpoint.name}`,
+					WebServer.Express.App.put( `${ParentPath}/${endpoint_name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						express_page_handler );
 					endpoint_count++;
 				}
 				if ( endpoint.verbs.includes( 'delete' ) )
 				{
-					WebServer.Express.App.delete( `${ParentPath}/${endpoint.name}`,
+					WebServer.Express.App.delete( `${ParentPath}/${endpoint_name}`,
 						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
 						express_page_handler );
 					endpoint_count++;

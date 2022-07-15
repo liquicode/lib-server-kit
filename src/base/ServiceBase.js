@@ -31,11 +31,17 @@ exports.NewService =
 			Endpoints: {
 				// Count: {
 				// 	name: 'Count',
-				//  description: 'Returns the number of objects matching the given Criteria.',
+				// 	description: 'Returns the number of objects matching the given Criteria.',
 				// 	requires_login: true,
 				// 	allowed_roles: [ 'admin', 'super', 'user' ],
 				// 	verbs: [ 'get', 'post' ],
-				// 	parameters: [ 'Criteria' ],
+				// 	parameters: [
+				// 		{
+				// 			name: 'Criteria',
+				// 			schema: { type: 'object' },
+				// 			required: false,
+				// 		},
+				// 	],
 				// 	invoke: async function ( User, Criteria ) { return await service.storage.Count( User, Criteria ); },
 				// },
 			},
@@ -73,8 +79,11 @@ exports.NewService =
 				// 	name: 'object_name',
 				// 	title: 'Object Name',
 				// 	description: 'A name for this object.',
-				// 	type: 'string',
-				//	readonly: false,
+				// 	schema: {
+				// 		type: 'string',
+				// 		format: 'text',
+				// 	},
+				// 	readonly: false,
 				// },
 			},
 		};
@@ -95,13 +104,15 @@ exports.NewService =
 					if ( typeof service_object[ field.name ] === 'undefined' )
 					{
 						service_object[ field.name ] = null;
-						if ( field.type === 'string' ) { service_object[ field.name ] = ''; }
-						else if ( field.type === 'number' ) { service_object[ field.name ] = 0; }
-						else if ( field.type === 'array' ) { service_object[ field.name ] = []; }
-						else if ( field.type === 'object' ) { service_object[ field.name ] = {}; }
-						else if ( field.type === 'date' ) { service_object[ field.name ] = ''; }
-						else if ( field.type === 'url' ) { service_object[ field.name ] = ''; }
-						else if ( field.type === 'image_url' ) { service_object[ field.name ] = ''; }
+						if ( field.schema )
+						{
+							if ( field.schema.type === 'boolean' ) { service_object[ field.name ] = false; }
+							else if ( field.schema.type === 'integer' ) { service_object[ field.name ] = 0; }
+							else if ( field.schema.type === 'number' ) { service_object[ field.name ] = 0.0; }
+							else if ( field.schema.type === 'string' ) { service_object[ field.name ] = ''; }
+							else if ( field.schema.type === 'array' ) { service_object[ field.name ] = []; }
+							else if ( field.schema.type === 'object' ) { service_object[ field.name ] = {}; }
+						}
 					}
 				}
 				return service_object;

@@ -67,8 +67,8 @@ exports.Generate =
 				let endpoint_names = Object.keys( endpoints );
 				for ( let index = 0; index < endpoint_names.length; index++ )
 				{
-					let endpoint_name = endpoint_names[ index ];
-					let endpoint = endpoints[ endpoint_name ];
+					let endpoint = endpoints[ endpoint_names[ index ] ];
+					let endpoint_name = endpoint.name;
 					let swagger_path = {};
 
 					if ( endpoint.verbs.includes( 'get' ) )
@@ -97,15 +97,18 @@ exports.Generate =
 						};
 						for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
 						{
-							let parameter_name = endpoint.parameters[ parameter_index ];
-							let swagger_parameter = {
-								name: parameter_name,
-								in: 'query',
-								required: true,
-								// schema: {
-								// 	type: 'string',
-								// },
-							};
+							let parameter = endpoint.parameters[ parameter_index ];
+							let swagger_parameter = JSON.parse( JSON.stringify( parameter ) );
+							swagger_parameter.in = `query`;
+							// let parameter_name = endpoint.parameters[ parameter_index ].name;
+							// let swagger_parameter = {
+							// 	name: parameter_name,
+							// 	in: 'query',
+							// 	required: true,
+							// 	// schema: {
+							// 	// 	type: 'string',
+							// 	// },
+							// };
 							swagger_path.get.parameters.push( swagger_parameter );
 						}
 					}

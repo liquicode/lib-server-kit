@@ -109,8 +109,10 @@ exports.Construct =
 			name: 'user_id',
 			title: 'User Email',
 			description: 'Email address of the user.',
-			type: 'string',
-			format: 'email',
+			schema: {
+				type: 'string',
+				format: 'email',
+			},
 			readonly: true,
 		};
 
@@ -119,7 +121,10 @@ exports.Construct =
 			name: 'user_role',
 			title: 'User Role',
 			description: 'The role of this user within the system.',
-			type: 'string',
+			schema: {
+				type: 'string',
+				format: 'text',
+			},
 			readonly: true,
 		};
 
@@ -128,7 +133,10 @@ exports.Construct =
 			name: 'user_name',
 			title: 'User Name',
 			description: 'Display name of the user.',
-			type: 'string',
+			schema: {
+				type: 'string',
+				format: 'text',
+			},
 			readonly: false,
 		};
 
@@ -137,8 +145,10 @@ exports.Construct =
 			name: 'image_url',
 			title: 'Image URL',
 			description: 'URL of the image associated with this acoount.',
-			type: 'string',
-			format: 'image_url',
+			schema: {
+				type: 'string',
+				format: 'image_url',
+			},
 			readonly: false,
 		};
 
