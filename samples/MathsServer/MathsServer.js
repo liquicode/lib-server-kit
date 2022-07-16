@@ -24,9 +24,8 @@ let server_options = {
 				ClientSupport: {
 					enabled: true,
 				},
-				Swagger: {
+				Explorer: {
 					enabled: true,
-					open_api_file: 'web/public/_swagger.json',
 				},
 				Session: {
 					enabled: true,

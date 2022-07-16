@@ -50,14 +50,21 @@ exports.GetDefaults =
 				}, // ~ ClientSupport
 
 				//---------------------------------------------------------------------
-				// Swagger
+				// Explorer
 				//---------------------------------------------------------------------
 
-				Swagger: {
+				Explorer: {
 					enabled: false,
-					swagger_ui_path: 'swagger',
-					open_api_file: '',
-				}, // ~ Swagger
+					explorer_path: 'explorer',
+					explorer_view: 'explorer/explorer',
+					requires_login: false,
+				}, // ~ Explorer
+
+				// Swagger: {
+				// 	enabled: false,
+				// 	swagger_ui_path: 'swagger',
+				// 	open_api_file: '',
+				// }, // ~ Swagger
 
 				//---------------------------------------------------------------------
 				// Data Handling

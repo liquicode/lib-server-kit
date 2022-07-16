@@ -313,40 +313,74 @@ exports.Initialize =
 		//=====================================================================
 		//=====================================================================
 		//
-		//		Swagger
+		//		Explorer
 		//
 		//=====================================================================
 		//=====================================================================
 
 
-		if ( WebServerSettings.Express.Swagger
-			&& WebServerSettings.Express.Swagger.enabled )
+		if ( WebServerSettings.Express.Explorer
+			&& WebServerSettings.Express.Explorer.enabled )
 		{
-			let swagger_doc = SRC_GENERATE_CLIENT_SWAGGER.Generate( Server, WebServer, WebServerSettings );
-
-			//---------------------------------------------------------------------
-			// Generate the opan api file.
-			if ( WebServerSettings.Express.Swagger.open_api_file )
-			{
-				let path = Server.ResolveApplicationPath( WebServerSettings.Express.Swagger.open_api_file );
-				LIB_FS.writeFileSync( path, JSON.stringify( swagger_doc, null, '    ' ) );
-				Server.Log.trace( `WebServer.Express.Swagger generated open api file [${path}].` );
-			}
 
 
 			//---------------------------------------------------------------------
-			// Mount the swagger ui path.
-			if ( WebServerSettings.Express.Swagger.swagger_ui_path )
+			// Mount the explorer path.
+			if ( WebServerSettings.Express.Explorer.explorer_path )
 			{
-				const LIB_SWAGGER_UI_EXPRESS = require( 'swagger-ui-express' );
+				let route = `${WebServer.Express.ServicesPath()}${WebServerSettings.Express.Explorer.explorer_path}`;
 
-				let route = `${WebServer.Express.ServicesPath()}${WebServerSettings.Express.Swagger.swagger_ui_path}`;
-				WebServer.Express.App.use( route, LIB_SWAGGER_UI_EXPRESS.serve, LIB_SWAGGER_UI_EXPRESS.setup( swagger_doc ) );
-				Server.Log.trace( `WebServer.Express.Swagger mounted route [${route}].` );
+				WebServer.Express.App.get( route,
+					WebServer.Express.AuthenticationGate( WebServerSettings.Express.Explorer.requires_login ),
+					async function ( request, response, next ) 
+					{
+						await WebServer.RequestProcessor( request, response, next,
+							async function ( request, response, next )
+							{
+								// log_request( request );
+								response.render( WebServerSettings.Express.Explorer.explorer_view, { Server: Server, User: request.user } );
+								return;
+							}
+							, true );
+					} );
+
+
+				// WebServer.Express.App.use( route, LIB_SWAGGER_UI_EXPRESS.serve, LIB_SWAGGER_UI_EXPRESS.setup( swagger_doc ) );
+				Server.Log.trace( `WebServer.Express.Explorer mounted route [${route}].` );
 			}
 
-			Server.Log.trace( `WebServer.Express.Swagger is initialized.` );
+			Server.Log.trace( `WebServer.Express.Explorer is initialized.` );
 		}
+
+
+		// if ( WebServerSettings.Express.Swagger
+		// 	&& WebServerSettings.Express.Swagger.enabled )
+		// {
+		// 	let swagger_doc = SRC_GENERATE_CLIENT_SWAGGER.Generate( Server, WebServer, WebServerSettings );
+
+		// 	//---------------------------------------------------------------------
+		// 	// Generate the opan api file.
+		// 	if ( WebServerSettings.Express.Swagger.open_api_file )
+		// 	{
+		// 		let path = Server.ResolveApplicationPath( WebServerSettings.Express.Swagger.open_api_file );
+		// 		LIB_FS.writeFileSync( path, JSON.stringify( swagger_doc, null, '    ' ) );
+		// 		Server.Log.trace( `WebServer.Express.Swagger generated open api file [${path}].` );
+		// 	}
+
+
+		// 	//---------------------------------------------------------------------
+		// 	// Mount the swagger ui path.
+		// 	if ( WebServerSettings.Express.Swagger.swagger_ui_path )
+		// 	{
+		// 		const LIB_SWAGGER_UI_EXPRESS = require( 'swagger-ui-express' );
+
+		// 		let route = `${WebServer.Express.ServicesPath()}${WebServerSettings.Express.Swagger.swagger_ui_path}`;
+		// 		WebServer.Express.App.use( route, LIB_SWAGGER_UI_EXPRESS.serve, LIB_SWAGGER_UI_EXPRESS.setup( swagger_doc ) );
+		// 		Server.Log.trace( `WebServer.Express.Swagger mounted route [${route}].` );
+		// 	}
+
+		// 	Server.Log.trace( `WebServer.Express.Swagger is initialized.` );
+		// }
 
 
 		//=====================================================================

@@ -56,13 +56,13 @@ exports.Construct =
 					name: 'A',
 					description: 'The first value in the operation.',
 					schema: { type: 'number' },
-					example: 3.14,
+					example: 3,
 				},
 				{
 					name: 'B',
 					description: 'The second value in the operation.',
 					schema: { type: 'number' },
-					example: 2.718,
+					example: 4,
 				},
 			],
 			invoke: async function ( User, A, B )
@@ -85,13 +85,13 @@ exports.Construct =
 					name: 'A',
 					description: 'The first value in the operation.',
 					schema: { type: 'number' },
-					example: 3.14,
+					example: 3,
 				},
 				{
 					name: 'B',
 					description: 'The second value in the operation.',
 					schema: { type: 'number' },
-					example: 2.718,
+					example: 4,
 				},
 			],
 			invoke: async function ( User, A, B )
@@ -114,13 +114,13 @@ exports.Construct =
 					name: 'A',
 					description: 'The first value in the operation.',
 					schema: { type: 'number' },
-					example: 3.14,
+					example: 3,
 				},
 				{
 					name: 'B',
 					description: 'The second value in the operation.',
 					schema: { type: 'number' },
-					example: 2.718,
+					example: 4,
 				},
 			],
 			invoke: async function ( User, A, B )
@@ -143,13 +143,13 @@ exports.Construct =
 					name: 'A',
 					description: 'The first value in the operation.',
 					schema: { type: 'number' },
-					example: 3.14,
+					example: 3,
 				},
 				{
 					name: 'B',
 					description: 'The second value in the operation.',
 					schema: { type: 'number' },
-					example: 2.718,
+					example: 4,
 				},
 			],
 			invoke: async function ( User, A, B )

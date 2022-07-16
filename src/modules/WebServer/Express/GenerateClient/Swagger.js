@@ -73,56 +73,19 @@ exports.Generate =
 
 					if ( endpoint.verbs.includes( 'get' ) )
 					{
-						swagger_path.get = {
-							summary: endpoint.description,
-							parameters: [],
-							responses: {
-								'200': {
-									description: 'ApiResult',
-									content: {
-										'application/json': {
-											schema: { $ref: '#/components/schemas/ApiResult' },
-										}
-									}
-								},
-								'500': {
-									description: 'Server Error',
-									content: {
-										'text/html': {
-											schema: { type: 'string' },
-										}
-									}
-								},
-							},
-						};
-						for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
-						{
-							let parameter = endpoint.parameters[ parameter_index ];
-							let swagger_parameter = JSON.parse( JSON.stringify( parameter ) );
-							swagger_parameter.in = `query`;
-							// let parameter_name = endpoint.parameters[ parameter_index ].name;
-							// let swagger_parameter = {
-							// 	name: parameter_name,
-							// 	in: 'query',
-							// 	required: true,
-							// 	// schema: {
-							// 	// 	type: 'string',
-							// 	// },
-							// };
-							swagger_path.get.parameters.push( swagger_parameter );
-						}
+						swagger_path.get = create_swagger_endpoint( endpoint, 'query' );
 					}
-					else if ( endpoint.verbs.includes( 'put' ) )
+					if ( endpoint.verbs.includes( 'put' ) )
 					{
-						//TODO:
+						swagger_path.put = create_swagger_endpoint( endpoint, 'body' );
 					}
-					else if ( endpoint.verbs.includes( 'post' ) )
+					if ( endpoint.verbs.includes( 'post' ) )
 					{
-						//TODO:
+						swagger_path.post = create_swagger_endpoint( endpoint, 'body' );
 					}
-					else if ( endpoint.verbs.includes( 'delete' ) )
+					if ( endpoint.verbs.includes( 'delete' ) )
 					{
-						//TODO:
+						swagger_path.delete = create_swagger_endpoint( endpoint, 'query' );
 					}
 
 					if ( swagger_path.get || swagger_path.put || swagger_path.post || swagger_path.delete )
@@ -139,4 +102,39 @@ exports.Generate =
 		return swagger_doc;
 	};
 
+
+//---------------------------------------------------------------------
+function create_swagger_endpoint( Endpoint, ParametersIn )
+{
+	let swagger_endpoint = {
+		summary: Endpoint.description,
+		parameters: [],
+		responses: {
+			'200': {
+				description: 'ApiResult',
+				content: {
+					'application/json': {
+						schema: { $ref: '#/components/schemas/ApiResult' },
+					}
+				}
+			},
+			'500': {
+				description: 'Server Error',
+				content: {
+					'text/html': {
+						schema: { type: 'string' },
+					}
+				}
+			},
+		},
+	};
+	for ( let parameter_index = 0; parameter_index < Endpoint.parameters.length; parameter_index++ )
+	{
+		let parameter = Endpoint.parameters[ parameter_index ];
+		let swagger_parameter = JSON.parse( JSON.stringify( parameter ) );
+		swagger_parameter.in = ParametersIn;
+		swagger_endpoint.parameters.push( swagger_parameter );
+	}
+	return swagger_endpoint;
+}
 

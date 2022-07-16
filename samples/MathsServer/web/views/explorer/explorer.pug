@@ -1,0 +1,172 @@
+extends ../index.pug
+
+block content
+
+	script( type='text/javascript' src='/explorer/explorer.js' )
+
+	div( ng-controller='Explorer_Controller' )
+
+		script
+			!= `window.SERVER_DATA = {};\n`
+			!= `window.SERVER_DATA.User = ${JSON.stringify( locals.User )};\n`
+
+		-var Settings = locals.Server.Config.Settings 
+
+		.w3-container.w3-blue-grey
+			h2
+				i= `${Settings.AppInfo.name} Explorer`
+
+		br
+
+		.w3-container
+
+			each service in locals.Server.Services
+				-var service_def = service.ServiceDefinition;
+				-var item_def = service.ItemDefinition;
+
+				.w3-section
+				.w3-container
+					-var content_id = 'service-' + service_def.name
+
+					//- Service Title
+					.w3-container.w3-padding.w3-border.w3-round-large.w3-sand
+						a( href="#" ng-click=`Page.ToggleVisible( "${content_id}" )` ).w3-button.w3-round-xxlarge
+							span( ng-show=`!Page.IsVisible( "${content_id}" )` ).w3-xlarge.fa.fa-caret-right &nbsp
+							span( ng-show=`Page.IsVisible( "${content_id}" )` ).w3-xlarge.fa.fa-caret-down &nbsp
+							span.w3-xlarge= `${service_def.name} Service`
+
+					//- Service Details
+					.w3-container.w3-border.w3-round-large.w3-padding( id=content_id ng-show=`Page.IsVisible( "${content_id}" )` )
+
+						//- Service Item
+						.w3-section
+
+						//- Item Title
+						.w3-large= `The ${service_def.name} Item:`
+						.w3-container
+							span.w3-large= item_def.name
+							if( item_def.shareable )
+								span.w3-small &nbsp (Shareable)
+							else
+								span.w3-small &nbsp (Not Shareable)
+
+							//- Item Fields
+							include partials/item-fields.pug
+
+						//- Service Functions
+						.w3-section
+
+							//- Section Title
+							span.w3-large= `${service_def.name} Functions:`
+
+							.w3-container 
+
+								//- Service Functions
+								if( Object.keys( service_def.Endpoints ).length === 0 )
+									h5
+										i No Service Functions
+								else 
+									each endpoint in service_def.Endpoints 
+
+										.w3-section
+										-var content_id = service_def.name + '-endpoint-' + endpoint.name
+
+										//- Function Signature
+										-var parameter_names = endpoint.parameters.map( p => p.name )
+										.w3-container.w3-padding.w3-round-large.w3-blue.w3-text-white
+											a( href="#" ng-click=`Page.ToggleVisible( "${content_id}" )` ).w3-button.w3-round-xxlarge
+												span( ng-show=`!Page.IsVisible( "${content_id}" )` ).w3-large.fa.fa-caret-right &nbsp
+												span( ng-show=`Page.IsVisible( "${content_id}" )` ).w3-large.fa.fa-caret-down &nbsp
+												span.w3-large= `${endpoint.name}( ${parameter_names} )`
+
+										//- Function Details
+										.w3-container.w3-round-large.w3-padding( id=content_id ng-show=`Page.IsVisible( "${content_id}" )` )
+
+											//- Allowed Roles and Login
+											.w3-container 
+												include partials/endpoint-description.pug 
+
+											//- Parameters Table
+											include partials/endpoint-parameters.pug 
+
+											//- Function Verbs
+											if( endpoint.verbs.length === 0 )
+												h5
+													i No Verbs Defined
+											else
+												.w3-row
+													.w3-cell
+														h5 Verbs: 
+													.w3-cell
+														if( endpoint.verbs.includes( 'call' ) )
+															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
+																href="#"
+																ng-click=`Page.Invoke( "Call", "${service_def.name}", "${endpoint.name}" )`
+															) Call
+														if( endpoint.verbs.includes( 'get' ) )
+															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
+																href="#"
+																ng-click=`Page.Invoke( "Get", "${service_def.name}", "${endpoint.name}" )`
+															) Get
+														if( endpoint.verbs.includes( 'put' ) )
+															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
+																href="#"
+																ng-click=`Page.Invoke( "Put", "${service_def.name}", "${endpoint.name}" )`
+															) Put
+														if( endpoint.verbs.includes( 'post' ) )
+															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
+																href="#"
+																ng-click=`Page.Invoke( "Post", "${service_def.name}", "${endpoint.name}" )`
+															) Post
+														if( endpoint.verbs.includes( 'delete' ) )
+															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
+																href="#"
+																ng-click=`Page.Invoke( "Delete", "${service_def.name}", "${endpoint.name}" )`
+															) Delete
+
+						//- Service Pages
+						.w3-section
+
+							//- Section Title
+							span.w3-large= `${service_def.name} Pages:`
+
+							.w3-container 
+
+								//- Service Pages
+								if( Object.keys( service_def.Pages ).length === 0 )
+									h5
+										i No Service Pages
+								else 
+									each endpoint in service_def.Pages 
+
+										.w3-section
+										-var content_id = service_def.name + '-page-' + endpoint.name
+
+										//- Page Signature
+										-var parameter_names = endpoint.parameters.map( p => p.name ).join( ', ' )
+										.w3-container.w3-padding.w3-round-large.w3-green.w3-text-white
+											a( href="#" ng-click=`Page.ToggleVisible( "${content_id}" )` ).w3-button.w3-round-xxlarge
+												span( ng-show=`!Page.IsVisible( "${content_id}" )` ).w3-large.fa.fa-caret-right &nbsp
+												span( ng-show=`Page.IsVisible( "${content_id}" )` ).w3-large.fa.fa-caret-down &nbsp
+												span.w3-large= `${endpoint.name}( ${parameter_names} )`
+
+										//- Page Details
+										.w3-container.w3-round-large.w3-padding( id=content_id ng-show=`Page.IsVisible( "${content_id}" )` )
+
+											//- Allowed Roles and Login
+											.w3-container 
+												include partials/endpoint-description.pug 
+
+											//- Parameters Table
+											include partials/endpoint-parameters.pug 
+
+											//- Function Verbs
+											.w3-row
+												.w3-cell
+													h5 Verbs: 
+												.w3-cell
+													a.w3-button.w3-small.w3-round-large.w3-margin.w3-green(
+														href="#"
+														ng-click=`Page.Invoke( "Visit", "${service_def.name}", "${endpoint.name}" )`
+													) Visit
+

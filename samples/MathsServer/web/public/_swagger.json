@@ -77,6 +77,44 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "summary": "Returns the number of objects matching the given Criteria.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "description": "Criteria of objects to count.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/SystemUsers/StorageFindOne": {
@@ -93,6 +131,44 @@
                             "foo": "bar"
                         },
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Returns the first object matching the given Criteria.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "description": "Criteria of objects to find.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "body"
                     }
                 ],
                 "responses": {
@@ -157,6 +233,44 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "summary": "Returns an array of all objects matching the given Criteria.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "description": "Criteria of objects to find.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/SystemUsers/StorageCreateOne": {
@@ -173,6 +287,44 @@
                             "foo": "bar"
                         },
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Creates and stores a new object based upon the given Prototype; Returns the stored object.",
+                "parameters": [
+                    {
+                        "name": "Prototype",
+                        "description": "The prototype (initial values) of the object to create.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "body"
                     }
                 ],
                 "responses": {
@@ -248,6 +400,55 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "summary": "Overwrites values from DataObject to the first object matching the given Criteria; Returns the number of objects updated.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "description": "Criteria of objects to update.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "body"
+                    },
+                    {
+                        "name": "DataObject",
+                        "description": "Object containing update values.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/SystemUsers/StorageDeleteOne": {
@@ -264,6 +465,44 @@
                             "foo": "bar"
                         },
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Deletes the first object matching the given Criteria; Returns the number of objects deleted.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "description": "Criteria of objects to delete.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "body"
                     }
                 ],
                 "responses": {
@@ -328,6 +567,44 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "summary": "Deletes all objects matching the given Criteria; Returns the number of objects deleted.",
+                "parameters": [
+                    {
+                        "name": "Criteria",
+                        "description": "Criteria of objects to delete.",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "example": {
+                            "foo": "bar"
+                        },
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/Maths/Add": {
@@ -340,7 +617,7 @@
                         "schema": {
                             "type": "number"
                         },
-                        "example": 3.14,
+                        "example": 3,
                         "in": "query"
                     },
                     {
@@ -349,8 +626,53 @@
                         "schema": {
                             "type": "number"
                         },
-                        "example": 2.718,
+                        "example": 4,
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Returns the sum of two numbers. (A + B)",
+                "parameters": [
+                    {
+                        "name": "A",
+                        "description": "The first value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 3,
+                        "in": "body"
+                    },
+                    {
+                        "name": "B",
+                        "description": "The second value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 4,
+                        "in": "body"
                     }
                 ],
                 "responses": {
@@ -387,7 +709,7 @@
                         "schema": {
                             "type": "number"
                         },
-                        "example": 3.14,
+                        "example": 3,
                         "in": "query"
                     },
                     {
@@ -396,8 +718,53 @@
                         "schema": {
                             "type": "number"
                         },
-                        "example": 2.718,
+                        "example": 4,
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Returns the difference of two numbers. (A - B)",
+                "parameters": [
+                    {
+                        "name": "A",
+                        "description": "The first value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 3,
+                        "in": "body"
+                    },
+                    {
+                        "name": "B",
+                        "description": "The second value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 4,
+                        "in": "body"
                     }
                 ],
                 "responses": {
@@ -434,7 +801,7 @@
                         "schema": {
                             "type": "number"
                         },
-                        "example": 3.14,
+                        "example": 3,
                         "in": "query"
                     },
                     {
@@ -443,8 +810,53 @@
                         "schema": {
                             "type": "number"
                         },
-                        "example": 2.718,
+                        "example": 4,
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Returns the product of two numbers. (A * B)",
+                "parameters": [
+                    {
+                        "name": "A",
+                        "description": "The first value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 3,
+                        "in": "body"
+                    },
+                    {
+                        "name": "B",
+                        "description": "The second value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 4,
+                        "in": "body"
                     }
                 ],
                 "responses": {
@@ -481,7 +893,7 @@
                         "schema": {
                             "type": "number"
                         },
-                        "example": 3.14,
+                        "example": 3,
                         "in": "query"
                     },
                     {
@@ -490,8 +902,53 @@
                         "schema": {
                             "type": "number"
                         },
-                        "example": 2.718,
+                        "example": 4,
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ApiResult",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResult"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Returns the ratio of two numbers. (A / B)",
+                "parameters": [
+                    {
+                        "name": "A",
+                        "description": "The first value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 3,
+                        "in": "body"
+                    },
+                    {
+                        "name": "B",
+                        "description": "The second value in the operation.",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 4,
+                        "in": "body"
                     }
                 ],
                 "responses": {

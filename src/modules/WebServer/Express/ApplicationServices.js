@@ -34,6 +34,10 @@ exports.Use =
 				if ( typeof value === 'undefined' )
 				{
 					value = null;
+					if ( parameter.required )
+					{
+						Server.Log.warn( `Undefined value for required parameter [${parameter.name}] in endpoint [${endpoint.name}].` );
+					}
 				}
 				parameters.push( value );
 			}
@@ -87,7 +91,8 @@ exports.Use =
 					return;
 				}
 
-				// Add endpoints for each http verb.
+				//---------------------------------------------------------------------
+				// Add routes for each http verb.
 				if ( endpoint.verbs.includes( 'get' ) )
 				{
 					WebServer.Express.App.get( `${ParentPath}/${endpoint_name}`,
@@ -166,35 +171,11 @@ exports.Use =
 				}
 
 				//---------------------------------------------------------------------
-				// Add endpoints for each http verb.
-				if ( endpoint.verbs.includes( 'get' ) )
-				{
-					WebServer.Express.App.get( `${ParentPath}/${endpoint_name}`,
-						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						express_page_handler );
-					endpoint_count++;
-				}
-				if ( endpoint.verbs.includes( 'post' ) )
-				{
-					WebServer.Express.App.post( `${ParentPath}/${endpoint_name}`,
-						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						express_page_handler );
-					endpoint_count++;
-				}
-				if ( endpoint.verbs.includes( 'put' ) )
-				{
-					WebServer.Express.App.put( `${ParentPath}/${endpoint_name}`,
-						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						express_page_handler );
-					endpoint_count++;
-				}
-				if ( endpoint.verbs.includes( 'delete' ) )
-				{
-					WebServer.Express.App.delete( `${ParentPath}/${endpoint_name}`,
-						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						express_page_handler );
-					endpoint_count++;
-				}
+				// Add route for http get.
+				WebServer.Express.App.get( `${ParentPath}/${endpoint_name}`,
+					WebServer.Express.AuthenticationGate( endpoint.requires_login ),
+					express_page_handler );
+				endpoint_count++;
 
 			}
 

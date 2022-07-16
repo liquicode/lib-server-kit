@@ -48,15 +48,14 @@ body
 		nav.w3-bar.w3-border.w3-light-grey( role="navigation" )
 			img.w3-bar-item.w3-image.w3-responsive.w3-opacity( src='/images/logo-24x24.png' )
 			.w3-bar-item.w3-text-grey= locals.Server.Config.Settings.AppInfo.name
-			a.w3-bar-item.w3-button( href="/" ) Home
+			a.w3-bar-item.w3-button.w3-mobile( href="/" ) Home
 
-			//- if locals.User && (locals.User.user_role !== 'public')
-			if( locals.User )
+			-var is_logged_in = ( locals.User && locals.User.user_role && ['admin','super','user'].includes( locals.User.user_role ) )
+			if( is_logged_in )
 
-				//- a.w3-bar-item.w3-button( href="/SimAccounts/ListMine" ) Accounts
-				//- a.w3-bar-item.w3-button( href="/SimInstruments/ListMine" ) Instruments
-				//- a.w3-bar-item.w3-button( href="/SimTools/ListMine" ) Tools
-				//- a.w3-bar-item.w3-button( href="/SimSessions/ListMine" ) Sessions
+				if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' )
+					a.w3-bar-item.w3-button.w3-mobile( href="/explorer" ) Server Explorer
+					a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/List" ) System Accounts
 
 				.w3-dropdown-hover.w3-right.w3-mobile
 
@@ -68,22 +67,19 @@ body
 
 					.w3-dropdown-content.w3-bar-block.w3-dark-grey
 
-						if ( locals.User.user_role === 'public' )
-							a.w3-bar-item.w3-button.w3-mobile( href="/auth/signup" ) Sign Up
-							a.w3-bar-item.w3-button.w3-mobile( href="/auth/login" ) Log In
-
 						if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' ) || ( locals.User.user_role === 'user' )
-							a.w3-bar-item.w3-button.w3-mobile( href="/auth/user" ) User Account
-							a.w3-bar-item.w3-button.w3-mobile( href="/auth/logout" ) Log Out
+							.w3-border-bottom.w3-border-top
+								a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/Item?ItemID=" + locals.User.__.id + "&PageOp=Update" ) My Account
+								a.w3-bar-item.w3-button.w3-mobile( href="/auth/logout" ) Log Out
 
 						if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' )
-							.w3-bar-item.w3-border-bottom
-							//- a.w3-bar-item.w3-button.no-wrap( href="/api/SystemUsers/FindMany" ) System Users
-							a.w3-bar-item.w3-button.no-wrap( href="/SystemUsers/List" ) System Users
+							.w3-border-bottom.w3-border-top
+								a.w3-bar-item.w3-button.w3-mobile( href="/explorer" ) Server Explorer
+								a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/List" ) System Accounts
 
 			else
 
-				a( id="qsLoginBtn" href="/auth/signup" ).w3-bar-item.w3-button Sign Up
-				a( id="qsLoginBtn" href="/auth/login" ).w3-bar-item.w3-button Log In
+				a.w3-bar-item.w3-button.w3-mobile( href="/auth/signup" ) Sign Up
+				a.w3-bar-item.w3-button.w3-mobile( href="/auth/login" ) Log In
 
 		block content

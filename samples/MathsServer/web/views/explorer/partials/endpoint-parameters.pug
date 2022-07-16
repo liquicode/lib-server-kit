@@ -1,0 +1,28 @@
+//- Parameters Table
+if( endpoint.parameters.length === 0 )
+	h5
+		i No Parameters
+else 
+	table.w3-table.w3-border.w3-bordered.w3-small
+		tr.w3-light-blue
+			th Name
+			th Type
+			th Description 
+			th Example
+		each parameter in endpoint.parameters 
+			tr.w3-white
+				td
+					b= parameter.name
+				-var parameter_type = ''
+				if( parameter.schema && parameter.schema.type )
+					- parameter_type = parameter.schema.type
+				if( parameter.schema && parameter.schema.format )
+					- parameter_type = parameter_type + ' (' + parameter.schema.format + ')'
+				td= parameter_type
+				td
+					i= parameter.description
+				-var example_text = parameter.example
+				-if( typeof example_text === 'object' )  example_text = JSON.stringify( example_text )
+				-if( typeof example_text === 'array' )  example_text = JSON.stringify( example_text )
+				td= example_text
+

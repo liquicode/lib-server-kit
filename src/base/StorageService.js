@@ -412,7 +412,7 @@ exports.NewStorageService =
 			description: 'Lists all objects matching the given Criteria.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			verbs: [ 'get' ],
+			// verbs: [ 'get' ],
 			// parameters: [ 'Criteria' ],
 			parameters: [
 				{
@@ -432,7 +432,7 @@ exports.NewStorageService =
 			description: 'Shows item detail and management functions.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			verbs: [ 'get' ],
+			// verbs: [ 'get' ],
 			// parameters: [ 'ItemID', 'PageOp' ],
 			parameters: [
 				{
@@ -458,7 +458,7 @@ exports.NewStorageService =
 			description: 'Manage item sharing options.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			verbs: [ 'get' ],
+			// verbs: [ 'get' ],
 			// parameters: [ 'ItemID' ],
 			parameters: [
 				{

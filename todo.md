@@ -1,33 +1,45 @@
 
 # TODO
 
-- Develop: Authentication Service
-	- Exports authentication pages: signup, login, logout
-	- Uses the SystemUsers service to perform the signup and login functions.
+- Server
+	- Update lib-json to support hjson. Go full lib-json.
 
-- Implement: Persistent Sessions
-	- implement persistence strategies for sessions.
-		- filesystem
-		- sqlite
-		- mongodb
-		- mysql
+- Services
+	- Rename `Endpoints` to `Functions`
+	- Create a `Functions` namespace for function implementations.
+	- Rename `SystemUsers` to `SystemAccounts`
+	- Develop: `Authentication` Service
+		- Exports authentication pages: signup, login, logout
+		- Uses the `SystemAccounts` service to perform the signup and login functions.
+		- User authentication is still performed by Passport
 
-- Develop: Express.AuthorizationGate middleware
+- Express
+	- Develop `Express.AuthorizationGate` middleware to check user roles
+	- Convert `WebServer.RequestProcessor` to `Express.RequestProcessor`
+		- reimplement as middleware?
 
-- Convert WebServer.RequestProcessor to Express.RequestProcessor
+	- Session
+		- Implement persistence strategies for sessions
+			- filesystem
+			- sqlite
+			- mongodb
+			- mysql
 
-- Swagger
-	- authorization
-	- parameter data types
-	- service item definitions
+	- Explorer
+		- Implement Invoke with modal popup
+		- Select user to Invoke as
 
-- Add Module: `Express.ClientSupport.Swagger`
-	- [https://swagger.io/](https://swagger.io/)
-	- [https://blog.logrocket.com/documenting-your-express-api-with-swagger/](https://blog.logrocket.com/documenting-your-express-api-with-swagger/)
+	- Swagger *** Remove It! ***
+		- authorization
+		- parameter data types
+		- service item definitions
+		- Add Module: `Express.ClientSupport.Swagger`
+			- [https://swagger.io/](https://swagger.io/)
+			- [https://blog.logrocket.com/documenting-your-express-api-with-swagger/](https://blog.logrocket.com/documenting-your-express-api-with-swagger/)
 
-- Socket Security: Is there anything that can help secure socket.io communication?
-	- [https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io](https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io)
-	- [https://github.com/oskosk/express-socket.io-session](https://github.com/oskosk/express-socket.io-session)
-	- [https://github.com/peerigon/socket.io-session-middleware](https://github.com/peerigon/socket.io-session-middleware)
+- SocketIO
+	- Socket Security: Is there anything that can help secure socket.io communication?
+		- [https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io](https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io)
+		- [https://github.com/oskosk/express-socket.io-session](https://github.com/oskosk/express-socket.io-session)
+		- [https://github.com/peerigon/socket.io-session-middleware](https://github.com/peerigon/socket.io-session-middleware)
 
-- Update lib-json to support hjson. Go full lib-json.
