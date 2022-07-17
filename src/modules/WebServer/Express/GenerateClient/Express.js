@@ -63,7 +63,6 @@ ExpressApi.ExpressMessage = function ( Method, Address, Payload, Callback )
 			code += `ExpressApi.${service_name} = {};\n`;
 
 			{ // Service API.
-				code += `ExpressApi.${service_name}.API = {};\n`;
 				let endpoints = service.ServiceDefinition.Endpoints;
 				let endpoint_names = Object.keys( endpoints );
 				for ( let index = 0; index < endpoint_names.length; index++ )
@@ -90,17 +89,23 @@ ExpressApi.ExpressMessage = function ( Method, Address, Payload, Callback )
 						code += ` = function ( ${parameters} )`;
 						code += ` { ExpressApi.ExpressMessage( 'get', '${service_path}${service_name}/${endpoint_name}', ${payload}, Callback ); }\n`;
 					}
-					else if ( endpoint.verbs.includes( 'put' ) )
+					if ( endpoint.verbs.includes( 'put' ) )
 					{
-						code += `ExpressApi.${service_name}.put_${endpoint_name} = {};\n`;
+						code += `ExpressApi.${service_name}.put_${endpoint_name}`;
+						code += ` = function ( ${parameters} )`;
+						code += ` { ExpressApi.ExpressMessage( 'put', '${service_path}${service_name}/${endpoint_name}', ${payload}, Callback ); }\n`;
 					}
-					else if ( endpoint.verbs.includes( 'post' ) )
+					if ( endpoint.verbs.includes( 'post' ) )
 					{
-						code += `ExpressApi.${service_name}.post_${endpoint_name} = {};\n`;
+						code += `ExpressApi.${service_name}.post_${endpoint_name}`;
+						code += ` = function ( ${parameters} )`;
+						code += ` { ExpressApi.ExpressMessage( 'post', '${service_path}${service_name}/${endpoint_name}', ${payload}, Callback ); }\n`;
 					}
-					else if ( endpoint.verbs.includes( 'delete' ) )
+					if ( endpoint.verbs.includes( 'delete' ) )
 					{
-						code += `ExpressApi.${service_name}.delete_${endpoint_name} = {};\n`;
+						code += `ExpressApi.${service_name}.delete_${endpoint_name}`;
+						code += ` = function ( ${parameters} )`;
+						code += ` { ExpressApi.ExpressMessage( 'delete', '${service_path}${service_name}/${endpoint_name}', ${payload}, Callback ); }\n`;
 					}
 
 				}

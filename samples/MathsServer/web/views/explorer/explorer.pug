@@ -10,6 +10,8 @@ block content
 			!= `window.SERVER_DATA = {};\n`
 			!= `window.SERVER_DATA.User = ${JSON.stringify( locals.User )};\n`
 
+		include partials/invoke-modal.pug
+
 		-var Settings = locals.Server.Config.Settings 
 
 		.w3-container.w3-blue-grey
@@ -30,13 +32,13 @@ block content
 
 					//- Service Title
 					.w3-container.w3-padding.w3-border.w3-round-large.w3-sand
-						a( href="#" ng-click=`Page.ToggleVisible( "${content_id}" )` ).w3-button.w3-round-xxlarge
-							span( ng-show=`!Page.IsVisible( "${content_id}" )` ).w3-xlarge.fa.fa-caret-right &nbsp
-							span( ng-show=`Page.IsVisible( "${content_id}" )` ).w3-xlarge.fa.fa-caret-down &nbsp
+						a( href="#" ng-click=`Page.ToggleContentVisible( "${content_id}" )` ).w3-button.w3-round-xxlarge
+							span( ng-show=`!Page.IsContentVisible( "${content_id}" )` ).w3-xlarge.fa.fa-caret-right &nbsp; &nbsp;
+							span( ng-show=`Page.IsContentVisible( "${content_id}" )` ).w3-xlarge.fa.fa-caret-down &nbsp; &nbsp;
 							span.w3-xlarge= `${service_def.name} Service`
 
 					//- Service Details
-					.w3-container.w3-border.w3-round-large.w3-padding( id=content_id ng-show=`Page.IsVisible( "${content_id}" )` )
+					.w3-container.w3-border.w3-round-large.w3-padding( id=content_id ng-show=`Page.IsContentVisible( "${content_id}" )` )
 
 						//- Service Item
 						.w3-section
@@ -46,9 +48,9 @@ block content
 						.w3-container
 							span.w3-large= item_def.name
 							if( item_def.shareable )
-								span.w3-small &nbsp (Shareable)
+								span.w3-small &nbsp; (Shareable)
 							else
-								span.w3-small &nbsp (Not Shareable)
+								span.w3-small &nbsp; (Not Shareable)
 
 							//- Item Fields
 							include partials/item-fields.pug
@@ -74,13 +76,13 @@ block content
 										//- Function Signature
 										-var parameter_names = endpoint.parameters.map( p => p.name )
 										.w3-container.w3-padding.w3-round-large.w3-blue.w3-text-white
-											a( href="#" ng-click=`Page.ToggleVisible( "${content_id}" )` ).w3-button.w3-round-xxlarge
-												span( ng-show=`!Page.IsVisible( "${content_id}" )` ).w3-large.fa.fa-caret-right &nbsp
-												span( ng-show=`Page.IsVisible( "${content_id}" )` ).w3-large.fa.fa-caret-down &nbsp
+											a( href="#" ng-click=`Page.ToggleContentVisible( "${content_id}" )` ).w3-button.w3-round-xxlarge
+												span( ng-show=`!Page.IsContentVisible( "${content_id}" )` ).w3-large.fa.fa-caret-right &nbsp; &nbsp;
+												span( ng-show=`Page.IsContentVisible( "${content_id}" )` ).w3-large.fa.fa-caret-down &nbsp; &nbsp;
 												span.w3-large= `${endpoint.name}( ${parameter_names} )`
 
 										//- Function Details
-										.w3-container.w3-round-large.w3-padding( id=content_id ng-show=`Page.IsVisible( "${content_id}" )` )
+										.w3-container.w3-round-large.w3-padding( id=content_id ng-show=`Page.IsContentVisible( "${content_id}" )` )
 
 											//- Allowed Roles and Login
 											.w3-container 
@@ -101,28 +103,30 @@ block content
 														if( endpoint.verbs.includes( 'call' ) )
 															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
 																href="#"
-																ng-click=`Page.Invoke( "Call", "${service_def.name}", "${endpoint.name}" )`
+																ng-click=`Page.ShowInvokeModal( "Call", "${service_def.name}", "${endpoint.name}", ${JSON.stringify( endpoint.parameters )} )`
 															) Call
 														if( endpoint.verbs.includes( 'get' ) )
 															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
 																href="#"
-																ng-click=`Page.Invoke( "Get", "${service_def.name}", "${endpoint.name}" )`
+																ng-click=`Page.ShowInvokeModal( "Get", "${service_def.name}", "${endpoint.name}", ${JSON.stringify( endpoint.parameters )} )`
 															) Get
 														if( endpoint.verbs.includes( 'put' ) )
 															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
 																href="#"
-																ng-click=`Page.Invoke( "Put", "${service_def.name}", "${endpoint.name}" )`
+																ng-click=`Page.ShowInvokeModal( "Put", "${service_def.name}", "${endpoint.name}", ${JSON.stringify( endpoint.parameters )} )`
 															) Put
 														if( endpoint.verbs.includes( 'post' ) )
 															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
 																href="#"
-																ng-click=`Page.Invoke( "Post", "${service_def.name}", "${endpoint.name}" )`
+																ng-click=`Page.ShowInvokeModal( "Post", "${service_def.name}", "${endpoint.name}", ${JSON.stringify( endpoint.parameters )} )`
 															) Post
 														if( endpoint.verbs.includes( 'delete' ) )
 															a.w3-button.w3-small.w3-round-large.w3-margin.w3-blue(
 																href="#"
-																ng-click=`Page.Invoke( "Delete", "${service_def.name}", "${endpoint.name}" )`
+																ng-click=`Page.ShowInvokeModal( "Delete", "${service_def.name}", "${endpoint.name}", ${JSON.stringify( endpoint.parameters )} )`
 															) Delete
+												.w3-row.w3-border
+
 
 						//- Service Pages
 						.w3-section
@@ -145,13 +149,13 @@ block content
 										//- Page Signature
 										-var parameter_names = endpoint.parameters.map( p => p.name ).join( ', ' )
 										.w3-container.w3-padding.w3-round-large.w3-green.w3-text-white
-											a( href="#" ng-click=`Page.ToggleVisible( "${content_id}" )` ).w3-button.w3-round-xxlarge
-												span( ng-show=`!Page.IsVisible( "${content_id}" )` ).w3-large.fa.fa-caret-right &nbsp
-												span( ng-show=`Page.IsVisible( "${content_id}" )` ).w3-large.fa.fa-caret-down &nbsp
+											a( href="#" ng-click=`Page.ToggleContentVisible( "${content_id}" )` ).w3-button.w3-round-xxlarge
+												span( ng-show=`!Page.IsContentVisible( "${content_id}" )` ).w3-large.fa.fa-caret-right &nbsp; &nbsp;
+												span( ng-show=`Page.IsContentVisible( "${content_id}" )` ).w3-large.fa.fa-caret-down &nbsp; &nbsp;
 												span.w3-large= `${endpoint.name}( ${parameter_names} )`
 
 										//- Page Details
-										.w3-container.w3-round-large.w3-padding( id=content_id ng-show=`Page.IsVisible( "${content_id}" )` )
+										.w3-container.w3-round-large.w3-padding( id=content_id ng-show=`Page.IsContentVisible( "${content_id}" )` )
 
 											//- Allowed Roles and Login
 											.w3-container 
@@ -167,6 +171,7 @@ block content
 												.w3-cell
 													a.w3-button.w3-small.w3-round-large.w3-margin.w3-green(
 														href="#"
-														ng-click=`Page.Invoke( "Visit", "${service_def.name}", "${endpoint.name}" )`
+														ng-click=`Page.ShowInvokeModal( "Visit", "${service_def.name}", "${endpoint.name}", ${JSON.stringify( endpoint.parameters )} )`
 													) Visit
+											.w3-row.w3-border
 

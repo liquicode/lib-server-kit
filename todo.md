@@ -7,7 +7,7 @@
 - Services
 	- Rename `Endpoints` to `Functions`
 	- Create a `Functions` namespace for function implementations.
-	- Rename `SystemUsers` to `SystemAccounts`
+	- Rename `SystemUsers` to `ServerAccounts`
 	- Develop: `Authentication` Service
 		- Exports authentication pages: signup, login, logout
 		- Uses the `SystemAccounts` service to perform the signup and login functions.
@@ -26,7 +26,6 @@
 			- mysql
 
 	- Explorer
-		- Implement Invoke with modal popup
 		- Select user to Invoke as
 
 	- Swagger *** Remove It! ***

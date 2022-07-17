@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Socket Api Client File for: MathsServer
-// Generated:  2022-07-16T04:38:33.438Z
-//   Sat Jul 16 2022 00:38:33 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-17T07:36:30.060Z
+//   Sun Jul 17 2022 03:36:30 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var SocketApi = {};

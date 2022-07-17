@@ -1,0 +1,58 @@
+.w3-modal( id='invoke-modal' )
+	.w3-modal-content.w3-animate-zoom.w3-animate-opacity
+
+		header.w3-container.w3-blue
+			span.w3-button.w3-display-topright.w3-xlarge.w3-round-xxlarge( ng-click="Page.HideInvokeModal()" ) &times;
+			h3 {{Page.Invoke.verb}}: {{Page.Invoke.service_name}}.{{Page.Invoke.endpoint_name}}
+
+		.w3-container.w3-whitesmoke
+
+			h3 As User:
+
+			.w3-container
+				.w3-row
+					.w3-quarter
+						h5
+					.w3-threequarter
+						h5 {{Page.Invoke.as_user}}
+
+			.w3-section.w3-border
+
+			h3 Parameters:
+
+			.w3-container
+				.w3-row(
+					ng-repeat="parameter in Page.Invoke.parameters"
+				)
+
+					.w3-quarter.w3-padding-small
+						h5.w3-center {{parameter.name}} :
+
+					.w3-threequarter.w3-padding-small
+
+						.w3-row
+							.w3-small {{parameter.description}}
+
+						.w3-row
+							input.w3-input.w3-sand.w3-round-large.w3-text-blue(
+								type="text"
+								ng-model="Page.Invoke.values[ parameter.name ]"
+							)
+
+			.w3-section.w3-border
+
+			h3 Response:
+
+			//- .w3-container.w3-border.w3-round-large
+			.w3-container
+				pre.w3-code.jsHigh.w3-small(
+					id='invoke-response'
+					style="max-height:300px; overflow-x:auto; overflow-y:auto;"
+				)
+				//- {{Page.InvokeResponse()}}
+
+		footer.w3-container.w3-blue.w3-padding.w3-margin-top
+			a.w3-button.w3-small.w3-round-large.w3-green(
+				href="#"
+				ng-click="Page.InvokeFunction()"
+			) Invoke

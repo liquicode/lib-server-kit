@@ -24,6 +24,7 @@ html
 
 		//- CSS/Framework
 		link( rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css' )
+		script( type='text/javascript' src='https://www.w3schools.com/lib/w3codecolor.js' )
 
 		//- Moment
 		script( type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js' )
@@ -54,8 +55,8 @@ body
 			if( is_logged_in )
 
 				if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' )
-					a.w3-bar-item.w3-button.w3-mobile( href="/explorer" ) Server Explorer
-					a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/List" ) System Accounts
+					//- a.w3-bar-item.w3-button.w3-mobile( href="/explorer" ) Server Explorer
+					a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/List" ) Server Accounts
 
 				.w3-dropdown-hover.w3-right.w3-mobile
 
@@ -75,7 +76,7 @@ body
 						if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' )
 							.w3-border-bottom.w3-border-top
 								a.w3-bar-item.w3-button.w3-mobile( href="/explorer" ) Server Explorer
-								a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/List" ) System Accounts
+								a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/List" ) Server Accounts
 
 			else
 

@@ -180,9 +180,13 @@ exports.GetDefaults =
 
 					//---------------------------------------------------------------------
 					// Passport Authentication: email and password
-					Passport_Local: { // https://github.com/jaredhanson/passport-local
-						Users: [ { user_id: 'admin@server', password: 'password' } ],
-						Settings: {
+					Passport_Local: {
+						Users: [
+							{ user_id: 'admin@server', user_role: 'admin', password: 'password' },
+							{ user_id: 'super@server', user_role: 'super', password: 'password' },
+							{ user_id: 'user@server', user_role: 'user', password: 'password' }
+						],
+						Settings: { // https://github.com/jaredhanson/passport-local
 						},
 					},
 
