@@ -63,35 +63,35 @@ exports.Generate =
 			let service_name = service.ServiceDefinition.name;
 
 			{ // Service API.
-				let endpoints = service.ServiceDefinition.Endpoints;
-				let endpoint_names = Object.keys( endpoints );
-				for ( let index = 0; index < endpoint_names.length; index++ )
+				let origins = service.ServiceDefinition.Origins;
+				let origin_names = Object.keys( origins );
+				for ( let index = 0; index < origin_names.length; index++ )
 				{
-					let endpoint = endpoints[ endpoint_names[ index ] ];
-					let endpoint_name = endpoint.name;
+					let origin = origins[ origin_names[ index ] ];
+					let origin_name = origin.name;
 					let swagger_path = {};
 
-					if ( endpoint.verbs.includes( 'get' ) )
+					if ( origin.verbs.includes( 'get' ) )
 					{
-						swagger_path.get = create_swagger_endpoint( endpoint, 'query' );
+						swagger_path.get = create_swagger_origin( origin, 'query' );
 					}
-					if ( endpoint.verbs.includes( 'put' ) )
+					if ( origin.verbs.includes( 'put' ) )
 					{
-						swagger_path.put = create_swagger_endpoint( endpoint, 'body' );
+						swagger_path.put = create_swagger_origin( origin, 'body' );
 					}
-					if ( endpoint.verbs.includes( 'post' ) )
+					if ( origin.verbs.includes( 'post' ) )
 					{
-						swagger_path.post = create_swagger_endpoint( endpoint, 'body' );
+						swagger_path.post = create_swagger_origin( origin, 'body' );
 					}
-					if ( endpoint.verbs.includes( 'delete' ) )
+					if ( origin.verbs.includes( 'delete' ) )
 					{
-						swagger_path.delete = create_swagger_endpoint( endpoint, 'query' );
+						swagger_path.delete = create_swagger_origin( origin, 'query' );
 					}
 
 					if ( swagger_path.get || swagger_path.put || swagger_path.post || swagger_path.delete )
 					{
-						let endpoint_url_path = `/${service_name}/${endpoint_name}`;
-						swagger_doc.paths[ endpoint_url_path ] = swagger_path;
+						let origin_url_path = `/${service_name}/${origin_name}`;
+						swagger_doc.paths[ origin_url_path ] = swagger_path;
 					}
 
 				}
@@ -104,10 +104,10 @@ exports.Generate =
 
 
 //---------------------------------------------------------------------
-function create_swagger_endpoint( Endpoint, ParametersIn )
+function create_swagger_origin( Origin, ParametersIn )
 {
-	let swagger_endpoint = {
-		summary: Endpoint.description,
+	let swagger_origin = {
+		summary: Origin.description,
 		parameters: [],
 		responses: {
 			'200': {
@@ -128,13 +128,13 @@ function create_swagger_endpoint( Endpoint, ParametersIn )
 			},
 		},
 	};
-	for ( let parameter_index = 0; parameter_index < Endpoint.parameters.length; parameter_index++ )
+	for ( let parameter_index = 0; parameter_index < Origin.parameters.length; parameter_index++ )
 	{
-		let parameter = Endpoint.parameters[ parameter_index ];
+		let parameter = Origin.parameters[ parameter_index ];
 		let swagger_parameter = JSON.parse( JSON.stringify( parameter ) );
 		swagger_parameter.in = ParametersIn;
-		swagger_endpoint.parameters.push( swagger_parameter );
+		swagger_origin.parameters.push( swagger_parameter );
 	}
-	return swagger_endpoint;
+	return swagger_origin;
 }
 

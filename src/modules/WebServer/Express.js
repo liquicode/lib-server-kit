@@ -70,23 +70,31 @@ exports.Create =
 
 
 		//---------------------------------------------------------------------
+		// AuthenticationGate returns an Express middleware.
 		Express.AuthenticationGate =
 			function AuthenticationGate( RequiresAuthentication )
 			{
+				/*
+					- If the user is logged in, then execution flow continues to the next middleware.
+					- If the user is not logged in and a login is required, then the user is redirected to the login page.
+					- If the user is not logged in and no login is required, then the user is set to Anonymous and execution flow continues.
+					- request is guaranteed to have an attached user account for subsequent middlewares.
+				*/
 				let middleware = null;
 				if ( WebServerSettings.Express.Authentication
 					&& WebServerSettings.Express.Authentication.enabled
 					&& RequiresAuthentication )
 				{
 					middleware =
-						function ( request, response, next )
+						async function ( request, response, next )
 						{
 							if ( request.user ) { return next(); }
 							if ( request.session )
 							{
-								// request.session.returnTo = request.originalUrl;
+								// Remember this url so that a successful authentication can redirect to the originally requested url.
 								request.session.redirect_url_after_login = request.originalUrl;
 							}
+							// Redirect to the login page.
 							let url = `${Express.ServerPath()}${WebServerSettings.Express.Authentication.Pages.login_url}`;
 							response.redirect( url );
 						};
@@ -94,13 +102,128 @@ exports.Create =
 				else
 				{
 					middleware =
-						function ( request, response, next )
+						async function ( request, response, next )
 						{
 							if ( request.user ) { return next(); }
+							// Set the Anonymous user.
 							request.user = JSON.parse( JSON.stringify( WebServerSettings.Express.Authentication.AnonymousUser ) );
 							return next();
 						};
 				}
+				return middleware;
+			};
+
+
+		//---------------------------------------------------------------------
+		// AuthorizationGate returns an Express middleware.
+		Express.AuthorizationGate =
+			function AuthorizationGate( AllowedRoles )
+			{
+				/*
+					- if AllowedRoles is empty, then execution flow continues to the next middleware.
+					- if user_role is listed in AllowedRoles, then execution flow continues to the next middleware.
+					- if user_role is not listed in AllowedRoles, a 403 (Forbidden) code is returned.
+				*/
+				let middleware = null;
+				if ( WebServerSettings.Express.Authentication
+					&& WebServerSettings.Express.Authentication.enabled
+					&& AllowedRoles.length )
+				{
+					middleware =
+						async function ( request, response, next )
+						{
+							if ( !request.user ) { throw new Error( `request.user is null. Authentication must precede Authorization.` ); }
+							if ( AllowedRoles.includes( request.user.user_role ) ) 
+							{
+								return next();
+							}
+							else
+							{
+								response.status( 403 ).send( { error: `User is not allowed to perform this function.` } );
+								return;
+							}
+						};
+				}
+				else
+				{
+					middleware =
+						async function ( request, response, next )
+						{
+							if ( !request.user ) { throw new Error( `request.user is null. Authentication must precede Authorization.` ); }
+							return next();
+						};
+				}
+				return middleware;
+			};
+
+
+		//---------------------------------------------------------------------
+		// InvocationGate returns an Express middleware.
+		Express.InvocationGate =
+			function InvocationGate( Invocation )
+			{
+				/*
+					- Reports invocation status.
+					- Reports invocation duration.
+					- Reports error information.
+				*/
+				let middleware =
+					async function ( request, response, next )
+					{
+						let t0 = Date.now();
+						let invocation_error = null;
+						try
+						{
+							await Invocation( request, response, next );
+						}
+						catch ( error ) 
+						{
+							response.status( 500 ).send( { error: error.message } );
+							invocation_error = error;
+							// if ( do_render_error )
+							// {
+							// 	response.render( 'error', { Server: Server, User: request.user, Error: error } );
+							// }
+							// else
+							// {
+							// 	response.status( 500 ).send( { error: error.message } );
+							// }
+						}
+						finally
+						{
+							let t1 = Date.now();
+							let log_text = '';
+							if ( invocation_error ) { log_text = ' err'; }
+							else { log_text = ' ok '; }
+							log_text += ` | ` + `${t1 - t0}`.padStart( 8 ) + ` ms`;
+							log_text += ' | ' + request.method.padEnd( 7 );
+							{
+								let url = request.url;
+								let ich = url.indexOf( '?' );
+								if ( ich >= 0 ) { url = url.slice( 0, ich ); }
+								log_text += ' | ' + url;
+							}
+							{
+								let values = {};
+								if ( request.query && Object.keys( request.query ).length ) { values = request.query; }
+								else if ( request.body && Object.keys( request.body ).length ) { values = request.body; }
+								else if ( request.params && Object.keys( request.params ).length ) { values = request.params; }
+								log_text += ' ' + JSON.stringify( values );
+							}
+							if ( request.user )
+							{
+								log_text += ` (by: ${request.user.user_id})`;
+							}
+							Server.Log.info( log_text );;
+							if ( invocation_error )
+							{
+								Server.Log.error( `*** Error! *** ${error_text}` );
+								// Server.Log.error( JSON.stringify( request.query ) );
+								Server.Log.error( request );
+							}
+						}
+
+					};
 				return middleware;
 			};
 
@@ -291,17 +414,24 @@ exports.Initialize =
 				// Default root route.
 				WebServer.Express.App.get( server_path,
 					WebServer.Express.AuthenticationGate( false ),
-					async function ( request, response, next ) 
-					{
-						await WebServer.RequestProcessor( request, response, next,
-							async function ( request, response, next )
-							{
-								// log_request( request );
-								response.render( home_view, { Server: Server, User: request.user } );
-								return;
-							}
-							, true );
-					} );
+					WebServer.Express.InvocationGate(
+						async function ( request, response, next )
+						{
+							response.render( home_view, { Server: Server, User: request.user } );
+							return;
+						}
+					),
+					// async function ( request, response, next ) 
+					// {
+					// 	await WebServer.RequestProcessor( request, response, next,
+					// 		async function ( request, response, next )
+					// 		{
+					// 			response.render( home_view, { Server: Server, User: request.user } );
+					// 			return;
+					// 		}
+					// 		, true );
+					// }
+				);
 				Server.Log.trace( `WebServer.Express.ClientSupport added root route '${server_path}' to view [${home_view}].` );
 
 			}
@@ -329,20 +459,28 @@ exports.Initialize =
 			if ( WebServerSettings.Express.Explorer.explorer_path )
 			{
 				let route = `${WebServer.Express.ServicesPath()}${WebServerSettings.Express.Explorer.explorer_path}`;
+				let explorer_view = WebServerSettings.Express.Explorer.explorer_view;
 
 				WebServer.Express.App.get( route,
 					WebServer.Express.AuthenticationGate( WebServerSettings.Express.Explorer.requires_login ),
-					async function ( request, response, next ) 
-					{
-						await WebServer.RequestProcessor( request, response, next,
-							async function ( request, response, next )
-							{
-								// log_request( request );
-								response.render( WebServerSettings.Express.Explorer.explorer_view, { Server: Server, User: request.user } );
-								return;
-							}
-							, true );
-					} );
+					WebServer.Express.InvocationGate(
+						async function ( request, response, next )
+						{
+							response.render( explorer_view, { Server: Server, User: request.user } );
+							return;
+						}
+					),
+					// async function ( request, response, next ) 
+					// {
+					// 	await WebServer.RequestProcessor( request, response, next,
+					// 		async function ( request, response, next )
+					// 		{
+					// 			response.render( WebServerSettings.Express.Explorer.explorer_view, { Server: Server, User: request.user } );
+					// 			return;
+					// 		}
+					// 		, true );
+					// }
+				);
 
 
 				// WebServer.Express.App.use( route, LIB_SWAGGER_UI_EXPRESS.serve, LIB_SWAGGER_UI_EXPRESS.setup( swagger_doc ) );

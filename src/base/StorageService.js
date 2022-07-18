@@ -160,14 +160,14 @@ exports.NewStorageService =
 		//---------------------------------------------------------------------
 		//---------------------------------------------------------------------
 		//
-		//	Service Endpoints
+		//	Service Origins
 		//
 		//---------------------------------------------------------------------
 		//---------------------------------------------------------------------
 
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.StorageCount = {
+		service.ServiceDefinition.Origins.StorageCount = {
 			name: 'StorageCount',
 			description: 'Returns the number of objects matching the given Criteria.',
 			requires_login: true,
@@ -188,7 +188,7 @@ exports.NewStorageService =
 
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.StorageFindOne = {
+		service.ServiceDefinition.Origins.StorageFindOne = {
 			name: 'StorageFindOne',
 			description: 'Returns the first object matching the given Criteria.',
 			requires_login: true,
@@ -209,7 +209,7 @@ exports.NewStorageService =
 
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.StorageFindMany = {
+		service.ServiceDefinition.Origins.StorageFindMany = {
 			name: 'StorageFindMany',
 			description: 'Returns an array of all objects matching the given Criteria.',
 			requires_login: true,
@@ -230,7 +230,7 @@ exports.NewStorageService =
 
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.StorageCreateOne = {
+		service.ServiceDefinition.Origins.StorageCreateOne = {
 			name: 'StorageCreateOne',
 			description: 'Creates and stores a new object based upon the given Prototype; Returns the stored object.',
 			requires_login: true,
@@ -251,7 +251,7 @@ exports.NewStorageService =
 
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.StorageWriteOne = {
+		service.ServiceDefinition.Origins.StorageWriteOne = {
 			name: 'StorageWriteOne',
 			description: 'Overwrites values from DataObject to the first object matching the given Criteria; Returns the number of objects updated.',
 			requires_login: true,
@@ -278,7 +278,7 @@ exports.NewStorageService =
 
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.StorageDeleteOne = {
+		service.ServiceDefinition.Origins.StorageDeleteOne = {
 			name: 'StorageDeleteOne',
 			description: 'Deletes the first object matching the given Criteria; Returns the number of objects deleted.',
 			requires_login: true,
@@ -299,7 +299,7 @@ exports.NewStorageService =
 
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.StorageDeleteMany = {
+		service.ServiceDefinition.Origins.StorageDeleteMany = {
 			name: 'StorageDeleteMany',
 			description: 'Deletes all objects matching the given Criteria; Returns the number of objects deleted.',
 			requires_login: true,
@@ -320,7 +320,7 @@ exports.NewStorageService =
 
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.StorageShare = {
+		service.ServiceDefinition.Origins.StorageShare = {
 			name: 'StorageShare',
 			description: 'Shares all objects matching the given Criteria. Returns the number of objects shared.',
 			requires_login: true,
@@ -359,7 +359,7 @@ exports.NewStorageService =
 
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.StorageUnshare = {
+		service.ServiceDefinition.Origins.StorageUnshare = {
 			name: 'StorageUnshare',
 			description: 'Unshares all objects matching the given Criteria. Returns the number of objects unshared.',
 			requires_login: true,

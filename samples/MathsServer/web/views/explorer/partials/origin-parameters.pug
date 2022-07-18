@@ -1,5 +1,5 @@
 //- Parameters Table
-if( endpoint.parameters.length === 0 )
+if( origin.parameters.length === 0 )
 	h5
 		i No Parameters
 else 
@@ -9,7 +9,7 @@ else
 			th Type
 			th Description 
 			th Example
-		each parameter in endpoint.parameters 
+		each parameter in origin.parameters 
 			tr.w3-white
 				td
 					b= parameter.name

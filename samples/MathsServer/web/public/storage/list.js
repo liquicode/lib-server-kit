@@ -41,7 +41,7 @@ app.controller(
 		Page.UserCanDo =
 			function UserCanDo( FunctionName )
 			{
-				let auth = Page.Server.ServiceDefinition.Endpoints[ FunctionName ];
+				let auth = Page.Server.ServiceDefinition.Origins[ FunctionName ];
 				if ( auth )
 				{
 					if ( !auth.requires_login ) { return true; }

@@ -165,82 +165,82 @@ exports.Construct =
 		// 	};
 
 
-		//---------------------------------------------------------------------
-		_module.ReportError =
-			async function ReportError( error, response )
-			{
-				let error_text = '';
-				if ( error && error.message )
-				{
-					error_text = error.message;
-				}
-				else
-				{
-					error_text = error.toString();
-				}
-				Server.Log.error( error_text );
-				response.render( 'error', error_text );
-				return;
-			};
+		// //---------------------------------------------------------------------
+		// _module.ReportError =
+		// 	async function ReportError( error, response )
+		// 	{
+		// 		let error_text = '';
+		// 		if ( error && error.message )
+		// 		{
+		// 			error_text = error.message;
+		// 		}
+		// 		else
+		// 		{
+		// 			error_text = error.toString();
+		// 		}
+		// 		Server.Log.error( error_text );
+		// 		response.render( 'error', error_text );
+		// 		return;
+		// 	};
 
 
-		//---------------------------------------------------------------------
-		_module.ReportApiError =
-			async function ReportApiError( api_result, response )
-			{
-				let error_text = 'Error in [' + api_result.origin + ']: ' + api_result.error;
-				Server.Log.error( error_text );
-				// response.render( 'error', { error: error_text } );
-				response.send( api_result );
-				return;
-			};
+		// //---------------------------------------------------------------------
+		// _module.ReportApiError =
+		// 	async function ReportApiError( api_result, response )
+		// 	{
+		// 		let error_text = 'Error in [' + api_result.origin + ']: ' + api_result.error;
+		// 		Server.Log.error( error_text );
+		// 		// response.render( 'error', { error: error_text } );
+		// 		response.send( api_result );
+		// 		return;
+		// 	};
 
 
-		//---------------------------------------------------------------------
-		_module.RequestProcessor =
-			async function RequestProcessor( request, response, next, processor, do_render_error = false )
-			{
-				let error_text = null;
-				let t0 = Date.now();
-				try
-				{
-					await processor( request, response, next );
-				}
-				catch ( error ) 
-				{
-					error_text = error.message;
-					if ( do_render_error )
-					{
-						response.render( 'error', { Server: Server, User: request.user, Error: error } );
-					}
-					else
-					{
-						// response.send( { error: error_text } );
-						response.send( { error: { error: error_text } } );
-					}
-				}
-				finally
-				{
-					let log_text = '';
-					if ( error_text ) { log_text = ' err'; }
-					else { log_text = ' ok '; }
-					let t1 = Date.now();
-					log_text += ` | ` + `${t1 - t0}`.padStart( 8 ) + ` ms`;
-					log_text += ' | ' + request.method.padEnd( 7 ) + request.url;
-					if ( request.user )
-					{
-						log_text += ` (by: ${request.user.user_id})`;
-					}
-					Server.Log.info( log_text );;
-					if ( error_text )
-					{
-						log_text += `*** Error! ***`;
-						log_text += `\n${error_text}`;
-						log_text += `\n${JSON.stringify( request.query )}`;
-						Server.Log.error( log_text );
-					}
-				}
-			};
+		// //---------------------------------------------------------------------
+		// _module.RequestProcessor =
+		// 	async function RequestProcessor( request, response, next, processor, do_render_error = false )
+		// 	{
+		// 		let error_text = null;
+		// 		let t0 = Date.now();
+		// 		try
+		// 		{
+		// 			await processor( request, response, next );
+		// 		}
+		// 		catch ( error ) 
+		// 		{
+		// 			error_text = error.message;
+		// 			if ( do_render_error )
+		// 			{
+		// 				response.render( 'error', { Server: Server, User: request.user, Error: error } );
+		// 			}
+		// 			else
+		// 			{
+		// 				// response.send( { error: error_text } );
+		// 				response.send( { error: { error: error_text } } );
+		// 			}
+		// 		}
+		// 		finally
+		// 		{
+		// 			let log_text = '';
+		// 			if ( error_text ) { log_text = ' err'; }
+		// 			else { log_text = ' ok '; }
+		// 			let t1 = Date.now();
+		// 			log_text += ` | ` + `${t1 - t0}`.padStart( 8 ) + ` ms`;
+		// 			log_text += ' | ' + request.method.padEnd( 7 ) + request.url;
+		// 			if ( request.user )
+		// 			{
+		// 				log_text += ` (by: ${request.user.user_id})`;
+		// 			}
+		// 			Server.Log.info( log_text );;
+		// 			if ( error_text )
+		// 			{
+		// 				log_text += `*** Error! ***`;
+		// 				log_text += `\n${error_text}`;
+		// 				log_text += `\n${JSON.stringify( request.query )}`;
+		// 				Server.Log.error( log_text );
+		// 			}
+		// 		}
+		// 	};
 
 
 		//=====================================================================

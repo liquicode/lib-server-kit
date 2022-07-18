@@ -37,7 +37,7 @@ describe( `020) WebServer Tests`,
 				LIB_ASSERT.ok( Server.SystemUsers );
 				LIB_ASSERT.ok( Server.SystemUsers.ServiceDefinition );
 				LIB_ASSERT.ok( Server.SystemUsers.ServiceDefinition.name === 'SystemUsers' );
-				LIB_ASSERT.ok( Server.SystemUsers.ServiceDefinition.Endpoints );
+				LIB_ASSERT.ok( Server.SystemUsers.ServiceDefinition.Origins );
 				LIB_ASSERT.ok( Server.SystemUsers.ServiceDefinition.Pages );
 				LIB_ASSERT.ok( Server.SystemUsers.ItemDefinition );
 				LIB_ASSERT.ok( Server.SystemUsers.ItemDefinition.name === 'SystemUser' );
@@ -64,7 +64,7 @@ describe( `020) WebServer Tests`,
 				LIB_ASSERT.ok( Server.Maths );
 				LIB_ASSERT.ok( Server.Maths.ServiceDefinition );
 				LIB_ASSERT.ok( Server.Maths.ServiceDefinition.name === 'Maths' );
-				LIB_ASSERT.ok( Server.Maths.ServiceDefinition.Endpoints );
+				LIB_ASSERT.ok( Server.Maths.ServiceDefinition.Origins );
 				LIB_ASSERT.ok( Server.Maths.ServiceDefinition.Pages );
 				LIB_ASSERT.ok( Server.Maths.ItemDefinition );
 				LIB_ASSERT.ok( Server.Maths.ItemDefinition.name === 'GenericObject' );

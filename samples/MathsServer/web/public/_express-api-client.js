@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Express Api Client File for: MathsServer
-// Generated:  2022-07-17T07:36:30.051Z
-//   Sun Jul 17 2022 03:36:30 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-18T13:31:42.943Z
+//   Mon Jul 18 2022 09:31:42 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var ExpressApi = {};

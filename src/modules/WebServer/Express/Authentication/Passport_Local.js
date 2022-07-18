@@ -177,16 +177,23 @@ exports.Use =
 			// Login
 			WebServer.Express.App.get( urls.login,
 				WebServer.Express.AuthenticationGate( false ),
-				async function ( request, response, next ) 
-				{
-					await Server.WebServer.RequestProcessor( request, response, next,
-						async function ( request, response, next )
-						{
-							response.render( views.login, { Server: Server, User: request.user } );
-							return;
-						}
-						, true );
-				}
+				WebServer.Express.InvocationGate(
+					async function ( request, response, next )
+					{
+						response.render( views.login, { Server: Server, User: request.user } );
+						return;
+					}
+				),
+				// async function ( request, response, next ) 
+				// {
+				// 	await Server.WebServer.RequestProcessor( request, response, next,
+				// 		async function ( request, response, next )
+				// 		{
+				// 			response.render( views.login, { Server: Server, User: request.user } );
+				// 			return;
+				// 		}
+				// 		, true );
+				// }
 			);
 			WebServer.Express.App.post( urls.login,
 				WebServer.Express.AuthenticationGate( false ),
@@ -208,16 +215,23 @@ exports.Use =
 			// LogOut
 			WebServer.Express.App.get( urls.logout,
 				WebServer.Express.AuthenticationGate( true ),
-				async function ( request, response, next ) 
-				{
-					await Server.WebServer.RequestProcessor( request, response, next,
-						async function ( request, response, next )
-						{
-							response.render( views.logout, { Server: Server, User: request.user } );
-							return;
-						}
-						, true );
-				}
+				WebServer.Express.InvocationGate(
+					async function ( request, response, next )
+					{
+						response.render( views.logout, { Server: Server, User: request.user } );
+						return;
+					}
+				),
+				// async function ( request, response, next ) 
+				// {
+				// 	await Server.WebServer.RequestProcessor( request, response, next,
+				// 		async function ( request, response, next )
+				// 		{
+				// 			response.render( views.logout, { Server: Server, User: request.user } );
+				// 			return;
+				// 		}
+				// 		, true );
+				// }
 			);
 			WebServer.Express.App.post( urls.logout,
 				WebServer.Express.AuthenticationGate( true ),
@@ -234,16 +248,23 @@ exports.Use =
 			// SignUp
 			WebServer.Express.App.get( urls.signup,
 				WebServer.Express.AuthenticationGate( false ),
-				async function ( request, response, next )
-				{
-					await Server.WebServer.RequestProcessor( request, response, next,
-						async function ( request, response, next )
-						{
-							response.render( views.signup, { Server: Server, User: request.user } );
-							return;
-						}
-						, true );
-				}
+				WebServer.Express.InvocationGate(
+					async function ( request, response, next )
+					{
+						response.render( views.signup, { Server: Server, User: request.user } );
+						return;
+					}
+				),
+				// async function ( request, response, next )
+				// {
+				// 	await Server.WebServer.RequestProcessor( request, response, next,
+				// 		async function ( request, response, next )
+				// 		{
+				// 			response.render( views.signup, { Server: Server, User: request.user } );
+				// 			return;
+				// 		}
+				// 		, true );
+				// }
 			);
 			WebServer.Express.App.post( urls.signup,
 				WebServer.Express.AuthenticationGate( false ),

@@ -15,7 +15,7 @@ const MODULES_PATH = LIB_PATH.join( __dirname, 'modules' );
 const SRC_UTILTIY_MODULE = require( LIB_PATH.join( MODULES_PATH, 'Utility.js' ) );
 const SRC_CONFIG_MODULE = require( LIB_PATH.join( MODULES_PATH, 'Config.js' ) );
 const SRC_LOG_MODULE = require( LIB_PATH.join( MODULES_PATH, 'Log.js' ) );
-const SRC_ENDPOINTS_MODULE = require( LIB_PATH.join( MODULES_PATH, 'Endpoints.js' ) );
+const SRC_ENDPOINTS_MODULE = require( LIB_PATH.join( MODULES_PATH, 'Origins.js' ) );
 const SRC_WEBSERVER_MODULE = require( LIB_PATH.join( MODULES_PATH, 'WebServer.js' ) );
 
 
@@ -84,9 +84,9 @@ exports.NewServer =
 		server.Log = SRC_LOG_MODULE.Construct( server );
 		// NOTE: Delay insertion of the Defaults block until after the services are loaded.
 
-		// Load the Endpoints module.
-		server.Endpoints = SRC_ENDPOINTS_MODULE.Construct( server );
-		server.Config.Defaults.Endpoints = server.Endpoints.GetDefaults();
+		// Load the Origins module.
+		server.Origins = SRC_ENDPOINTS_MODULE.Construct( server );
+		server.Config.Defaults.Origins = server.Origins.GetDefaults();
 
 		// Load the WebServer module.
 		server.WebServer = SRC_WEBSERVER_MODULE.Construct( server );
@@ -200,17 +200,17 @@ exports.NewServer =
 					server.Log.trace( `Runtime environment set to: ${process.env.NODE_ENV}` );
 				}
 
-				// Endpoints
-				server.Endpoints.SetSettings( server.Config.Settings.Endpoints );
-				server.Endpoints.Initialize();
-				server.Log.trace( `Initialized module [Endpoints].` );
+				// Origins
+				server.Origins.SetSettings( server.Config.Settings.Origins );
+				server.Origins.Initialize();
+				server.Log.trace( `Initialized module [Origins].` );
 
 				// WebServer
 				server.WebServer.SetSettings( server.Config.Settings.WebServer );
 				server.WebServer.Initialize();
 				server.Log.trace( `Initialized module [WebServer].` );
 
-				// Configuration.jse Services
+				// Configure Services
 				{
 					let service_names = Object.keys( server.Services );
 					for ( let index = 0; index < service_names.length; index++ )

@@ -55,7 +55,7 @@ exports.GetDefaults =
 
 				Explorer: {
 					enabled: false,
-					explorer_path: 'explorer',
+					explorer_path: 'Explorer',
 					explorer_view: 'explorer/explorer',
 					requires_login: false,
 				}, // ~ Explorer

@@ -57,21 +57,21 @@ SocketApi.NewSocket =
 		code += `\n`;
 		code += `		socket.${service_name} = {};\n`;
 
-		let endpoints = service.ServiceDefinition.Endpoints;
-		let endpoint_names = Object.keys( endpoints );
-		for ( let index = 0; index < endpoint_names.length; index++ )
+		let origins = service.ServiceDefinition.Origins;
+		let origin_names = Object.keys( origins );
+		for ( let index = 0; index < origin_names.length; index++ )
 		{
-			// Define a Service Endpoint.
-			let endpoint = endpoints[ endpoint_names[ index ] ];
-			let endpoint_name = endpoint.name;
-			if ( endpoint.verbs.includes( 'call' ) )
+			// Define a Service Origin.
+			let origin = origins[ origin_names[ index ] ];
+			let origin_name = origin.name;
+			if ( origin.verbs.includes( 'call' ) )
 			{
 				let parameters = ``;
 				let payload = ``;
-				for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
+				for ( let parameter_index = 0; parameter_index < origin.parameters.length; parameter_index++ )
 				{
 					// Construct the parameters and payload.
-					let parameter_name = endpoint.parameters[ parameter_index ].name;
+					let parameter_name = origin.parameters[ parameter_index ].name;
 					parameters += parameter_name + ', ';
 					if ( payload ) { payload += ', '; };
 					payload += parameter_name;
@@ -79,10 +79,10 @@ SocketApi.NewSocket =
 				parameters += 'Callback';
 				payload = `[${payload}]`;
 
-				// Define the endpoint.
-				code += `		socket.${service_name}.${endpoint_name}`;
+				// Define the origin.
+				code += `		socket.${service_name}.${origin_name}`;
 				code += ` = function ( ${parameters} )`;
-				code += ` { SocketApi.SocketMessage( socket, '${service_name}.${endpoint_name}', ${payload}, Callback ); }\n`;
+				code += ` { SocketApi.SocketMessage( socket, '${service_name}.${origin_name}', ${payload}, Callback ); }\n`;
 			}
 		}
 	}

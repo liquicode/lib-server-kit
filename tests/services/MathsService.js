@@ -94,7 +94,7 @@ exports.Construct =
 		service.ServiceDefinition.title = 'Maths';
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.Add = {
+		service.ServiceDefinition.Origins.Add = {
 			name: 'Add',
 			description: 'Returns the sum of two numbers.',
 			requires_login: false,
@@ -105,7 +105,7 @@ exports.Construct =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.Subtract = {
+		service.ServiceDefinition.Origins.Subtract = {
 			name: 'Subtract',
 			description: 'Returns the difference of two numbers.',
 			requires_login: false,
@@ -116,7 +116,7 @@ exports.Construct =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.Multiply = {
+		service.ServiceDefinition.Origins.Multiply = {
 			name: 'Multiply',
 			description: 'Returns the product of two numbers.',
 			requires_login: false,
@@ -127,7 +127,7 @@ exports.Construct =
 		};
 
 		//---------------------------------------------------------------------
-		service.ServiceDefinition.Endpoints.Divide = {
+		service.ServiceDefinition.Origins.Divide = {
 			name: 'Divide',
 			description: 'Returns the ratio of two numbers.',
 			requires_login: false,

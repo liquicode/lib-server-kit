@@ -120,7 +120,7 @@ exports.Initialize =
 
 
 				//---------------------------------------------------------------------
-				function add_service_endpoints( Service )
+				function add_service_origins( Service )
 				{
 					// Get the user
 					let user = {
@@ -128,26 +128,26 @@ exports.Initialize =
 						user_role: 'admin',
 					};
 
-					// Add endpoints for this service.
-					let endpoint_count = 0;
-					let endpoint_names = Object.keys( Service.ServiceDefinition.Endpoints );
-					for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
+					// Add origins for this service.
+					let origin_count = 0;
+					let origin_names = Object.keys( Service.ServiceDefinition.Origins );
+					for ( let origin_index = 0; origin_index < origin_names.length; origin_index++ )
 					{
-						let endpoint_name = endpoint_names[ endpoint_index ];
-						let full_endpoint_name = `${Service.ServiceDefinition.name}.${endpoint_name}`;
-						let endpoint = Service.ServiceDefinition.Endpoints[ endpoint_name ];
+						let origin_name = origin_names[ origin_index ];
+						let full_origin_name = `${Service.ServiceDefinition.name}.${origin_name}`;
+						let origin = Service.ServiceDefinition.Origins[ origin_name ];
 
-						if ( endpoint.verbs.includes( 'call' ) )
+						if ( origin.verbs.includes( 'call' ) )
 						{
-							// Invoke the endpoint function.
-							Socket.on( full_endpoint_name,
+							// Invoke the origin function.
+							Socket.on( full_origin_name,
 								async function ( Message ) 
 								{
 									let api_result = { ok: true };
-									Server.Log.info( `|    |          | CALL ${full_endpoint_name} (by: ${this_session.User.user_id})` );
+									Server.Log.info( `|    |          | CALL ${full_origin_name} (by: ${this_session.User.user_id})` );
 									try
 									{
-										api_result.result = await endpoint.invoke( this_session.User, ...Message.Payload );
+										api_result.result = await origin.invoke( this_session.User, ...Message.Payload );
 										if ( Message.callback_name ) { Socket.emit( Message.callback_name, api_result ); }
 									}
 									catch ( error )
@@ -157,22 +157,22 @@ exports.Initialize =
 										if ( Message.callback_name ) { Socket.emit( Message.callback_name, api_result ); }
 									}
 								} );
-							endpoint_count++;
+							origin_count++;
 						}
 					}
 
-					return endpoint_count;
+					return origin_count;
 				};
 
 
 				//---------------------------------------------------------------------
-				// Add service endpoints.
+				// Add service origins.
 				let service_names = Object.keys( Server.Services );
 				for ( let index = 0; index < service_names.length; index++ )
 				{
 					let service_name = service_names[ index ];
 					let service = Server[ service_name ];
-					let count = add_service_endpoints( service );
+					let count = add_service_origins( service );
 					Server.Log.trace( `Added ${count} socket functions for [${service_name}].` );
 				}
 

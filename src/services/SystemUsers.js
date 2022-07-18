@@ -61,17 +61,17 @@ exports.Construct =
 
 		//---------------------------------------------------------------------
 		// Restrict the permissions for SystemUsers.
-		service.ServiceDefinition.Endpoints.StorageCount.allowed_roles = [ 'admin', 'super', 'user' ];
-		service.ServiceDefinition.Endpoints.StorageFindOne.allowed_roles = [ 'admin', 'super', 'user' ];
-		service.ServiceDefinition.Endpoints.StorageFindMany.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.StorageCreateOne.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.StorageWriteOne.allowed_roles = [ 'admin', 'super', 'user' ];
-		service.ServiceDefinition.Endpoints.StorageDeleteOne.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.StorageDeleteMany.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.StorageShare.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.StorageUnshare.allowed_roles = [ 'admin', 'super' ];
-		service.ServiceDefinition.Endpoints.StorageShare.verbs = [];		// Do not expose StorageShare
-		service.ServiceDefinition.Endpoints.StorageUnshare.verbs = [];		// Do not expose StorageUnshare
+		service.ServiceDefinition.Origins.StorageCount.allowed_roles = [ 'admin', 'super', 'user' ];
+		service.ServiceDefinition.Origins.StorageFindOne.allowed_roles = [ 'admin', 'super', 'user' ];
+		service.ServiceDefinition.Origins.StorageFindMany.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Origins.StorageCreateOne.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Origins.StorageWriteOne.allowed_roles = [ 'admin', 'super', 'user' ];
+		service.ServiceDefinition.Origins.StorageDeleteOne.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Origins.StorageDeleteMany.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Origins.StorageShare.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Origins.StorageUnshare.allowed_roles = [ 'admin', 'super' ];
+		service.ServiceDefinition.Origins.StorageShare.verbs = [];		// Do not expose StorageShare
+		service.ServiceDefinition.Origins.StorageUnshare.verbs = [];		// Do not expose StorageUnshare
 
 		// service.ServiceDefinition.Pages.List = {
 		// 	name: 'List',

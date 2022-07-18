@@ -20,15 +20,15 @@ exports.NewService =
 
 		//---------------------------------------------------------------------
 		// *** Implemented by the service.
-		// The ServiceDefinition describes the service and its endpoints.
+		// The ServiceDefinition describes the service and its origins.
 		// ServiceDefinition contains all of the information necessary to perform the following:
-		// - Endpoint Authorization: Each endpoint can be restricted to users of certain user_role.
-		// - Service Interface Generation: Adapters can be developed to provide endpoint access to web-services, command-line, etc.
+		// - Origin Authorization: Each origin can be restricted to users of certain user_role.
+		// - Service Interface Generation: Adapters can be developed to provide origin access to web-services, command-line, etc.
 		// - User Interface Generation: User interfaces can display user-friendly titles and descriptions.
 		service.ServiceDefinition = {
 			name: 'UnnamedService',
 			title: 'Unnamed Service',
-			Endpoints: {
+			Origins: {
 				// Count: {
 				// 	name: 'Count',
 				// 	description: 'Returns the number of objects matching the given Criteria.',

@@ -4,7 +4,7 @@
 //=====================================================================
 //=====================================================================
 //
-//		Endpoints
+//		Origins
 //
 //=====================================================================
 //=====================================================================
@@ -56,8 +56,8 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		_module.EachEndpoint =
-			function EachEndpoint( ServiceName, Enumerator )
+		_module.EachOrigin =
+			function EachOrigin( ServiceName, Enumerator )
 			{
 				// Enumerate the services.
 				let service_names = Object.keys( Server.Services );
@@ -67,15 +67,15 @@ exports.Construct =
 					let service_name = service_names[ service_index ];
 					if ( ServiceName && ( ServiceName !== service_name ) ) { continue; }
 					let service = Server[ service_name ];
-					// Enumerate the endpoints.
-					let endpoint_count = 0;
-					let endpoint_names = Object.keys( service.ServiceDefinition.Pages );
-					for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
+					// Enumerate the origins.
+					let origin_count = 0;
+					let origin_names = Object.keys( service.ServiceDefinition.Pages );
+					for ( let origin_index = 0; origin_index < origin_names.length; origin_index++ )
 					{
-						// Use an endpoint.
-						let endpoint_name = endpoint_names[ endpoint_index ];
-						let endpoint = service.ServiceDefinition.Pages[ endpoint_name ];
-						Enumerator( Server, service, endpoint );
+						// Use an origin.
+						let origin_name = origin_names[ origin_index ];
+						let origin = service.ServiceDefinition.Pages[ origin_name ];
+						Enumerator( Server, service, origin );
 					}
 				}
 				return;

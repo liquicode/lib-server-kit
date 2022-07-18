@@ -16,12 +16,12 @@ exports.Use =
 
 
 		//---------------------------------------------------------------------
-		function get_express_request_parameters( request, endpoint )
+		function get_express_request_parameters( request, origin )
 		{
 			let parameters = [];
-			for ( let parameter_index = 0; parameter_index < endpoint.parameters.length; parameter_index++ )
+			for ( let parameter_index = 0; parameter_index < origin.parameters.length; parameter_index++ )
 			{
-				let parameter = endpoint.parameters[ parameter_index ];
+				let parameter = origin.parameters[ parameter_index ];
 				let value = request.params[ parameter.name ];
 				if ( typeof value === 'undefined' )
 				{
@@ -36,7 +36,7 @@ exports.Use =
 					value = null;
 					if ( parameter.required )
 					{
-						Server.Log.warn( `Undefined value for required parameter [${parameter.name}] in endpoint [${endpoint.name}].` );
+						Server.Log.warn( `Undefined value for required parameter [${parameter.name}] in origin [${origin.name}].` );
 					}
 				}
 				parameters.push( value );
@@ -46,110 +46,117 @@ exports.Use =
 
 
 		//---------------------------------------------------------------------
-		function add_express_service_endpoints( Service, ParentPath )
+		function add_express_service_origins( Service, ParentPath )
 		{
 
 			//---------------------------------------------------------------------
-			// Add endpoints for this service.
-			let endpoint_count = 0;
-			let endpoint_names = Object.keys( Service.ServiceDefinition.Endpoints );
-			for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
+			// Add origins for this service.
+			let origin_count = 0;
+			let origin_names = Object.keys( Service.ServiceDefinition.Origins );
+			for ( let origin_index = 0; origin_index < origin_names.length; origin_index++ )
 			{
-				let endpoint_name = endpoint_names[ endpoint_index ];
-				let endpoint = Service.ServiceDefinition.Endpoints[ endpoint_name ];
+				let origin_key = origin_names[ origin_index ];
+				let origin = Service.ServiceDefinition.Origins[ origin_key ];
 
 				//---------------------------------------------------------------------
-				// This is the actual request handler that services this endpoint.
+				// This is the actual request handler that services this origin.
 				async function express_request_handler( request, response, next ) 
 				{
-					// Get the endpoint parameters.
-					let parameters = get_express_request_parameters( request, endpoint );
+					// Get the origin parameters.
+					let parameters = get_express_request_parameters( request, origin );
 
-					//TODO: Validate user_role.
-
-					// Invoke the endpoint function.
+					// Invoke the origin function.
 					// Wrap return values in a api_result object.
+					let api_result = {
+						ok: true,
+						origin: `${Service.ServiceDefinition.name}/${origin.name}`,
+					};
 					try
 					{
-						let api_result = {
-							ok: true,
-							origin: `${Service.ServiceDefinition.name}/${endpoint_name}`,
-							result: await endpoint.invoke( request.user, ...parameters ),
-						};
-						response.send( api_result );
+						api_result.result = await origin.invoke( request.user, ...parameters );
 					}
 					catch ( error )
 					{
-						let api_result = {
-							ok: false,
-							origin: `${Service.ServiceDefinition.name}/${endpoint_name}`,
-							error: error.message,
-						};
-						Server.WebServer.ReportApiError( api_result, response );
-						return;
+						api_result.error = error.message;
+						api_result.ok = false;
+						let error_text = `Error in [${api_result.origin}]: ${api_result.error}`;
+						Server.Log.error( error_text );
+					}
+					finally
+					{
+						response.send( api_result );
 					}
 					return;
 				}
 
 				//---------------------------------------------------------------------
 				// Add routes for each http verb.
-				if ( endpoint.verbs.includes( 'get' ) )
+				if ( origin.verbs.includes( 'get' ) )
 				{
-					WebServer.Express.App.get( `${ParentPath}/${endpoint_name}`,
-						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						express_request_handler );
-					endpoint_count++;
+					WebServer.Express.App.get( `${ParentPath}/${origin.name}`,
+						WebServer.Express.AuthenticationGate( origin.requires_login ),
+						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+						WebServer.Express.InvocationGate( express_request_handler ),
+					);
+					origin_count++;
 				}
-				if ( endpoint.verbs.includes( 'post' ) )
+				if ( origin.verbs.includes( 'post' ) )
 				{
-					WebServer.Express.App.post( `${ParentPath}/${endpoint_name}`,
-						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						express_request_handler );
-					endpoint_count++;
+					WebServer.Express.App.post( `${ParentPath}/${origin.name}`,
+						WebServer.Express.AuthenticationGate( origin.requires_login ),
+						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+						WebServer.Express.InvocationGate( express_request_handler ),
+					);
+					origin_count++;
 				}
-				if ( endpoint.verbs.includes( 'put' ) )
+				if ( origin.verbs.includes( 'put' ) )
 				{
-					WebServer.Express.App.put( `${ParentPath}/${endpoint_name}`,
-						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						express_request_handler );
-					endpoint_count++;
+					WebServer.Express.App.put( `${ParentPath}/${origin.name}`,
+						WebServer.Express.AuthenticationGate( origin.requires_login ),
+						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+						WebServer.Express.InvocationGate( express_request_handler ),
+					);
+					origin_count++;
 				}
-				if ( endpoint.verbs.includes( 'delete' ) )
+				if ( origin.verbs.includes( 'delete' ) )
 				{
-					WebServer.Express.App.delete( `${ParentPath}/${endpoint_name}`,
-						WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-						express_request_handler );
-					endpoint_count++;
+					WebServer.Express.App.delete( `${ParentPath}/${origin.name}`,
+						WebServer.Express.AuthenticationGate( origin.requires_login ),
+						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+						WebServer.Express.InvocationGate( express_request_handler ),
+					);
+					origin_count++;
 				}
 
 			}
 
-			return endpoint_count;
+			return origin_count;
 		};
 
 
 		//---------------------------------------------------------------------
-		function add_express_page_endpoints( Service, ParentPath )
+		function add_express_page_origins( Service, ParentPath )
 		{
-			// Add endpoints for this service.
-			let endpoint_count = 0;
-			let endpoint_names = Object.keys( Service.ServiceDefinition.Pages );
-			for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
+			// Add origins for this service.
+			let origin_count = 0;
+			let origin_names = Object.keys( Service.ServiceDefinition.Pages );
+			for ( let origin_index = 0; origin_index < origin_names.length; origin_index++ )
 			{
-				let endpoint_name = endpoint_names[ endpoint_index ];
-				let endpoint = Service.ServiceDefinition.Pages[ endpoint_name ];
+				let origin_key = origin_names[ origin_index ];
+				let origin = Service.ServiceDefinition.Pages[ origin_key ];
 
 				//---------------------------------------------------------------------
-				// This is the actual request handler that services this endpoint.
+				// This is the actual request handler that services this origin.
 				async function express_page_handler( request, response, next ) 
 				{
-					// Get the endpoint parameters.
-					let parameters = get_express_request_parameters( request, endpoint );
+					// Get the origin parameters.
+					let parameters = get_express_request_parameters( request, origin );
 
-					// Render the endpoint page.
+					// Render the origin page.
+					// Returns an api_result on error.
 					try
 					{
-						response.render( endpoint.view, {
+						response.render( origin.view, {
 							Server: Server,
 							User: request.user,
 							ItemDefinition: Service.ItemDefinition,
@@ -161,30 +168,33 @@ exports.Use =
 					{
 						let api_result = {
 							ok: false,
-							origin: `${Service.ServiceDefinition.name}/${endpoint_name}`,
+							origin: `${Service.ServiceDefinition.name}/${origin.name}`,
 							error: error.message,
 						};
-						Server.WebServer.ReportApiError( api_result, response );
-						return;
+						let error_text = `Error in [${api_result.origin}]: ${api_result.error}`;
+						Server.Log.error( error_text );
+						response.send( api_result );
 					}
 					return;
 				}
 
 				//---------------------------------------------------------------------
 				// Add route for http get.
-				WebServer.Express.App.get( `${ParentPath}/${endpoint_name}`,
-					WebServer.Express.AuthenticationGate( endpoint.requires_login ),
-					express_page_handler );
-				endpoint_count++;
+				WebServer.Express.App.get( `${ParentPath}/${origin.name}`,
+					WebServer.Express.AuthenticationGate( origin.requires_login ),
+					WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+					WebServer.Express.InvocationGate( express_page_handler ),
+				);
+				origin_count++;
 
 			}
 
-			return endpoint_count;
+			return origin_count;
 		};
 
 
 		//---------------------------------------------------------------------
-		// Add service endpoints.
+		// Add service origins.
 		let service_names = Object.keys( Server.Services );
 		for ( let index = 0; index < service_names.length; index++ )
 		{
@@ -195,62 +205,13 @@ exports.Use =
 			let services_path = WebServer.Express.ServicesPath();
 
 			// Add the service API
-			let endpoint_count = add_express_service_endpoints( service, `${services_path}${service.ServiceDefinition.name}` );
-			Server.Log.trace( `Added ${endpoint_count} express routes for [${services_path}${service.ServiceDefinition.name}] functions.` );
+			let origin_count = add_express_service_origins( service, `${services_path}${service.ServiceDefinition.name}` );
+			Server.Log.trace( `Added ${origin_count} express routes for [${services_path}${service.ServiceDefinition.name}] functions.` );
 
 			// Add the service pages
-			let page_count = add_express_page_endpoints( service, `${server_path}${service.ServiceDefinition.name}` );
+			let page_count = add_express_page_origins( service, `${server_path}${service.ServiceDefinition.name}` );
 			Server.Log.trace( `Added ${page_count} express routes for [${server_path}${service.ServiceDefinition.name}] pages.` );
 		}
-
-
-		// Server.Endpoints.EachEndpoint( '',
-		// 	( Server, Service, Endpoint ) =>
-		// 	{
-		// 	} );
-
-
-		// //---------------------------------------------------------------------
-		// function add_managed_list_page( Service, FunctionRoute )
-		// {
-		// 	express_router.get( `${ParentPath}/${Service.ServiceName}/${FunctionRoute}`,
-		// 		( Service.ServiceDefinition.Endpoints[ FunctionRoute ].requires_login ? Server.WebServer.RequiresLogin : null ),
-		// 		async function ( request, response, next ) 
-		// 		{
-		// 			log_request( request );
-		// 			response.render(
-		// 				'managed-list',
-		// 				{
-		// 					Server: Server, User: request.user,
-		// 					ServiceDefinition: Service.ServiceDefinition,
-		// 					ItemDefinition: Service.ItemDefinition,
-		// 					FunctionRoute: FunctionRoute,
-		// 				} );
-		// 			return;
-		// 		} );
-		// }
-
-
-		// //---------------------------------------------------------------------
-		// function add_managed_object_page( Service, FunctionRoute )
-		// {
-		// 	express_router.get( `${ParentPath}/${Service.ServiceName}/${FunctionRoute}/:object_id`,
-		// 		( Service.ServiceDefinition.Endpoints[ FunctionRoute ].requires_login ? Server.WebServer.RequiresLogin : null ),
-		// 		async function ( request, response, next ) 
-		// 		{
-		// 			log_request( request );
-		// 			response.render(
-		// 				'managed-object',
-		// 				{
-		// 					Server: Server, User: request.user,
-		// 					ServiceDefinition: Service.ServiceDefinition,
-		// 					ItemDefinition: Service.ItemDefinition,
-		// 					FunctionRoute: FunctionRoute,
-		// 					ObjectID: request.params.object_id,
-		// 				} );
-		// 			return;
-		// 		} );
-		// }
 
 
 		//---------------------------------------------------------------------

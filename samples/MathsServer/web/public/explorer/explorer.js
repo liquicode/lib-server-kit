@@ -15,7 +15,7 @@ app.controller(
 				as_user: null,
 				verb: '',
 				service_name: '',
-				endpoint_name: '',
+				origin_name: '',
 				parameters: [],
 				values: {},
 				response: null,
@@ -67,13 +67,13 @@ app.controller(
 
 		//---------------------------------------------------------------------
 		Page.ShowInvokeModal =
-			function ShowInvokeModal( Verb, ServiceName, EndpointName, Parameters )
+			function ShowInvokeModal( Verb, ServiceName, OriginName, Parameters )
 			{
 				// Initialize the Invoke object.
 				Page.Invoke.as_user = Page.User.user_id;
 				Page.Invoke.verb = Verb;
 				Page.Invoke.service_name = ServiceName;
-				Page.Invoke.endpoint_name = EndpointName;
+				Page.Invoke.origin_name = OriginName;
 				Page.Invoke.parameters = Parameters;
 				// Initialize the Invoke values.
 				Page.Invoke.values = {};
@@ -122,7 +122,7 @@ app.controller(
 			}
 			else
 			{
-				console.log( 'Express response:', Response );
+				console.log( 'Express Response:', Response );
 				Page.Invoke.response = Response;
 			}
 			// $scope.$apply();
@@ -134,7 +134,7 @@ app.controller(
 		//---------------------------------------------------------------------
 		function socket_callback( Response )
 		{
-			console.log( 'Socket response:', Response );
+			console.log( 'Socket Response:', Response );
 			Page.Invoke.response = Response;
 			// $scope.$apply();
 			Page.SetInvokeResponse();
@@ -161,7 +161,7 @@ app.controller(
 		Page.InvokeFunction =
 			function InvokeFunction()
 			{
-				console.log( "Invoking [" + Page.Invoke.verb + "] on " + Page.Invoke.service_name + "." + Page.Invoke.endpoint_name );
+				console.log( "Invoking [" + Page.Invoke.verb + "] on " + Page.Invoke.service_name + "." + Page.Invoke.origin_name );
 
 				// Get the parameter values.
 				let values = [];
@@ -184,13 +184,26 @@ app.controller(
 							value = '' + value;
 							break;
 						case 'array':
-							if ( !Array.isArray( value ) )
+							if ( typeof value === 'string' )
 							{
-								value = [ value ];
+								if ( value.trim().startsWith( '[' ) )
+								{
+									value = JSON.parse( value );
+								}
+								else
+								{
+									value = [ value ];
+								}
 							}
 							break;
 						case 'object':
-							value = JSON.parse( value );
+							if ( typeof value === 'string' )
+							{
+								if ( value.trim().startsWith( '{' ) )
+								{
+									value = JSON.parse( value );
+								}
+							}
 							break;
 					}
 					values.push( value );
@@ -205,19 +218,19 @@ app.controller(
 							socket_callback( 'Login is required to perform socket calls.' );
 							return;
 						}
-						Page.Socket[ Page.Invoke.service_name ][ Page.Invoke.endpoint_name ]( ...values, socket_callback );
+						Page.Socket[ Page.Invoke.service_name ][ Page.Invoke.origin_name ]( ...values, socket_callback );
 						break;
 					case 'Get':
-						ExpressApi[ Page.Invoke.service_name ][ 'get_' + Page.Invoke.endpoint_name ]( ...values, express_callback );
+						ExpressApi[ Page.Invoke.service_name ][ 'get_' + Page.Invoke.origin_name ]( ...values, express_callback );
 						break;
 					case 'Put':
-						ExpressApi[ Page.Invoke.service_name ][ 'put_' + Page.Invoke.endpoint_name ]( ...values, express_callback );
+						ExpressApi[ Page.Invoke.service_name ][ 'put_' + Page.Invoke.origin_name ]( ...values, express_callback );
 						break;
 					case 'Post':
-						ExpressApi[ Page.Invoke.service_name ][ 'post_' + Page.Invoke.endpoint_name ]( ...values, express_callback );
+						ExpressApi[ Page.Invoke.service_name ][ 'post_' + Page.Invoke.origin_name ]( ...values, express_callback );
 						break;
 					case 'Delete':
-						ExpressApi[ Page.Invoke.service_name ][ 'delete_' + Page.Invoke.endpoint_name ]( ...values, express_callback );
+						ExpressApi[ Page.Invoke.service_name ][ 'delete_' + Page.Invoke.origin_name ]( ...values, express_callback );
 						break;
 					case 'Visit':
 						alert( 'Visit is not implemented!' );
