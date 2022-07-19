@@ -14,27 +14,27 @@ app.controller(
 			ItemDefinition: window.SERVER_DATA.ItemDefinition,
 			ServiceDefinition: window.SERVER_DATA.ServiceDefinition,
 			Parameters: window.SERVER_DATA.Parameters,
-			Socket: null,
+			Socket: SocketApi.NewSocket(),
 			Items: [],
 		};
 		$scope.Page = Page;
 
 
-		//---------------------------------------------------------------------
-		if ( Page.User )
-		{
-			SocketApi.NewSocket( Page.User,
-				( Socket, Status ) =>
-				{
-					if ( Status !== 'OK' )
-					{
-						console.error( 'Socket connection failed.' );
-						return;
-					}
-					Page.Socket = Socket;
-					Page.ListItems();
-				} );
-		}
+		// //---------------------------------------------------------------------
+		// if ( Page.User )
+		// {
+		// 	SocketApi.NewSocket( Page.User,
+		// 		( Socket, Status ) =>
+		// 		{
+		// 			if ( Status !== 'OK' )
+		// 			{
+		// 				console.error( 'Socket connection failed.' );
+		// 				return;
+		// 			}
+		// 			Page.Socket = Socket;
+		// 			Page.ListItems();
+		// 		} );
+		// }
 
 
 		//---------------------------------------------------------------------
@@ -73,7 +73,7 @@ app.controller(
 			{
 				if ( Page.Socket === null ) { return; }
 
-				Page.Socket.SystemUsers.StorageFindMany( {},
+				Page.Socket[ Page.ServiceDefinition.name ].StorageFindMany( {},
 					function ( ApiResult )
 					{
 						if ( ApiResult.error )
@@ -83,7 +83,6 @@ app.controller(
 						else
 						{
 							Page.Items = ApiResult.result;
-							// console.log( 'SystemUsers.FindMany() works! :D' );
 							$scope.$apply();
 						}
 					} );
@@ -122,6 +121,11 @@ app.controller(
 			{
 				return `/${Page.Server.ServiceDefinition.name}/Item?ItemID=${object.__.id}&PageOp=Delete`;
 			};
+
+
+		//---------------------------------------------------------------------
+		// Start Controller
+		Page.ListItems();
 
 
 		//---------------------------------------------------------------------

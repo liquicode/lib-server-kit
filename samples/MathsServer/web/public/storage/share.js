@@ -25,7 +25,7 @@ app.controller(
 			Parameters: window.SERVER_DATA.Parameters,
 			ItemID: '',
 			object_info_visible: false,
-			Socket: null,
+			Socket: SocketApi.NewSocket(),
 			Item: null,
 		};
 		{
@@ -34,23 +34,6 @@ app.controller(
 			Page.ItemID = params[ 0 ];
 		}
 		$scope.Page = Page;
-
-
-		//---------------------------------------------------------------------
-		if ( Page.User )
-		{
-			SocketApi.NewSocket( Page.User,
-				( Socket, Status ) =>
-				{
-					if ( Status !== 'OK' )
-					{
-						console.error( 'Socket connection failed.' );
-						return;
-					}
-					Page.Socket = Socket;
-					Page.ReadItem();
-				} );
-		}
 
 
 		//---------------------------------------------------------------------
@@ -86,6 +69,11 @@ app.controller(
 				}
 				return;
 			};
+
+
+		//---------------------------------------------------------------------
+		// Initialize Controller
+		Page.ReadItem();
 
 
 		//---------------------------------------------------------------------

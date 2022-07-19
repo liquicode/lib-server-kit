@@ -22,9 +22,9 @@ const LIB_CORS = require( 'cors' );
 //---------------------------------------------------------------------
 const SRC_AUTHENTICATION_PASSPORT_LOCAL = require( './Express/Authentication/Passport_Local.js' );
 const SRC_AUTHENTICATION_PASSPORT_AUTH0 = require( './Express/Authentication/Passport_Auth0.js' );
-const SRC_APPLICATION_SERVICES = require( './Express/ApplicationServices.js' );
-const SRC_GENERATE_CLIENT_EXPRESS = require( './Express/GenerateClient/Express.js' );
-const SRC_GENERATE_CLIENT_SWAGGER = require( './Express/GenerateClient/Swagger.js' );
+const SRC_APPLICATION_SERVICES = require( './Express/ServiceRoutes.js' );
+const SRC_GENERATE_CLIENT_EXPRESS = require( './Express/ExpressApiClient.js' );
+// const SRC_GENERATE_CLIENT_SWAGGER = require( './Express/SwaggerDocument.js' );
 
 
 //---------------------------------------------------------------------
@@ -33,6 +33,7 @@ exports.Create =
 	{
 		let Express = {
 			App: LIB_EXPRESS(),
+			Session: null,
 		};
 
 
@@ -171,56 +172,68 @@ exports.Create =
 					async function ( request, response, next )
 					{
 						let t0 = Date.now();
+						let invocation_result = null;
 						let invocation_error = null;
 						try
 						{
-							await Invocation( request, response, next );
+							invocation_result = await Invocation( request, response, next );
 						}
 						catch ( error ) 
 						{
 							response.status( 500 ).send( { error: error.message } );
 							invocation_error = error;
-							// if ( do_render_error )
-							// {
-							// 	response.render( 'error', { Server: Server, User: request.user, Error: error } );
-							// }
-							// else
-							// {
-							// 	response.status( 500 ).send( { error: error.message } );
-							// }
 						}
 						finally
 						{
-							let t1 = Date.now();
-							let log_text = '';
-							if ( invocation_error ) { log_text = ' err'; }
-							else { log_text = ' ok '; }
-							log_text += ` | ` + `${t1 - t0}`.padStart( 8 ) + ` ms`;
-							log_text += ' | ' + request.method.padEnd( 7 );
+							// Status
+							let status_text = 'ok';
+							if ( invocation_error ) { status_text = 'err'; }
+
+							// Duration
+							let duration_text = ( Date.now() - t0 ).toString();
+
+							// User
+							let user_text = request.user.user_id;
+
+							// Verb
+							let verb_text = request.method;
+
+							// Origin
+							let origin_text = request.url;
 							{
-								let url = request.url;
-								let ich = url.indexOf( '?' );
-								if ( ich >= 0 ) { url = url.slice( 0, ich ); }
-								log_text += ' | ' + url;
+								let ich = origin_text.indexOf( '?' );
+								if ( ich >= 0 ) { origin_text = origin_text.slice( 0, ich ); }
 							}
 							{
 								let values = {};
 								if ( request.query && Object.keys( request.query ).length ) { values = request.query; }
 								else if ( request.body && Object.keys( request.body ).length ) { values = request.body; }
 								else if ( request.params && Object.keys( request.params ).length ) { values = request.params; }
-								log_text += ' ' + JSON.stringify( values );
+								origin_text += ' ' + JSON.stringify( values );
 							}
-							if ( request.user )
+
+							// Log
+							Server.Log.info(
+								`${status_text.padEnd( 4 )}`
+								+ ` | ${duration_text.padStart( 8 )}ms`
+								+ ` | ${user_text.padEnd( 20 )}`
+								+ ` | ${verb_text.padEnd( 7 )}`
+								+ ` | ${origin_text}`
+							);
+							if ( typeof invocation_result === 'undefined' )
 							{
-								log_text += ` (by: ${request.user.user_id})`;
+								// Server.Log.debug( `    ===> no return value.` );
+								// - Do not log anything as this might be a page or redirect.
 							}
-							Server.Log.info( log_text );;
+							else
+							{
+								Server.Log.debug( `    ===> ${JSON.stringify( invocation_result )}` );
+							}
 							if ( invocation_error )
 							{
-								Server.Log.error( `*** Error! *** ${error_text}` );
-								// Server.Log.error( JSON.stringify( request.query ) );
-								Server.Log.error( request );
+								Server.Log.error( `    *** Error *** ${invocation_error.message}` );
 							}
+
 						}
 
 					};
@@ -313,7 +326,8 @@ exports.Initialize =
 		if ( WebServerSettings.Express.Session
 			&& WebServerSettings.Express.Session.enabled )
 		{
-			WebServer.Express.App.use( LIB_EXPRESS_SESSION( WebServerSettings.Express.Session.Settings ) );
+			WebServer.Express.Session = LIB_EXPRESS_SESSION( WebServerSettings.Express.Session.Settings );
+			WebServer.Express.App.use( WebServer.Express.Session );
 
 			if ( WebServerSettings.Express.Session.set_express_trust_proxy )
 			{
@@ -339,12 +353,12 @@ exports.Initialize =
 			if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Local' )
 			{
 				SRC_AUTHENTICATION_PASSPORT_LOCAL.Use( Server, WebServer, WebServerSettings );
-				Server.Log.trace( `WebServer.Express.Authentication is using [Passport_Local].` );
+				Server.Log.trace( `WebServer.Express.Authentication is using[ Passport_Local ].` );
 			}
 			else if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Auth0' )
 			{
 				SRC_AUTHENTICATION_PASSPORT_AUTH0.Use( Server, WebServer, WebServer.Express, WebServerSettings );
-				Server.Log.trace( `WebServer.Express.Authentication is using [Passport_Auth0].` );
+				Server.Log.trace( `WebServer.Express.Authentication is using[ Passport_Auth0 ].` );
 			}
 			else
 			{
@@ -377,7 +391,7 @@ exports.Initialize =
 				let path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.public_files );
 				LIB_FS.mkdirSync( path, { recursive: true } );
 				WebServer.Express.App.use( WebServer.Express.ServerPath(), LIB_EXPRESS.static( path ) );
-				Server.Log.trace( `WebServer.Express.ClientSupport using public folder [${path}].` );
+				Server.Log.trace( `WebServer.Express.ClientSupport using public folder [ ${path} ].` );
 			}
 
 			//---------------------------------------------------------------------
@@ -390,7 +404,7 @@ exports.Initialize =
 				LIB_FS.mkdirSync( path, { recursive: true } );
 				WebServer.Express.App.set( 'view engine', engine );
 				WebServer.Express.App.set( 'views', path );
-				Server.Log.trace( `WebServer.Express.ClientSupport using '${engine}' views from folder [${path}].` );
+				Server.Log.trace( `WebServer.Express.ClientSupport using '${engine}' views from folder[ ${path}].` );
 			}
 
 			//---------------------------------------------------------------------
@@ -401,7 +415,7 @@ exports.Initialize =
 				let code = SRC_GENERATE_CLIENT_EXPRESS.Generate( Server, WebServer, WebServerSettings );
 				let filename = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.client_api_file );
 				LIB_FS.writeFileSync( filename, code );
-				Server.Log.trace( `WebServer.Express.ClientSupport generated client file [${filename}].` );
+				Server.Log.trace( `WebServer.Express.ClientSupport generated client file[ ${filename}].` );
 			}
 
 			//---------------------------------------------------------------------
@@ -418,21 +432,11 @@ exports.Initialize =
 						async function ( request, response, next )
 						{
 							response.render( home_view, { Server: Server, User: request.user } );
-							return;
+							return "OK";
 						}
 					),
-					// async function ( request, response, next ) 
-					// {
-					// 	await WebServer.RequestProcessor( request, response, next,
-					// 		async function ( request, response, next )
-					// 		{
-					// 			response.render( home_view, { Server: Server, User: request.user } );
-					// 			return;
-					// 		}
-					// 		, true );
-					// }
 				);
-				Server.Log.trace( `WebServer.Express.ClientSupport added root route '${server_path}' to view [${home_view}].` );
+				Server.Log.trace( `WebServer.Express.ClientSupport mounted route '${server_path}' to view[ ${home_view}].` );
 
 			}
 
@@ -467,58 +471,16 @@ exports.Initialize =
 						async function ( request, response, next )
 						{
 							response.render( explorer_view, { Server: Server, User: request.user } );
-							return;
+							return "OK";
 						}
 					),
-					// async function ( request, response, next ) 
-					// {
-					// 	await WebServer.RequestProcessor( request, response, next,
-					// 		async function ( request, response, next )
-					// 		{
-					// 			response.render( WebServerSettings.Express.Explorer.explorer_view, { Server: Server, User: request.user } );
-					// 			return;
-					// 		}
-					// 		, true );
-					// }
 				);
 
-
-				// WebServer.Express.App.use( route, LIB_SWAGGER_UI_EXPRESS.serve, LIB_SWAGGER_UI_EXPRESS.setup( swagger_doc ) );
-				Server.Log.trace( `WebServer.Express.Explorer mounted route [${route}].` );
+				Server.Log.trace( `WebServer.Express.Explorer mounted route[ ${route}] to view [${explorer_view}].` );
 			}
 
 			Server.Log.trace( `WebServer.Express.Explorer is initialized.` );
 		}
-
-
-		// if ( WebServerSettings.Express.Swagger
-		// 	&& WebServerSettings.Express.Swagger.enabled )
-		// {
-		// 	let swagger_doc = SRC_GENERATE_CLIENT_SWAGGER.Generate( Server, WebServer, WebServerSettings );
-
-		// 	//---------------------------------------------------------------------
-		// 	// Generate the opan api file.
-		// 	if ( WebServerSettings.Express.Swagger.open_api_file )
-		// 	{
-		// 		let path = Server.ResolveApplicationPath( WebServerSettings.Express.Swagger.open_api_file );
-		// 		LIB_FS.writeFileSync( path, JSON.stringify( swagger_doc, null, '    ' ) );
-		// 		Server.Log.trace( `WebServer.Express.Swagger generated open api file [${path}].` );
-		// 	}
-
-
-		// 	//---------------------------------------------------------------------
-		// 	// Mount the swagger ui path.
-		// 	if ( WebServerSettings.Express.Swagger.swagger_ui_path )
-		// 	{
-		// 		const LIB_SWAGGER_UI_EXPRESS = require( 'swagger-ui-express' );
-
-		// 		let route = `${WebServer.Express.ServicesPath()}${WebServerSettings.Express.Swagger.swagger_ui_path}`;
-		// 		WebServer.Express.App.use( route, LIB_SWAGGER_UI_EXPRESS.serve, LIB_SWAGGER_UI_EXPRESS.setup( swagger_doc ) );
-		// 		Server.Log.trace( `WebServer.Express.Swagger mounted route [${route}].` );
-		// 	}
-
-		// 	Server.Log.trace( `WebServer.Express.Swagger is initialized.` );
-		// }
 
 
 		//=====================================================================
@@ -569,4 +531,3 @@ exports.Initialize =
 		//---------------------------------------------------------------------
 		return;
 	};
-

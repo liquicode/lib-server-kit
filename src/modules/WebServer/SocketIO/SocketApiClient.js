@@ -26,27 +26,41 @@ var SocketApi = {};
 SocketApi.SocketMessage =
 	function SocketMessage( Socket, MessageName, Payload, Callback )
 	{
+		console.log( "SocketApi Invoking [" + MessageName + "] --> ", Payload );
 		let message_id = uuidv4();
 		let message = {
 			id: uuidv4(),
 			message_name: MessageName,
-			User: Socket.__.User,
 			Payload: Payload,
 		};
-		if ( Callback )
+		// Setup the callback.
+		message.callback_name = MessageName + '->' + message.id;
+		function socket_proxy_callback( api_result )
 		{
-			message.callback_name = ` + '`${MessageName}->${message.id}`' + `;
-			Socket.__.io.once( message.callback_name, Callback );
+			if ( api_result.ok )
+			{
+				console.log( "SocketApi Success [" + api_result.origin + "] <-- ", api_result.result );
+			}
+			else
+			{
+				console.log( "SocketApi Failure [" + api_result.origin + "] <-- " + api_result.error );
+			}
+			if ( Callback )
+			{
+				Callback( api_result );
+			}
+			return;
 		}
+		Socket.__.io.once( message.callback_name, socket_proxy_callback );
+		// Send the message.
 		Socket.__.io.emit( MessageName, message );
 		return;
 	};
 
 SocketApi.NewSocket =
-	function NewSocket( User, Callback )
+	function NewSocket( ConnectCallback )
 	{
-		let socket = { __: { io: io(), User: User } };
-		// socket.Authorize = function ( Callback ) { SocketApi.SocketMessage( socket, 'Authorize', {}, Callback ); };
+		let socket = { __: { io: io() } };
 `;
 
 	// Generate the Socket Clients.
@@ -92,12 +106,7 @@ SocketApi.NewSocket =
 			() => 
 			{
 				console.log( 'Socket connected.' );
-				SocketApi.SocketMessage( socket, 'Authorize', {},
-					( status ) =>
-					{
-						console.log( 'User authorization: ' + status );
-						Callback( socket, status );
-					} );
+				if( ConnectCallback ) { ConnectCallback( socket ); }
 			} );
 		socket.__.io.on( 'disconnect', 
 			( reason, details ) =>
@@ -113,7 +122,7 @@ SocketApi.NewSocket =
 
 		socket.__.io.connect();
 
-		return;
+		return socket;
 	};
 
 `;

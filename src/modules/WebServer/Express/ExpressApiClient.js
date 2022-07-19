@@ -34,22 +34,34 @@ var ExpressPages = {};
 
 ExpressApi.ExpressMessage = function ( Method, Address, Payload, Callback )
 {
+	console.log( "ExpressApi Invoking [" + Method + "] on [" + Address + "] --> ", Payload );
 	$.ajax( {
 		url: Address,
 		type: Method,
 		data: Payload,
 		success: function ( data, textStatus, jqXHR )
 		{
-			Callback( null, data );
+			let api_result = data;
+			if ( api_result.ok )
+			{
+				console.log( "ExpressApi Success [" + api_result.origin + "] <-- ", api_result.result );
+			}
+			else
+			{
+				console.log( "ExpressApi Failure [" + api_result.origin + "] <-- " + api_result.error );
+			}
+			Callback( null, api_result );
 		},
 		error: function ( jqXHR, textStatus, errorThrown )
 		{
 			let message = '';
 			if ( textStatus ) { message += '[status=' + textStatus + '] '; }
 			if ( errorThrown ) { message += '[error=' + errorThrown + '] '; }
+			console.error( "Error [" + Method + "] on [" + Address + "] <-- " + message );
 			Callback( message, null );
 		},
 	} );
+	return;
 };
 `;
 

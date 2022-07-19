@@ -18,6 +18,8 @@
 	- **COMPLETED** Develop `Express.AuthorizationGate` middleware to check user roles
 	- **COMPLETED** Convert `WebServer.RequestProcessor` to `Express.RequestProcessor`
 		- reimplement as middleware?
+	- Fix: All Origin calls are being stringified.
+	- **COMPLETED** Fix: Origin socket call logs do not show the result. Because we are getting the result of the middleware and not the call itself.
 
 	- Session
 		- Implement persistence strategies for sessions
@@ -26,8 +28,12 @@
 			- mongodb
 			- mysql
 
+	- ClientSupport
+		- Implement more view engines. (jade, ejs)
+
 	- Explorer
 		- Select user to Invoke as
+		- Make 'Response' box resizable.
 		- NOTE: The client-api implementation uses $.ajax which drops any empty array or object parameters.
 			The implication is that not all parameters are guaranteed to be transmitted to the server.
 
@@ -40,9 +46,10 @@
 			- [https://blog.logrocket.com/documenting-your-express-api-with-swagger/](https://blog.logrocket.com/documenting-your-express-api-with-swagger/)
 
 - SocketIO
-	- Develop middlewares
-	- Socket Security: Is there anything that can help secure socket.io communication?
+	- **COMPLETED** Develop middlewares
+	- **COMPLETED** Socket Security: Is there anything that can help secure socket.io communication?
 		- [https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io](https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io)
 		- [https://github.com/oskosk/express-socket.io-session](https://github.com/oskosk/express-socket.io-session)
 		- [https://github.com/peerigon/socket.io-session-middleware](https://github.com/peerigon/socket.io-session-middleware)
+			- Only works with socket.io v1.0
 

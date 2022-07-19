@@ -11,24 +11,9 @@ app.controller(
 		var Page = {
 			Server: window.SERVER_DATA,
 			User: window.SERVER_DATA.User,
+			Socket: SocketApi.NewSocket(),
 		};
 		$scope.Page = Page;
-
-
-		//---------------------------------------------------------------------
-		if ( Page.User )
-		{
-			SocketApi.NewSocket( Page.User,
-				( Socket, Status ) =>
-				{
-					if ( Status !== 'OK' )
-					{
-						// console.error( 'Socket connection failed.' );
-						return;
-					}
-					Page.Socket = Socket;
-				} );
-		}
 
 
 		//---------------------------------------------------------------------

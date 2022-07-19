@@ -17,7 +17,7 @@ app.controller(
 			ItemID: '',
 			PageOp: '',
 			object_info_visible: false,
-			Socket: null,
+			Socket: SocketApi.NewSocket(),
 			Item: null,
 		};
 		{
@@ -34,28 +34,28 @@ app.controller(
 		$scope.Page = Page;
 
 
-		//---------------------------------------------------------------------
-		if ( Page.User )
-		{
-			SocketApi.NewSocket( Page.User,
-				( Socket, Status ) =>
-				{
-					if ( Status !== 'OK' )
-					{
-						console.error( 'Socket connection failed.' );
-						return;
-					}
-					Page.Socket = Socket;
-					if ( [ 'Create' ].includes( Page.PageOp ) )
-					{
-						Page.Item = {};
-					}
-					else if ( [ 'Read', 'Update', 'Delete' ].includes( Page.PageOp ) )
-					{
-						Page.ReadItem();
-					}
-				} );
-		}
+		// //---------------------------------------------------------------------
+		// if ( Page.User )
+		// {
+		// 	SocketApi.NewSocket( Page.User,
+		// 		( Socket, Status ) =>
+		// 		{
+		// 			if ( Status !== 'OK' )
+		// 			{
+		// 				console.error( 'Socket connection failed.' );
+		// 				return;
+		// 			}
+		// 			Page.Socket = Socket;
+		// 			if ( [ 'Create' ].includes( Page.PageOp ) )
+		// 			{
+		// 				Page.Item = {};
+		// 			}
+		// 			else if ( [ 'Read', 'Update', 'Delete' ].includes( Page.PageOp ) )
+		// 			{
+		// 				Page.ReadItem();
+		// 			}
+		// 		} );
+		// }
 
 
 		//---------------------------------------------------------------------
@@ -221,6 +221,22 @@ app.controller(
 				}
 				return;
 			};
+
+
+		//---------------------------------------------------------------------
+		// Initialize Controller
+		if ( [ 'Create' ].includes( Page.PageOp ) )
+		{
+			Page.Item = {};
+		}
+		else if ( [ 'Read', 'Update', 'Delete' ].includes( Page.PageOp ) )
+		{
+			Page.ReadItem();
+		}
+		else
+		{
+			Page.Item = {};
+		}
 
 
 		//---------------------------------------------------------------------

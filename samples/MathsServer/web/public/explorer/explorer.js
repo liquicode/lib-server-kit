@@ -10,7 +10,7 @@ app.controller(
 		//---------------------------------------------------------------------
 		var Page = {
 			User: window.SERVER_DATA.User,
-			Socket: null,
+			Socket: SocketApi.NewSocket(),
 			Invoke: {
 				as_user: null,
 				verb: '',
@@ -32,20 +32,20 @@ app.controller(
 		let visbility_map = {};
 
 
-		//---------------------------------------------------------------------
-		if ( Page.User )
-		{
-			SocketApi.NewSocket( Page.User,
-				( Socket, Status ) =>
-				{
-					if ( Status !== 'OK' )
-					{
-						console.error( 'Socket connection failed.' );
-						return;
-					}
-					Page.Socket = Socket;
-				} );
-		}
+		// //---------------------------------------------------------------------
+		// if ( Page.User )
+		// {
+		// 	SocketApi.NewSocket( Page.User,
+		// 		( Socket, Status ) =>
+		// 		{
+		// 			if ( Status !== 'OK' )
+		// 			{
+		// 				console.error( 'Socket connection failed.' );
+		// 				return;
+		// 			}
+		// 			Page.Socket = Socket;
+		// 		} );
+		// }
 
 
 		//---------------------------------------------------------------------
@@ -113,30 +113,25 @@ app.controller(
 
 
 		//---------------------------------------------------------------------
-		function express_callback( Error, Response )
+		function express_api_callback( Error, Response )
 		{
 			if ( Error )
 			{
-				console.error( 'Express Error: ' + Error.message );
 				Page.Invoke.response = Error;
 			}
 			else
 			{
-				console.log( 'Express Response:', Response );
 				Page.Invoke.response = Response;
 			}
-			// $scope.$apply();
 			Page.SetInvokeResponse();
 			return;
 		}
 
 
 		//---------------------------------------------------------------------
-		function socket_callback( Response )
+		function socket_api_callback( Response )
 		{
-			console.log( 'Socket Response:', Response );
 			Page.Invoke.response = Response;
-			// $scope.$apply();
 			Page.SetInvokeResponse();
 			return;
 		}
@@ -161,7 +156,7 @@ app.controller(
 		Page.InvokeFunction =
 			function InvokeFunction()
 			{
-				console.log( "Invoking [" + Page.Invoke.verb + "] on " + Page.Invoke.service_name + "." + Page.Invoke.origin_name );
+				// console.log( "Invoking [" + Page.Invoke.verb + "] on " + Page.Invoke.service_name + "." + Page.Invoke.origin_name );
 
 				// Get the parameter values.
 				let values = [];
@@ -215,22 +210,22 @@ app.controller(
 					case 'Call':
 						if ( !Page.Socket )
 						{
-							socket_callback( 'Login is required to perform socket calls.' );
+							socket_api_callback( 'Login is required to perform socket calls.' );
 							return;
 						}
-						Page.Socket[ Page.Invoke.service_name ][ Page.Invoke.origin_name ]( ...values, socket_callback );
+						Page.Socket[ Page.Invoke.service_name ][ Page.Invoke.origin_name ]( ...values, socket_api_callback );
 						break;
 					case 'Get':
-						ExpressApi[ Page.Invoke.service_name ][ 'get_' + Page.Invoke.origin_name ]( ...values, express_callback );
+						ExpressApi[ Page.Invoke.service_name ][ 'get_' + Page.Invoke.origin_name ]( ...values, express_api_callback );
 						break;
 					case 'Put':
-						ExpressApi[ Page.Invoke.service_name ][ 'put_' + Page.Invoke.origin_name ]( ...values, express_callback );
+						ExpressApi[ Page.Invoke.service_name ][ 'put_' + Page.Invoke.origin_name ]( ...values, express_api_callback );
 						break;
 					case 'Post':
-						ExpressApi[ Page.Invoke.service_name ][ 'post_' + Page.Invoke.origin_name ]( ...values, express_callback );
+						ExpressApi[ Page.Invoke.service_name ][ 'post_' + Page.Invoke.origin_name ]( ...values, express_api_callback );
 						break;
 					case 'Delete':
-						ExpressApi[ Page.Invoke.service_name ][ 'delete_' + Page.Invoke.origin_name ]( ...values, express_callback );
+						ExpressApi[ Page.Invoke.service_name ][ 'delete_' + Page.Invoke.origin_name ]( ...values, express_api_callback );
 						break;
 					case 'Visit':
 						alert( 'Visit is not implemented!' );
@@ -239,13 +234,6 @@ app.controller(
 
 				return;
 			};
-
-
-		//---------------------------------------------------------------------
-		// Fixup some styles on the Invoke modal's Response field.
-		// Page.Elements.InvokeResponse.style.maxHeight = '300px';
-		// Page.Elements.InvokeResponse.style.overflowX = 'auto';
-		// Page.Elements.InvokeResponse.style.overflowY = 'auto';
 
 
 		//---------------------------------------------------------------------

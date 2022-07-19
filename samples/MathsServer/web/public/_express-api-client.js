@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Express Api Client File for: MathsServer
-// Generated:  2022-07-18T13:31:42.943Z
-//   Mon Jul 18 2022 09:31:42 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-19T01:16:17.209Z
+//   Mon Jul 18 2022 21:16:17 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var ExpressApi = {};
@@ -10,22 +10,34 @@ var ExpressPages = {};
 
 ExpressApi.ExpressMessage = function ( Method, Address, Payload, Callback )
 {
+	console.log( "ExpressApi Invoking [" + Method + "] on [" + Address + "] --> ", Payload );
 	$.ajax( {
 		url: Address,
 		type: Method,
 		data: Payload,
 		success: function ( data, textStatus, jqXHR )
 		{
-			Callback( null, data );
+			let api_result = data;
+			if ( api_result.ok )
+			{
+				console.log( "ExpressApi Success [" + api_result.origin + "] <-- ", api_result.result );
+			}
+			else
+			{
+				console.log( "ExpressApi Failure [" + api_result.origin + "] <-- " + api_result.error );
+			}
+			Callback( null, api_result );
 		},
 		error: function ( jqXHR, textStatus, errorThrown )
 		{
 			let message = '';
 			if ( textStatus ) { message += '[status=' + textStatus + '] '; }
 			if ( errorThrown ) { message += '[error=' + errorThrown + '] '; }
+			console.error( "Error [" + Method + "] on [" + Address + "] <-- " + message );
 			Callback( message, null );
 		},
 	} );
+	return;
 };
 
 ExpressApi.SystemUsers = {};

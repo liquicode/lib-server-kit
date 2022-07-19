@@ -34,6 +34,11 @@
 
 						.w3-row
 							.w3-small {{parameter.description}}
+							b.w3-small Type: 
+							span.w3-small {{parameter.schema.type}}
+							span(
+								ng-show="parameter.schema.format"
+							).w3-small :{{parameter.schema.format}}
 
 						.w3-row
 							input.w3-input.w3-sand.w3-round-large.w3-text-blue(

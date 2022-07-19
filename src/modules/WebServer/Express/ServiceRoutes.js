@@ -46,7 +46,7 @@ exports.Use =
 
 
 		//---------------------------------------------------------------------
-		function add_express_service_origins( Service, ParentPath )
+		function add_service_origins( Service, ParentPath )
 		{
 
 			//---------------------------------------------------------------------
@@ -60,7 +60,7 @@ exports.Use =
 
 				//---------------------------------------------------------------------
 				// This is the actual request handler that services this origin.
-				async function express_request_handler( request, response, next ) 
+				async function express_origin_handler( request, response, next ) 
 				{
 					// Get the origin parameters.
 					let parameters = get_express_request_parameters( request, origin );
@@ -77,16 +77,16 @@ exports.Use =
 					}
 					catch ( error )
 					{
-						api_result.error = error.message;
 						api_result.ok = false;
-						let error_text = `Error in [${api_result.origin}]: ${api_result.error}`;
-						Server.Log.error( error_text );
+						api_result.error = error.message;
+						// Server.Log.error( `Error in [${api_result.origin}]: ${api_result.error}` );
 					}
 					finally
 					{
 						response.send( api_result );
 					}
-					return;
+					// Return the api_result back to InvocationGate.
+					return api_result;
 				}
 
 				//---------------------------------------------------------------------
@@ -96,7 +96,7 @@ exports.Use =
 					WebServer.Express.App.get( `${ParentPath}/${origin.name}`,
 						WebServer.Express.AuthenticationGate( origin.requires_login ),
 						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( express_request_handler ),
+						WebServer.Express.InvocationGate( express_origin_handler ),
 					);
 					origin_count++;
 				}
@@ -105,7 +105,7 @@ exports.Use =
 					WebServer.Express.App.post( `${ParentPath}/${origin.name}`,
 						WebServer.Express.AuthenticationGate( origin.requires_login ),
 						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( express_request_handler ),
+						WebServer.Express.InvocationGate( express_origin_handler ),
 					);
 					origin_count++;
 				}
@@ -114,7 +114,7 @@ exports.Use =
 					WebServer.Express.App.put( `${ParentPath}/${origin.name}`,
 						WebServer.Express.AuthenticationGate( origin.requires_login ),
 						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( express_request_handler ),
+						WebServer.Express.InvocationGate( express_origin_handler ),
 					);
 					origin_count++;
 				}
@@ -123,7 +123,7 @@ exports.Use =
 					WebServer.Express.App.delete( `${ParentPath}/${origin.name}`,
 						WebServer.Express.AuthenticationGate( origin.requires_login ),
 						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( express_request_handler ),
+						WebServer.Express.InvocationGate( express_origin_handler ),
 					);
 					origin_count++;
 				}
@@ -135,7 +135,7 @@ exports.Use =
 
 
 		//---------------------------------------------------------------------
-		function add_express_page_origins( Service, ParentPath )
+		function add_service_pages( Service, ParentPath )
 		{
 			// Add origins for this service.
 			let origin_count = 0;
@@ -153,7 +153,11 @@ exports.Use =
 					let parameters = get_express_request_parameters( request, origin );
 
 					// Render the origin page.
-					// Returns an api_result on error.
+					// Wrap return values in a api_result object.
+					let api_result = {
+						ok: true,
+						origin: `${Service.ServiceDefinition.name}/${origin.name}`,
+					};
 					try
 					{
 						response.render( origin.view, {
@@ -163,18 +167,16 @@ exports.Use =
 							ServiceDefinition: Service.ServiceDefinition,
 							Parameters: parameters,
 						} );
+						api_result.result = "OK";
 					}
 					catch ( error )
 					{
-						let api_result = {
-							ok: false,
-							origin: `${Service.ServiceDefinition.name}/${origin.name}`,
-							error: error.message,
-						};
-						let error_text = `Error in [${api_result.origin}]: ${api_result.error}`;
-						Server.Log.error( error_text );
-						response.send( api_result );
+						api_result.ok = false;
+						api_result.error = error.message;
+						// Server.Log.error( `Error in [${api_result.origin}]: ${api_result.error}` );
+						response.send( api_result ); // Returning an error object to a page request!
 					}
+					// Return 'undefined' back to InvocationGate to avoid propagating the api_result.
 					return;
 				}
 
@@ -205,11 +207,11 @@ exports.Use =
 			let services_path = WebServer.Express.ServicesPath();
 
 			// Add the service API
-			let origin_count = add_express_service_origins( service, `${services_path}${service.ServiceDefinition.name}` );
+			let origin_count = add_service_origins( service, `${services_path}${service.ServiceDefinition.name}` );
 			Server.Log.trace( `Added ${origin_count} express routes for [${services_path}${service.ServiceDefinition.name}] functions.` );
 
 			// Add the service pages
-			let page_count = add_express_page_origins( service, `${server_path}${service.ServiceDefinition.name}` );
+			let page_count = add_service_pages( service, `${server_path}${service.ServiceDefinition.name}` );
 			Server.Log.trace( `Added ${page_count} express routes for [${server_path}${service.ServiceDefinition.name}] pages.` );
 		}
 
