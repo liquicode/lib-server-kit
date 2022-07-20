@@ -42,6 +42,7 @@ exports.GetDefaults =
 					enabled: false,
 					public_files: 'web/public',			// Local folder of public files.
 					client_api_file: 'web/public/_express-api-client.js',
+					client_api_style: 'ajax',			// fetch, ajax, axios
 					Views: {
 						view_engine: 'pug',				// Only 'pug' is supported.
 						view_files: 'web/views',		// Local folder of view files.
@@ -211,6 +212,7 @@ exports.GetDefaults =
 
 			SocketIO: {
 				enabled: false,
+				trace_connections: false,		// Log connection/disconnection events.
 
 				ClientSupport: {
 					enabled: false,

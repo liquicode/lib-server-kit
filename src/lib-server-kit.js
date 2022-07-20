@@ -30,6 +30,7 @@ exports.NewServer =
 		} )
 	{
 		if ( !LIB_FS.existsSync( ApplicationPath ) ) { throw new Error( `The application path does not exist [${ApplicationPath}].` ); }
+		ApplicationName = ApplicationName ? ApplicationName : 'unnamed';
 
 		let server = {};
 
@@ -49,13 +50,118 @@ exports.NewServer =
 
 		//---------------------------------------------------------------------
 		// ResolveApplicationPath
+		//	- Returns the full local file path for the given application path.
 		//---------------------------------------------------------------------
 
-		function ResolveApplicationPath( Path )
-		{
-			return LIB_PATH.resolve( ApplicationPath, Path );
-		};
-		server.ResolveApplicationPath = ResolveApplicationPath;
+		server.ResolveApplicationPath =
+			function ResolveApplicationPath( Path )
+			{
+				return LIB_PATH.resolve( ApplicationPath, Path );
+			};
+
+
+		//---------------------------------------------------------------------
+		// ValidateFields
+		//	- Validates and (optionally) converts field values based upong their definition.
+		//---------------------------------------------------------------------
+
+		server.ValidateFields =
+			function ValidateFields( FieldDefinitions, FieldValues, ConvertValues, ThrowError )
+			{
+				let error_message = '';
+				for ( let field_index = 0; field_index < FieldDefinitions.length; field_index++ )
+				{
+					let field = FieldDefinitions[ field_index ];
+					let value = FieldValues[ field.name ];
+					// Validate the parameter.
+					if ( typeof value === 'undefined' )
+					{
+						// Set the default value
+						if ( typeof field.default === 'undefined' )
+						{
+							value = null;
+						}
+						else
+						{
+							value = JSON.parse( JSON.stringify( field.default ) );
+						}
+						// Validate that this parameter is not required.
+						if ( field.required )
+						{
+							error_message += `[${field.name}] is required; `;
+						}
+					}
+					else if ( field.schema && field.schema.type )
+					{
+						try
+						{
+							if ( value === null )
+							{
+								//NOTE: Do not perform any conversion. Null is a valid value for all schema types.
+							}
+							else
+							{
+								switch ( field.schema.type )
+								{
+									case 'boolean':
+										value = Boolean( value );
+										break;
+									case 'integer':
+										value = parseInt( value );
+										break;
+									case 'number':
+										value = parseFloat( value );
+										break;
+									case 'string':
+										value = '' + value;
+										break;
+									case 'array':
+										if ( typeof value === 'string' )
+										{
+											if ( value.trim().startsWith( '[' ) )
+											{
+												value = JSON.parse( value );
+											}
+											else if ( value === 'null' )
+											{
+												value = null;
+											}
+											else
+											{
+												value = [ value ];
+											}
+										}
+										break;
+									case 'object':
+										if ( typeof value === 'string' )
+										{
+											if ( value.trim().startsWith( '{' ) )
+											{
+												value = JSON.parse( value );
+											}
+											else if ( value === 'null' )
+											{
+												value = null;
+											}
+										}
+										break;
+									default:
+										error_message += `[${field.name}] has unknown schema type [${field.schema.type}]; `;
+										break;
+								}
+							}
+						}
+						catch ( error )
+						{
+							error_message += `[${field.name}] ${error.message}; `;
+						}
+					}
+					// Update the Parameters object with the converted value.
+					if ( ConvertValues ) { FieldValues[ field.name ] = value; }
+				}
+				if ( ThrowError && error_message ) { throw new Error( error_message ); }
+				return error_message;
+			};
 
 
 		//---------------------------------------------------------------------
@@ -123,7 +229,7 @@ exports.NewServer =
 		// Load server-kit Services
 		load_services( LIB_PATH.join( __dirname, 'services' ) );
 		// Load Application Services
-		load_services( ResolveApplicationPath( 'services' ) );
+		load_services( server.ResolveApplicationPath( 'services' ) );
 
 		// Register the Log module configuration.
 		server.Config.Defaults.Log = server.Log.GetDefaults();
@@ -134,8 +240,8 @@ exports.NewServer =
 		//---------------------------------------------------------------------
 
 
-		let defaults_filename = ResolveApplicationPath( `${ApplicationName}.defaults.json` );
-		let settings_filename = ResolveApplicationPath( `${ApplicationName}.settings.json` );
+		let defaults_filename = server.ResolveApplicationPath( `${ApplicationName}.defaults.json` );
+		let settings_filename = server.ResolveApplicationPath( `${ApplicationName}.settings.json` );
 		server.Config.ResetSettings();
 
 		// Write the application's Defaults file.
@@ -147,7 +253,7 @@ exports.NewServer =
 		// Build the application's config.
 		if ( ServerOptions.config_path )
 		{
-			let path = ResolveApplicationPath( ServerOptions.config_path );
+			let path = server.ResolveApplicationPath( ServerOptions.config_path );
 			if ( LIB_FS.existsSync( path ) )
 			{
 				server.Config.MergePath( path );

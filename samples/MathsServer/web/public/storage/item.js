@@ -14,17 +14,16 @@ app.controller(
 			ItemDefinition: window.SERVER_DATA.ItemDefinition,
 			ServiceDefinition: window.SERVER_DATA.ServiceDefinition,
 			Parameters: window.SERVER_DATA.Parameters,
-			ItemID: '',
-			PageOp: '',
+			// ItemID: '',
+			// PageOp: '',
 			object_info_visible: false,
 			Socket: SocketApi.NewSocket(),
 			Item: null,
 		};
 		{
 			// Parse Parameters
-			let params = Page.Parameters.split( ',' );
-			Page.ItemID = params[ 0 ];
-			Page.PageOp = params[ 1 ];
+			Page.ItemID = Page.Parameters.ItemID;
+			Page.PageOp = Page.Parameters.PageOp;
 			if ( Page.PageOp === '' )
 			{
 				if ( Page.ItemID ) { Page.PageOp = 'Read'; }
@@ -32,30 +31,6 @@ app.controller(
 			}
 		}
 		$scope.Page = Page;
-
-
-		// //---------------------------------------------------------------------
-		// if ( Page.User )
-		// {
-		// 	SocketApi.NewSocket( Page.User,
-		// 		( Socket, Status ) =>
-		// 		{
-		// 			if ( Status !== 'OK' )
-		// 			{
-		// 				console.error( 'Socket connection failed.' );
-		// 				return;
-		// 			}
-		// 			Page.Socket = Socket;
-		// 			if ( [ 'Create' ].includes( Page.PageOp ) )
-		// 			{
-		// 				Page.Item = {};
-		// 			}
-		// 			else if ( [ 'Read', 'Update', 'Delete' ].includes( Page.PageOp ) )
-		// 			{
-		// 				Page.ReadItem();
-		// 			}
-		// 		} );
-		// }
 
 
 		//---------------------------------------------------------------------
@@ -123,7 +98,7 @@ app.controller(
 			function ItemSharingUrl()
 			{
 				if ( Page.Item === null ) { return ''; }
-				return `/${Page.Server.ServiceDefinition.name}/Share?ItemID=${Page.Item.__.id}`;
+				return `/${Page.Server.ServiceDefinition.name}/Share?ItemID=${Page.ItemID}`;
 			};
 
 

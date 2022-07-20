@@ -23,15 +23,14 @@ app.controller(
 			ItemDefinition: window.SERVER_DATA.ItemDefinition,
 			ServiceDefinition: window.SERVER_DATA.ServiceDefinition,
 			Parameters: window.SERVER_DATA.Parameters,
-			ItemID: '',
+			// ItemID: '',
 			object_info_visible: false,
 			Socket: SocketApi.NewSocket(),
 			Item: null,
 		};
 		{
 			// Parse Parameters
-			let params = Page.Parameters.split( ',' );
-			Page.ItemID = params[ 0 ];
+			Page.ItemID = Page.Parameters.ItemID;
 		}
 		$scope.Page = Page;
 

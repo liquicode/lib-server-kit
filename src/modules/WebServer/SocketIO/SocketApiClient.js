@@ -88,10 +88,12 @@ SocketApi.NewSocket =
 					let parameter_name = origin.parameters[ parameter_index ].name;
 					parameters += parameter_name + ', ';
 					if ( payload ) { payload += ', '; };
-					payload += parameter_name;
+					// payload += parameter_name;
+					payload += `${parameter_name}: ${parameter_name}`;
 				}
 				parameters += 'Callback';
-				payload = `[${payload}]`;
+				// payload = `[${payload}]`;
+				payload = `{ ${payload} }`;
 
 				// Define the origin.
 				code += `		socket.${service_name}.${origin_name}`;

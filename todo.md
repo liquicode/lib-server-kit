@@ -9,17 +9,19 @@
 	- **COMPLETED** Rename `Endpoints` to `Origins`
 	- Create an `Origins` namespace to implement functions.
 	- Rename `SystemUsers` to `ServerAccounts`
-	- Develop: `Authentication` Service
+	- Develop: `Authentication` service module.
 		- Exports authentication pages: signup, login, logout
 		- Uses the `ServerAccounts` service to perform the signup and login functions.
 		- User authentication is still performed by Passport
+			- Can passport be abstracted enough to support other protocols?
 
 - Express
 	- **COMPLETED** Develop `Express.AuthorizationGate` middleware to check user roles
 	- **COMPLETED** Convert `WebServer.RequestProcessor` to `Express.RequestProcessor`
 		- reimplement as middleware?
-	- Fix: All Origin calls are being stringified.
+	- **COMPLETED** Fix: All Origin calls are being stringified.
 	- **COMPLETED** Fix: Origin socket call logs do not show the result. Because we are getting the result of the middleware and not the call itself.
+	- **COMPLETED** Fix: When an error occurs during an Express origin call, an eror string is returned rather than an ApiResult.
 
 	- Session
 		- Implement persistence strategies for sessions
@@ -33,11 +35,12 @@
 
 	- Explorer
 		- Select user to Invoke as
-		- Make 'Response' box resizable.
-		- NOTE: The client-api implementation uses $.ajax which drops any empty array or object parameters.
+		- **COMPLETED** Make 'Response' box resizable.
+		- **COMPLETED** Fix: The client-api implementation uses $.ajax which drops any empty array or object parameters.
 			The implication is that not all parameters are guaranteed to be transmitted to the server.
+			- Use [axios](https://github.com/axios/axios)
 
-	- Swagger *** Remove It! ***
+	- Remove: Swagger *** Remove It! ***
 		- authorization
 		- parameter data types
 		- service item definitions

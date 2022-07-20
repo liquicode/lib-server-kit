@@ -1,6 +1,7 @@
 'use strict';
 
 
+const { Socket } = require( 'dgram' );
 //=====================================================================
 //=====================================================================
 //
@@ -36,247 +37,213 @@ exports.Initialize =
 	function Initialize( Server, WebServer, WebServerSettings )
 	{
 
+
+		//=====================================================================
+		//=====================================================================
+		//
+		//		Initialize
+		//
+		//=====================================================================
+		//=====================================================================
+
+
+		//---------------------------------------------------------------------
+		// Add service origins.
+		let socket_endpoints = {};
+		let service_names = Object.keys( Server.Services );
+		for ( let index = 0; index < service_names.length; index++ )
+		{
+			let service_name = service_names[ index ];
+			let service = Server[ service_name ];
+
+			// Add origins for this service.
+			let origin_count = 0;
+			let origin_names = Object.keys( service.ServiceDefinition.Origins );
+			for ( let origin_index = 0; origin_index < origin_names.length; origin_index++ )
+			{
+				let origin_key = origin_names[ origin_index ];
+				let origin = service.ServiceDefinition.Origins[ origin_key ];
+				let origin_url = `${service.ServiceDefinition.name}.${origin.name}`;
+				if ( !origin.verbs.includes( 'call' ) ) { continue; }
+
+				// Register the socket handler function.
+				socket_endpoints[ origin_url ] =
+					function socket_proxy( SocketInstance ) 
+					{
+						return async function socket_handler( Message ) 
+						{
+							// Get the session user.
+							if ( !SocketInstance.User )
+							{
+								if (
+									SocketInstance.handshake
+									&& SocketInstance.handshake.session
+									&& SocketInstance.handshake.session.passport
+									&& SocketInstance.handshake.session.passport.user
+								)
+								{
+									SocketInstance.user = JSON.parse( JSON.stringify(
+										SocketInstance.handshake.session.passport.user ) );
+								}
+								else
+								{
+									SocketInstance.user = JSON.parse( JSON.stringify(
+										WebServerSettings.Express.Authentication.AnonymousUser ) );
+								}
+							}
+
+							// Invoke the origin function.
+							let t0 = Date.now();
+							let invocation_result = null;
+							let invocation_error = null;
+							try
+							{
+								// Get a working copy of the parameters.
+								let origin_parameters = JSON.parse( JSON.stringify( Message.Payload ) );
+								// Validate the parameters.
+								let validation_error = Server.ValidateFields( origin.parameters, origin_parameters, true, false );
+								if ( validation_error )
+								{
+									let error_message = `Validation Error: ${validation_error}`;
+									throw new Error( error_message );
+								}
+								// Report.
+								Server.Log.debug( `SocketIO ===> ${origin_url} ===> ${JSON.stringify( origin_parameters )}` );
+								// Convert parameters to an array of values.
+								let parameter_values = [];
+								for ( let parameter_index = 0; parameter_index < origin.parameters.length; parameter_index++ )
+								{
+									let parameter = origin.parameters[ parameter_index ];
+									parameter_values.push( origin_parameters[ parameter.name ] );
+								}
+								// Invoke the origin function.
+								invocation_result = await origin.invoke( SocketInstance.user, ...parameter_values );
+							}
+							catch ( error )
+							{
+								invocation_error = error;
+							}
+							finally
+							{
+								// Duration
+								let duration_text = ( Date.now() - t0 ).toString() + 'ms';
+								// User
+								let user_text = SocketInstance.user.user_id;
+
+								// Wrap return values in a api_result object.
+								let api_result = {
+									ok: true,
+									origin: origin_url,
+								};
+								if ( invocation_error )
+								{
+									api_result.ok = false;
+									api_result.error = invocation_error.message;
+								}
+								else
+								{
+									api_result.result = invocation_result;
+								}
+
+								// Report.
+								Server.Log.debug( `SocketIO <=== ${origin_url} <=== ${JSON.stringify( api_result )} (by:${user_text}) (duration:${duration_text})` );
+
+								// Peform the callback.
+								if ( Message.callback_name ) 
+								{
+									SocketInstance.emit( Message.callback_name, api_result );
+								}
+
+							}
+						};
+					};
+				origin_count++;
+
+			} // For each Origin
+		} // For each Service
+
+
+		//=====================================================================
+		//=====================================================================
+		//
+		//		Socket Events
+		//
+		//=====================================================================
+		//=====================================================================
+
+
 		//---------------------------------------------------------------------
 		// Connect to the Express Session.
 		WebServer.SocketIO.IO.use(
-			function ( Socket, Next )
+			function ( SocketInstance, Next )
 			{
-				WebServer.Express.Session( Socket.handshake, {}, Next );
-				// if ( Socket.handshake.session )
-				// {
-				// 	Socket.user = Socket.handshake.session.passport.user;
-				// }
-				// else
-				// {
-				// 	Socket.user = JSON.parse( JSON.stringify( WebServerSettings.Express.Authentication.AnonymousUser ) );
-				// }
+				WebServer.Express.Session( SocketInstance.handshake, {}, Next );
 				return;
 			} );
 
 
 		//---------------------------------------------------------------------
 		WebServer.SocketIO.IO.on( 'connection',
-			( Socket ) =>
+			( SocketInstance ) =>
 			{
-				Server.Log.trace( `New socket connection received.` );
-
-				// let this_session = {
-				// 	socket_id: Socket.id,
-				// 	User: null,
-				// };
-
-
-				//---------------------------------------------------------------------
-				Socket.on( 'disconnecting',
-					async function ( Reason )
-					{
-						Server.Log.trace( `Socket is disconnecting because [${Reason}].` );
-						return;
-					} );
-
-
-				//---------------------------------------------------------------------
-				Socket.on( 'disconnect',
-					async function ( Reason )
-					{
-						Server.Log.trace( `Socket has disconnected because [${Reason}].` );
-						return;
-					} );
-
-
-				//---------------------------------------------------------------------
-				Socket.on( 'connect',
-					async function ( Reason )
-					{
-						Server.Log.trace( `Socket connected.` );
-						return;
-					} );
-
-
-				//---------------------------------------------------------------------
-				Socket.on( 'connect_error',
-					async function ( Reason )
-					{
-						Server.Log.error( `Socket connection error [${Reason}]` );
-						return;
-					} );
-
-
-				// //---------------------------------------------------------------------
-				// Socket.on( 'Authorize',
-				// 	async function ( Message )
-				// 	{
-				// 		Server.Log.info( `Socket call [Authorize] (by: ${Message.User.user_id})` );
-				// 		if ( Message.callback_name ) { Socket.emit( Message.callback_name, 'OK' ); }
-				// 		// let user = await Server.SystemUsers.StorageFindOne( Message.User, Message.User );
-				// 		// if ( user )
-				// 		// {
-				// 		// 	if ( Message.User.user_id === user.user_id ) // Match the user_id fields.
-				// 		// 	{
-				// 		// 		// Socket.User = user;
-				// 		// 		this_session.User = user;
-				// 		// 		if ( Message.callback_name ) { Socket.emit( Message.callback_name, 'OK' ); }
-				// 		// 		Server.Log.debug( `Socket authorized user (${user.user_id})` );
-				// 		// 		return;
-				// 		// 	}
-				// 		// }
-				// 		// if ( Message.callback_name ) { Socket.emit( Message.callback_name, 'Fail' ); }
-				// 		return;
-				// 	} );
-
-
-				// //---------------------------------------------------------------------
-				// Socket.onAny(
-				// 	async function ( Event, ...args )
-				// 	{
-				// 		Server.Log.trace( `Socket received event: ${Event}\n${JSON.stringify( args, null, '    ' )}` );
-				// 		return;
-				// 	} );
-
-
-				//---------------------------------------------------------------------
-				function add_service_origins( Service )
+				if ( WebServerSettings.SocketIO.trace_connections )
 				{
-					// Get the user
-					// let user = {
-					// 	user_id: 'admin',
-					// 	user_role: 'admin',
-					// };
+					Server.Log.trace( `SocketIO: New socket connection received.` );
+				}
 
-					// Add origins for this service.
-					let origin_count = 0;
-					let origin_names = Object.keys( Service.ServiceDefinition.Origins );
-					for ( let origin_index = 0; origin_index < origin_names.length; origin_index++ )
+
+				//---------------------------------------------------------------------
+				SocketInstance.on( 'disconnecting',
+					async function ( Reason )
 					{
-						let origin_key = origin_names[ origin_index ];
-						let origin = Service.ServiceDefinition.Origins[ origin_key ];
-						let origin_name = `${Service.ServiceDefinition.name}.${origin.name}`;
-
-						if ( origin.verbs.includes( 'call' ) )
+						if ( WebServerSettings.SocketIO.trace_connections )
 						{
-							// Invoke the origin function.
-							Socket.on( origin_name,
-								async function ( Message ) 
-								{
-									// Get the session user.
-									try
-									{
-										Socket.user = JSON.parse( JSON.stringify(
-											Socket.handshake.session.passport.user ) );
-									}
-									catch ( error )
-									{
-										Socket.user = JSON.parse( JSON.stringify(
-											WebServerSettings.Express.Authentication.AnonymousUser ) );
-									}
-
-									// Invoke the origin function.
-									let t0 = Date.now();
-									let invocation_result = null;
-									let invocation_error = null;
-									try
-									{
-										invocation_result = await origin.invoke( Socket.user, ...Message.Payload );
-									}
-									catch ( error )
-									{
-										invocation_error = error;
-									}
-									finally
-									{
-										// Status
-										let status_text = 'ok';
-										if ( invocation_error ) { status_text = 'err'; }
-
-										// Duration
-										let duration_text = ( Date.now() - t0 ).toString();
-
-										// User
-										let user_text = Socket.user.user_id;
-
-										// Verb
-										let verb_text = 'CALL';
-
-										// Origin
-										let origin_text = origin_name;
-
-										// Parameters
-										let call_parameters = '';
-										{
-											let parameters = {};
-											for ( let index = 0; index < origin.parameters.length; index++ )
-											{
-												let value = null;
-												if ( index < Message.Payload.length )
-												{
-													value = Message.Payload[ index ];
-												}
-												parameters[ origin.parameters[ index ].name ] = value;
-											}
-											call_parameters = JSON.stringify( parameters );
-										}
-
-										// Log
-										Server.Log.info(
-											`${status_text.padEnd( 4 )}`
-											+ ` | ${duration_text.padStart( 8 )}ms`
-											+ ` | ${user_text.padEnd( 20 )}`
-											+ ` | ${verb_text.padEnd( 7 )}`
-											+ ` | ${origin_text}`
-											+ ` ${call_parameters}`
-										);
-										if ( typeof invocation_result === 'undefined' )
-										{
-											Server.Log.debug( `    ===> no return value.` );
-										}
-										else
-										{
-											Server.Log.debug( `    ===> ${JSON.stringify( invocation_result )}` );
-										}
-										if ( invocation_error )
-										{
-											Server.Log.error( `    *** Error *** ${invocation_error.message}` );
-										}
-
-										// Peform the clalback.
-										if ( Message.callback_name ) 
-										{
-											// Wrap return values in a api_result object.
-											let api_result = {
-												ok: true,
-												origin: origin_name,
-											};
-											if ( invocation_error )
-											{
-												api_result.ok = false;
-												api_result.error = invocation_error.message;
-											}
-											else
-											{
-												api_result.result = invocation_result;
-											}
-											Socket.emit( Message.callback_name, api_result );
-										}
-
-									}
-								} );
-							origin_count++;
+							Server.Log.trace( `SocketIO: Socket is disconnecting because [${Reason}].` );
 						}
-					}
-
-					return origin_count;
-				};
+						return;
+					} );
 
 
 				//---------------------------------------------------------------------
-				// Add service origins.
-				let service_names = Object.keys( Server.Services );
-				for ( let index = 0; index < service_names.length; index++ )
+				SocketInstance.on( 'disconnect',
+					async function ( Reason )
+					{
+						if ( WebServerSettings.SocketIO.trace_connections )
+						{
+							Server.Log.trace( `SocketIO: Socket has disconnected because [${Reason}].` );
+						}
+						return;
+					} );
+
+
+				//---------------------------------------------------------------------
+				SocketInstance.on( 'connect',
+					async function ( Reason )
+					{
+						if ( WebServerSettings.SocketIO.trace_connections )
+						{
+							Server.Log.trace( `SocketIO: Socket connected.` );
+						}
+						return;
+					} );
+
+
+				//---------------------------------------------------------------------
+				SocketInstance.on( 'connect_error',
+					async function ( Reason )
+					{
+						Server.Log.error( `SocketIO: Socket connection error [${Reason}]` );
+						return;
+					} );
+
+
+				//---------------------------------------------------------------------
+				// Initialize new socket endpoints.
+				let endpoint_names = Object.keys( socket_endpoints );
+				for ( let endpoint_index = 0; endpoint_index < endpoint_names.length; endpoint_index++ )
 				{
-					let service_name = service_names[ index ];
-					let service = Server[ service_name ];
-					let count = add_service_origins( service );
-					// Server.Log.trace( `Added ${count} socket functions for [${service_name}].` );
+					let endpoint_name = endpoint_names[ endpoint_index ];
+					SocketInstance.on( endpoint_name, socket_endpoints[ endpoint_name ]( SocketInstance ) );
 				}
 
 
@@ -288,84 +255,14 @@ exports.Initialize =
 		//=====================================================================
 		//=====================================================================
 		//
-		//		Socket Endpoints
-		//
-		//=====================================================================
-		//=====================================================================
-
-
-		// //---------------------------------------------------------------------
-		// let socket_endpoints = {};
-
-
-		// //---------------------------------------------------------------------
-		// let service_names = Object.keys( Server.Services );
-		// for ( let index = 0; index < service_names.length; index++ )
-		// {
-		// 	let service_name = service_names[ index ];
-		// 	let service = Server[ service_name ];
-		// 	let count = add_service_origins( service );
-		// 	Server.Log.trace( `Added ${count} socket functions for [${service_name}].` );
-		// }
-
-
-		// //---------------------------------------------------------------------
-		// function add_service_origins( Service )
-		// {
-		// 	// Get the user
-		// 	let user = {
-		// 		user_id: 'admin',
-		// 		user_role: 'admin',
-		// 	};
-
-		// 	// Add origins for this service.
-		// 	let origin_count = 0;
-		// 	let origin_names = Object.keys( Service.ServiceDefinition.Origins );
-		// 	for ( let origin_index = 0; origin_index < origin_names.length; origin_index++ )
-		// 	{
-		// 		let origin_name = origin_names[ origin_index ];
-		// 		let full_origin_name = `${Service.ServiceDefinition.name}.${origin_name}`;
-		// 		let origin = Service.ServiceDefinition.Origins[ origin_name ];
-
-		// 		if ( origin.verbs.includes( 'call' ) )
-		// 		{
-		// 			// Invoke the origin function.
-		// 			socket_endpoints[ full_origin_name ] =
-		// 				async function ( Message ) 
-		// 				{
-		// 					let api_result = { ok: true };
-		// 					Server.Log.info( `|    |          | CALL ${full_origin_name} (by: ${this_session.User.user_id})` );
-		// 					try
-		// 					{
-		// 						api_result.result = await origin.invoke( this_session.User, ...Message.Payload );
-		// 						if ( Message.callback_name ) { Socket.emit( Message.callback_name, api_result ); }
-		// 					}
-		// 					catch ( error )
-		// 					{
-		// 						console.error( error );
-		// 						api_result.error = error.message;
-		// 						if ( Message.callback_name ) { Socket.emit( Message.callback_name, api_result ); }
-		// 					}
-		// 				} );
-		// 			origin_count++;
-		// 		}
-		// 	}
-
-		// 	return origin_count;
-		// };
-
-
-		//=====================================================================
-		//=====================================================================
-		//
-		//		API Client
+		//		Socket API Client
 		//
 		//=====================================================================
 		//=====================================================================
 
 
 		//---------------------------------------------------------------------
-		// API Client
+		// Socket API Client
 		if ( WebServerSettings.SocketIO.ClientSupport.socket_api_client )
 		{
 			// Generate the api client for javascript.

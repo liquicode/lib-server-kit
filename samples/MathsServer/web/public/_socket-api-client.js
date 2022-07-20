@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Socket Api Client File for: MathsServer
-// Generated:  2022-07-19T01:16:17.218Z
-//   Mon Jul 18 2022 21:16:17 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-20T11:26:17.696Z
+//   Wed Jul 20 2022 07:26:17 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var SocketApi = {};
@@ -47,13 +47,13 @@ SocketApi.NewSocket =
 		let socket = { __: { io: io() } };
 
 		socket.SystemUsers = {};
-		socket.SystemUsers.StorageCount = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageCount', [Criteria], Callback ); }
-		socket.SystemUsers.StorageFindOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageFindOne', [Criteria], Callback ); }
-		socket.SystemUsers.StorageFindMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageFindMany', [Criteria], Callback ); }
-		socket.SystemUsers.StorageCreateOne = function ( Prototype, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageCreateOne', [Prototype], Callback ); }
-		socket.SystemUsers.StorageWriteOne = function ( Criteria, DataObject, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageWriteOne', [Criteria, DataObject], Callback ); }
-		socket.SystemUsers.StorageDeleteOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageDeleteOne', [Criteria], Callback ); }
-		socket.SystemUsers.StorageDeleteMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageDeleteMany', [Criteria], Callback ); }
+		socket.SystemUsers.StorageCount = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageCount', { Criteria: Criteria }, Callback ); }
+		socket.SystemUsers.StorageFindOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageFindOne', { Criteria: Criteria }, Callback ); }
+		socket.SystemUsers.StorageFindMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageFindMany', { Criteria: Criteria }, Callback ); }
+		socket.SystemUsers.StorageCreateOne = function ( Prototype, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageCreateOne', { Prototype: Prototype }, Callback ); }
+		socket.SystemUsers.StorageWriteOne = function ( Criteria, DataObject, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageWriteOne', { Criteria: Criteria, DataObject: DataObject }, Callback ); }
+		socket.SystemUsers.StorageDeleteOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageDeleteOne', { Criteria: Criteria }, Callback ); }
+		socket.SystemUsers.StorageDeleteMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'SystemUsers.StorageDeleteMany', { Criteria: Criteria }, Callback ); }
 
 		socket.Maths = {};
 

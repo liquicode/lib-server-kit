@@ -22,8 +22,8 @@ const LIB_CORS = require( 'cors' );
 //---------------------------------------------------------------------
 const SRC_AUTHENTICATION_PASSPORT_LOCAL = require( './Express/Authentication/Passport_Local.js' );
 const SRC_AUTHENTICATION_PASSPORT_AUTH0 = require( './Express/Authentication/Passport_Auth0.js' );
-const SRC_APPLICATION_SERVICES = require( './Express/ServiceRoutes.js' );
-const SRC_GENERATE_CLIENT_EXPRESS = require( './Express/ExpressApiClient.js' );
+const SRC_EXPRESS_ROUTES = require( './Express/ExpressRoutes.js' );
+const SRC_EXPRESS_API_CLIENT = require( './Express/ExpressApiClient.js' );
 // const SRC_GENERATE_CLIENT_SWAGGER = require( './Express/SwaggerDocument.js' );
 
 
@@ -37,7 +37,17 @@ exports.Create =
 		};
 
 
+		//=====================================================================
+		//=====================================================================
+		//
+		//		Utiltiy Functions
+		//
+		//=====================================================================
+		//=====================================================================
+
+
 		//---------------------------------------------------------------------
+		// Returns the server protocol, address, and port.
 		Express.ServerAddress =
 			function ServerAddress()
 			{
@@ -49,6 +59,8 @@ exports.Create =
 
 
 		//---------------------------------------------------------------------
+		// Returns the root server path.
+		// Will always start and end with a '/' character.
 		Express.ServerPath =
 			function ServerPath()
 			{
@@ -60,6 +72,8 @@ exports.Create =
 
 
 		//---------------------------------------------------------------------
+		// Returns the path to the services, including the root server path.
+		// Will always end with a '/' character.
 		Express.ServicesPath =
 			function ServicesPath()
 			{
@@ -70,17 +84,24 @@ exports.Create =
 			};
 
 
-		//---------------------------------------------------------------------
-		// AuthenticationGate returns an Express middleware.
+		//=====================================================================
+		//=====================================================================
+		//
+		//		AuthenticationGate
+		//
+		// - returns an Express middleware.
+		// - If the user is logged in, then execution flow continues to the next middleware.
+		// - If the user is not logged in and a login is required, then the user is redirected to the login page.
+		// - If the user is not logged in and no login is required, then the user is set to Anonymous and execution flow continues.
+		// - request is guaranteed to have an attached user account for subsequent middlewares.
+		//
+		//=====================================================================
+		//=====================================================================
+
+
 		Express.AuthenticationGate =
 			function AuthenticationGate( RequiresAuthentication )
 			{
-				/*
-					- If the user is logged in, then execution flow continues to the next middleware.
-					- If the user is not logged in and a login is required, then the user is redirected to the login page.
-					- If the user is not logged in and no login is required, then the user is set to Anonymous and execution flow continues.
-					- request is guaranteed to have an attached user account for subsequent middlewares.
-				*/
 				let middleware = null;
 				if ( WebServerSettings.Express.Authentication
 					&& WebServerSettings.Express.Authentication.enabled
@@ -115,16 +136,23 @@ exports.Create =
 			};
 
 
-		//---------------------------------------------------------------------
-		// AuthorizationGate returns an Express middleware.
+		//=====================================================================
+		//=====================================================================
+		//
+		//		AuthorizationGate
+		//
+		// - returns an Express middleware.
+		// - if AllowedRoles is empty, then execution flow continues to the next middleware.
+		// - if user_role is listed in AllowedRoles, then execution flow continues to the next middleware.
+		// - if user_role is not listed in AllowedRoles, a 403 (Forbidden) code is returned.
+		//
+		//=====================================================================
+		//=====================================================================
+
+
 		Express.AuthorizationGate =
 			function AuthorizationGate( AllowedRoles )
 			{
-				/*
-					- if AllowedRoles is empty, then execution flow continues to the next middleware.
-					- if user_role is listed in AllowedRoles, then execution flow continues to the next middleware.
-					- if user_role is not listed in AllowedRoles, a 403 (Forbidden) code is returned.
-				*/
 				let middleware = null;
 				if ( WebServerSettings.Express.Authentication
 					&& WebServerSettings.Express.Authentication.enabled
@@ -140,7 +168,7 @@ exports.Create =
 							}
 							else
 							{
-								response.status( 403 ).send( { error: `User is not allowed to perform this function.` } );
+								response.status( 403 ).send( { error: `This user does not have permission to perform this function.` } );
 								return;
 							}
 						};
@@ -158,82 +186,116 @@ exports.Create =
 			};
 
 
+		//=====================================================================
+		//=====================================================================
+		//
+		//		InvocationGate
+		//
+		// - returns an Express middleware.
+		// - Validates invocation parameters.
+		// - Reports invocation status.
+		// - Reports invocation duration.
+		// - Reports error information.
+		//
+		//=====================================================================
+		//=====================================================================
+
+
 		//---------------------------------------------------------------------
 		// InvocationGate returns an Express middleware.
 		Express.InvocationGate =
-			function InvocationGate( Invocation )
+			function InvocationGate( Service, Origin, Invocation )
 			{
-				/*
-					- Reports invocation status.
-					- Reports invocation duration.
-					- Reports error information.
-				*/
 				let middleware =
 					async function ( request, response, next )
 					{
 						let t0 = Date.now();
 						let invocation_result = null;
 						let invocation_error = null;
+
+						// Get service and origin info.
+						let service_name = '';
+						if ( Service && Service.ServiceDefinition && Service.ServiceDefinition.name )
+						{
+							service_name = Service.ServiceDefinition.name;
+						}
+						let origin_url = request.url;
+						{
+							// Remove the query string.
+							let ich = origin_url.indexOf( '?' );
+							if ( ich >= 0 ) { origin_url = origin_url.slice( 0, ich ); }
+							// Remove the leading slash '/'.
+							// if ( origin_url.startsWith( '/' ) ) { origin_url = origin_url.slice( 1 ); }
+							// Remove the trailing slash '/'.
+							if ( origin_url.endsWith( '/' ) ) { origin_url = origin_url.slice( 0, origin_url.length - 1 ); }
+							// Make the root url a single slash '/'.
+							if ( origin_url === '' ) { origin_url = '/'; }
+							// Convert to dotted notation for origin calls.
+							// if ( Service && Origin )
+							// {
+							// 	origin_url = Server.Utility.replace_all( origin_url, '/', '.' );
+							// }
+						}
+
 						try
 						{
+							if ( Origin )
+							{
+								// Get a working copy of the parameters.
+								let origin_parameters = {};
+								if ( request.query && Object.keys( request.query ).length ) { origin_parameters = request.query; }
+								else if ( request.body && Object.keys( request.body ).length ) { origin_parameters = request.body; }
+								else if ( request.params && Object.keys( request.params ).length ) { origin_parameters = request.params; }
+								// Validate the parameters.
+								let validation_error = Server.ValidateFields( Origin.parameters, origin_parameters, true, false );
+								if ( validation_error )
+								{
+									let error_message = `Validation Error: ${validation_error}`;
+									throw new Error( error_message );
+								}
+								// Set our working copy of the parmeters in the request object.
+								request.origin_parameters = origin_parameters;
+								// Report.
+								Server.Log.debug( `Express ===> ${origin_url} ===> ${JSON.stringify( origin_parameters )}` );
+							}
+							else
+							{
+								Server.Log.debug( `Express ===> ${origin_url} ===> null` );
+							}
+							// Do the invocation. (amost there!)
 							invocation_result = await Invocation( request, response, next );
 						}
 						catch ( error ) 
 						{
-							response.status( 500 ).send( { error: error.message } );
+							// Internal error.
+							// response.status( 500 ).send( { error: error.message } );
+							let api_result = {
+								ok: false,
+								origin: origin_url,
+								error: error.message,
+							};
+							response.send( api_result );
 							invocation_error = error;
 						}
 						finally
 						{
-							// Status
-							let status_text = 'ok';
-							if ( invocation_error ) { status_text = 'err'; }
-
 							// Duration
-							let duration_text = ( Date.now() - t0 ).toString();
-
+							let duration_text = ( Date.now() - t0 ).toString() + 'ms';
 							// User
 							let user_text = request.user.user_id;
-
-							// Verb
-							let verb_text = request.method;
-
-							// Origin
-							let origin_text = request.url;
+							// Report.
+							if ( invocation_result )
 							{
-								let ich = origin_text.indexOf( '?' );
-								if ( ich >= 0 ) { origin_text = origin_text.slice( 0, ich ); }
+								Server.Log.debug( `Express <=== ${origin_url} <=== ${JSON.stringify( invocation_result )} (by:${user_text}) (duration:${duration_text})` );
 							}
+							else if ( invocation_result === null )
 							{
-								let values = {};
-								if ( request.query && Object.keys( request.query ).length ) { values = request.query; }
-								else if ( request.body && Object.keys( request.body ).length ) { values = request.body; }
-								else if ( request.params && Object.keys( request.params ).length ) { values = request.params; }
-								origin_text += ' ' + JSON.stringify( values );
-							}
-
-							// Log
-							Server.Log.info(
-								`${status_text.padEnd( 4 )}`
-								+ ` | ${duration_text.padStart( 8 )}ms`
-								+ ` | ${user_text.padEnd( 20 )}`
-								+ ` | ${verb_text.padEnd( 7 )}`
-								+ ` | ${origin_text}`
-							);
-							if ( typeof invocation_result === 'undefined' )
-							{
-								// Server.Log.debug( `    ===> no return value.` );
-								// - Do not log anything as this might be a page or redirect.
-							}
-							else
-							{
-								Server.Log.debug( `    ===> ${JSON.stringify( invocation_result )}` );
+								Server.Log.debug( `Express <=== ${origin_url} <=== null (by:${user_text}) (duration:${duration_text})` );
 							}
 							if ( invocation_error )
 							{
-								Server.Log.error( `    *** Error *** ${invocation_error.message}` );
+								Server.Log.error( `Express <=== ${origin_url} <=== *** Error *** ${invocation_error.message} (by:${user_text}) (duration:${duration_text})` );
 							}
-
 						}
 
 					};
@@ -246,7 +308,15 @@ exports.Create =
 	};
 
 
-//---------------------------------------------------------------------
+//=====================================================================
+//=====================================================================
+//
+//		Initialize
+//
+//=====================================================================
+//=====================================================================
+
+
 exports.Initialize =
 	function Initialize( Server, WebServer, WebServerSettings )
 	{
@@ -412,7 +482,7 @@ exports.Initialize =
 			if ( WebServerSettings.Express.ClientSupport.client_api_file )
 			{
 				// Generate the api client for javascript.
-				let code = SRC_GENERATE_CLIENT_EXPRESS.Generate( Server, WebServer, WebServerSettings );
+				let code = SRC_EXPRESS_API_CLIENT.Generate( Server, WebServer, WebServerSettings );
 				let filename = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.client_api_file );
 				LIB_FS.writeFileSync( filename, code );
 				Server.Log.trace( `WebServer.Express.ClientSupport generated client file[ ${filename}].` );
@@ -429,6 +499,7 @@ exports.Initialize =
 				WebServer.Express.App.get( server_path,
 					WebServer.Express.AuthenticationGate( false ),
 					WebServer.Express.InvocationGate(
+						null, null,
 						async function ( request, response, next )
 						{
 							response.render( home_view, { Server: Server, User: request.user } );
@@ -468,6 +539,7 @@ exports.Initialize =
 				WebServer.Express.App.get( route,
 					WebServer.Express.AuthenticationGate( WebServerSettings.Express.Explorer.requires_login ),
 					WebServer.Express.InvocationGate(
+						null, null,
 						async function ( request, response, next )
 						{
 							response.render( explorer_view, { Server: Server, User: request.user } );
@@ -493,7 +565,7 @@ exports.Initialize =
 
 
 		//---------------------------------------------------------------------
-		SRC_APPLICATION_SERVICES.Use( Server, WebServer, WebServerSettings );
+		SRC_EXPRESS_ROUTES.Use( Server, WebServer, WebServerSettings );
 
 
 		//=====================================================================

@@ -17,24 +17,11 @@ app.controller(
 			Socket: SocketApi.NewSocket(),
 			Items: [],
 		};
+		{
+			// Parse Parameters
+			Page.Criteria = Page.Parameters.Criteria;
+		}
 		$scope.Page = Page;
-
-
-		// //---------------------------------------------------------------------
-		// if ( Page.User )
-		// {
-		// 	SocketApi.NewSocket( Page.User,
-		// 		( Socket, Status ) =>
-		// 		{
-		// 			if ( Status !== 'OK' )
-		// 			{
-		// 				console.error( 'Socket connection failed.' );
-		// 				return;
-		// 			}
-		// 			Page.Socket = Socket;
-		// 			Page.ListItems();
-		// 		} );
-		// }
 
 
 		//---------------------------------------------------------------------

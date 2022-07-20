@@ -27,6 +27,25 @@
 			"name": "------------------------------------------",
 		},
 		{
+			"name": "Test: 0002) ValidateFields Tests",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
+			"args": [
+				"-u",
+				"bdd",
+				"tests/002*.js",
+				"--timeout",
+				"0",
+			],
+			"outputCapture": "std",
+			"internalConsoleOptions": "openOnSessionStart",
+		},
+		{
 			"name": "Test: 010) StorageService Tests",
 			"type": "node",
 			"request": "launch",

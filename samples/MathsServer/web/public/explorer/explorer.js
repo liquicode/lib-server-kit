@@ -32,22 +32,6 @@ app.controller(
 		let visbility_map = {};
 
 
-		// //---------------------------------------------------------------------
-		// if ( Page.User )
-		// {
-		// 	SocketApi.NewSocket( Page.User,
-		// 		( Socket, Status ) =>
-		// 		{
-		// 			if ( Status !== 'OK' )
-		// 			{
-		// 				console.error( 'Socket connection failed.' );
-		// 				return;
-		// 			}
-		// 			Page.Socket = Socket;
-		// 		} );
-		// }
-
-
 		//---------------------------------------------------------------------
 		Page.ToggleContentVisible =
 			function ToggleContentVisible( content_id )
@@ -156,7 +140,6 @@ app.controller(
 		Page.InvokeFunction =
 			function InvokeFunction()
 			{
-				// console.log( "Invoking [" + Page.Invoke.verb + "] on " + Page.Invoke.service_name + "." + Page.Invoke.origin_name );
 
 				// Get the parameter values.
 				let values = [];
@@ -164,42 +147,19 @@ app.controller(
 				{
 					let parameter = Page.Invoke.parameters[ index ];
 					let value = Page.Invoke.values[ parameter.name ];
-					switch ( parameter.schema.type )
+					if ( parameter.schema && parameter.schema.type )
 					{
-						case 'boolean':
-							value = Boolean( value );
-							break;
-						case 'integer':
-							value = parseInt( value );
-							break;
-						case 'number':
-							value = parseFloat( value );
-							break;
-						case 'string':
-							value = '' + value;
-							break;
-						case 'array':
-							if ( typeof value === 'string' )
+						if ( typeof value === 'string' )
+						{
+							if ( parameter.schema.type === 'array' )
 							{
-								if ( value.trim().startsWith( '[' ) )
-								{
-									value = JSON.parse( value );
-								}
-								else
-								{
-									value = [ value ];
-								}
+								if ( !value.trim().startsWith( '[' ) ) { value = null; }
 							}
-							break;
-						case 'object':
-							if ( typeof value === 'string' )
+							if ( parameter.schema.type === 'object' )
 							{
-								if ( value.trim().startsWith( '{' ) )
-								{
-									value = JSON.parse( value );
-								}
+								if ( !value.trim().startsWith( '{' ) ) { value = null; }
 							}
-							break;
+						}
 					}
 					values.push( value );
 				}

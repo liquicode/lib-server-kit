@@ -178,6 +178,7 @@ exports.Use =
 			WebServer.Express.App.get( urls.login,
 				WebServer.Express.AuthenticationGate( false ),
 				WebServer.Express.InvocationGate(
+					null, null,
 					async function ( request, response, next )
 					{
 						response.render( views.login, { Server: Server, User: request.user } );
@@ -216,6 +217,7 @@ exports.Use =
 			WebServer.Express.App.get( urls.logout,
 				WebServer.Express.AuthenticationGate( true ),
 				WebServer.Express.InvocationGate(
+					null, null,
 					async function ( request, response, next )
 					{
 						response.render( views.logout, { Server: Server, User: request.user } );
@@ -249,6 +251,7 @@ exports.Use =
 			WebServer.Express.App.get( urls.signup,
 				WebServer.Express.AuthenticationGate( false ),
 				WebServer.Express.InvocationGate(
+					null, null,
 					async function ( request, response, next )
 					{
 						response.render( views.signup, { Server: Server, User: request.user } );

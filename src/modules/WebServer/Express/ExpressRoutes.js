@@ -15,34 +15,43 @@ exports.Use =
 	{
 
 
+		//=====================================================================
+		//=====================================================================
+		//
+		//		Initialize
+		//
+		//=====================================================================
+		//=====================================================================
+
+
 		//---------------------------------------------------------------------
-		function get_express_request_parameters( request, origin )
+		// Add service origins.
+		let service_names = Object.keys( Server.Services );
+		for ( let index = 0; index < service_names.length; index++ )
 		{
-			let parameters = [];
-			for ( let parameter_index = 0; parameter_index < origin.parameters.length; parameter_index++ )
-			{
-				let parameter = origin.parameters[ parameter_index ];
-				let value = request.params[ parameter.name ];
-				if ( typeof value === 'undefined' )
-				{
-					value = request.query[ parameter.name ];
-				}
-				if ( typeof value === 'undefined' )
-				{
-					value = request.body[ parameter.name ];
-				}
-				if ( typeof value === 'undefined' )
-				{
-					value = null;
-					if ( parameter.required )
-					{
-						Server.Log.warn( `Undefined value for required parameter [${parameter.name}] in origin [${origin.name}].` );
-					}
-				}
-				parameters.push( value );
-			}
-			return parameters;
+			let service_name = service_names[ index ];
+			let service = Server[ service_name ];
+
+			let server_path = WebServer.Express.ServerPath();
+			let services_path = WebServer.Express.ServicesPath();
+
+			// Add the service API
+			let origin_count = add_service_origins( service, `${services_path}${service.ServiceDefinition.name}` );
+			Server.Log.trace( `Added ${origin_count} express routes for [${services_path}${service.ServiceDefinition.name}] functions.` );
+
+			// Add the service pages
+			let page_count = add_service_pages( service, `${server_path}${service.ServiceDefinition.name}` );
+			Server.Log.trace( `Added ${page_count} express routes for [${server_path}${service.ServiceDefinition.name}] pages.` );
 		}
+
+
+		//=====================================================================
+		//=====================================================================
+		//
+		//		Service Origins
+		//
+		//=====================================================================
+		//=====================================================================
 
 
 		//---------------------------------------------------------------------
@@ -63,7 +72,8 @@ exports.Use =
 				async function express_origin_handler( request, response, next ) 
 				{
 					// Get the origin parameters.
-					let parameters = get_express_request_parameters( request, origin );
+					// let parameters = get_express_request_parameters( request, origin );
+					let parameters = request.origin_parameters;
 
 					// Invoke the origin function.
 					// Wrap return values in a api_result object.
@@ -73,7 +83,15 @@ exports.Use =
 					};
 					try
 					{
-						api_result.result = await origin.invoke( request.user, ...parameters );
+						// Convert parameters to an array of values.
+						let parameter_values = [];
+						for ( let parameter_index = 0; parameter_index < origin.parameters.length; parameter_index++ )
+						{
+							let parameter = origin.parameters[ parameter_index ];
+							parameter_values.push( parameters[ parameter.name ] );
+						}
+						// Invoke the origin function. (finally!)
+						api_result.result = await origin.invoke( request.user, ...parameter_values );
 					}
 					catch ( error )
 					{
@@ -96,7 +114,7 @@ exports.Use =
 					WebServer.Express.App.get( `${ParentPath}/${origin.name}`,
 						WebServer.Express.AuthenticationGate( origin.requires_login ),
 						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( express_origin_handler ),
+						WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
 					);
 					origin_count++;
 				}
@@ -105,7 +123,7 @@ exports.Use =
 					WebServer.Express.App.post( `${ParentPath}/${origin.name}`,
 						WebServer.Express.AuthenticationGate( origin.requires_login ),
 						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( express_origin_handler ),
+						WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
 					);
 					origin_count++;
 				}
@@ -114,7 +132,7 @@ exports.Use =
 					WebServer.Express.App.put( `${ParentPath}/${origin.name}`,
 						WebServer.Express.AuthenticationGate( origin.requires_login ),
 						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( express_origin_handler ),
+						WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
 					);
 					origin_count++;
 				}
@@ -123,7 +141,7 @@ exports.Use =
 					WebServer.Express.App.delete( `${ParentPath}/${origin.name}`,
 						WebServer.Express.AuthenticationGate( origin.requires_login ),
 						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( express_origin_handler ),
+						WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
 					);
 					origin_count++;
 				}
@@ -132,6 +150,15 @@ exports.Use =
 
 			return origin_count;
 		};
+
+
+		//=====================================================================
+		//=====================================================================
+		//
+		//		Service Pages
+		//
+		//=====================================================================
+		//=====================================================================
 
 
 		//---------------------------------------------------------------------
@@ -150,7 +177,8 @@ exports.Use =
 				async function express_page_handler( request, response, next ) 
 				{
 					// Get the origin parameters.
-					let parameters = get_express_request_parameters( request, origin );
+					// let parameters = get_express_request_parameters( request, origin );
+					let parameters = request.origin_parameters;
 
 					// Render the origin page.
 					// Wrap return values in a api_result object.
@@ -174,7 +202,7 @@ exports.Use =
 						api_result.ok = false;
 						api_result.error = error.message;
 						// Server.Log.error( `Error in [${api_result.origin}]: ${api_result.error}` );
-						response.send( api_result ); // Returning an error object to a page request!
+						response.send( api_result ); // Returning an error object to a page request! Should we redirect to a special error page?
 					}
 					// Return 'undefined' back to InvocationGate to avoid propagating the api_result.
 					return;
@@ -185,7 +213,7 @@ exports.Use =
 				WebServer.Express.App.get( `${ParentPath}/${origin.name}`,
 					WebServer.Express.AuthenticationGate( origin.requires_login ),
 					WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-					WebServer.Express.InvocationGate( express_page_handler ),
+					WebServer.Express.InvocationGate( Service, origin, express_page_handler ),
 				);
 				origin_count++;
 
@@ -193,27 +221,6 @@ exports.Use =
 
 			return origin_count;
 		};
-
-
-		//---------------------------------------------------------------------
-		// Add service origins.
-		let service_names = Object.keys( Server.Services );
-		for ( let index = 0; index < service_names.length; index++ )
-		{
-			let service_name = service_names[ index ];
-			let service = Server[ service_name ];
-
-			let server_path = WebServer.Express.ServerPath();
-			let services_path = WebServer.Express.ServicesPath();
-
-			// Add the service API
-			let origin_count = add_service_origins( service, `${services_path}${service.ServiceDefinition.name}` );
-			Server.Log.trace( `Added ${origin_count} express routes for [${services_path}${service.ServiceDefinition.name}] functions.` );
-
-			// Add the service pages
-			let page_count = add_service_pages( service, `${server_path}${service.ServiceDefinition.name}` );
-			Server.Log.trace( `Added ${page_count} express routes for [${server_path}${service.ServiceDefinition.name}] pages.` );
-		}
 
 
 		//---------------------------------------------------------------------

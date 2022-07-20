@@ -9,9 +9,9 @@ block content
 		script
 			!= `window.SERVER_DATA = {};\n`
 			!= `window.SERVER_DATA.User = ${JSON.stringify( locals.User )};\n`
-			!= `window.SERVER_DATA.ItemDefinition = ${JSON.stringify(locals.ItemDefinition)};\n`
-			!= `window.SERVER_DATA.ServiceDefinition = ${JSON.stringify( locals.ServiceDefinition)};\n`
-			!= `window.SERVER_DATA.Parameters = "${locals.Parameters}";\n`
+			!= `window.SERVER_DATA.ItemDefinition = ${JSON.stringify( locals.ItemDefinition )};\n`
+			!= `window.SERVER_DATA.ServiceDefinition = ${JSON.stringify( locals.ServiceDefinition )};\n`
+			!= `window.SERVER_DATA.Parameters = ${JSON.stringify( locals.Parameters )};\n`
 
 
 		//-=====================================================================

@@ -1,13 +1,22 @@
-.w3-modal( id='invoke-modal' )
-	.w3-modal-content.w3-animate-zoom.w3-animate-opacity
+.w3-modal(
+	id='invoke-modal'
+)
+	.w3-modal-content.w3-animate-zoom.w3-animate-opacity(
+		style="max-height:99%;overflow-x:auto; overflow-y:auto;"
+	)
 
 		header.w3-container.w3-blue
 			span.w3-button.w3-display-topright.w3-xlarge.w3-round-xxlarge(
 				ng-click="Page.HideInvokeModal()"
 			) &times;
-			h3 {{Page.Invoke.verb}}: {{Page.Invoke.service_name}}.{{Page.Invoke.origin_name}}
 
-		.w3-container.w3-whitesmoke
+			h3
+				span.w3-tag.w3-round.w3-teal {{Page.Invoke.verb}}
+				span &nbsp; {{Page.Invoke.service_name}}.{{Page.Invoke.origin_name}}
+
+		.w3-container.w3-whitesmoke(
+			style=""
+		)
 
 			h3 As User:
 
@@ -54,7 +63,6 @@
 			.w3-container
 				pre.w3-code.jsHigh.w3-small(
 					id='invoke-response'
-					style="height:125px; max-height:125px; overflow-x:auto; overflow-y:auto;"
 				)
 				//- {{Page.InvokeResponse()}}
 
