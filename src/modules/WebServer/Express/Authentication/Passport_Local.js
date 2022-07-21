@@ -185,16 +185,6 @@ exports.Use =
 						return;
 					}
 				),
-				// async function ( request, response, next ) 
-				// {
-				// 	await Server.WebServer.RequestProcessor( request, response, next,
-				// 		async function ( request, response, next )
-				// 		{
-				// 			response.render( views.login, { Server: Server, User: request.user } );
-				// 			return;
-				// 		}
-				// 		, true );
-				// }
 			);
 			WebServer.Express.App.post( urls.login,
 				WebServer.Express.AuthenticationGate( false ),
@@ -203,7 +193,11 @@ exports.Use =
 				{
 					// Determine the url to redirect to after a successful login.
 					let requested_url = urls.home;
-					if ( request.session.redirect_url_after_login ) { requested_url = request.session.redirect_url_after_login; }
+					if ( request.session
+						&& request.session.redirect_url_after_login ) 
+					{
+						requested_url = request.session.redirect_url_after_login;
+					}
 					if ( !requested_url ) { requested_url = '/'; }
 					// Send the next url.
 					response.send( requested_url );
@@ -224,16 +218,6 @@ exports.Use =
 						return;
 					}
 				),
-				// async function ( request, response, next ) 
-				// {
-				// 	await Server.WebServer.RequestProcessor( request, response, next,
-				// 		async function ( request, response, next )
-				// 		{
-				// 			response.render( views.logout, { Server: Server, User: request.user } );
-				// 			return;
-				// 		}
-				// 		, true );
-				// }
 			);
 			WebServer.Express.App.post( urls.logout,
 				WebServer.Express.AuthenticationGate( true ),
@@ -258,16 +242,6 @@ exports.Use =
 						return;
 					}
 				),
-				// async function ( request, response, next )
-				// {
-				// 	await Server.WebServer.RequestProcessor( request, response, next,
-				// 		async function ( request, response, next )
-				// 		{
-				// 			response.render( views.signup, { Server: Server, User: request.user } );
-				// 			return;
-				// 		}
-				// 		, true );
-				// }
 			);
 			WebServer.Express.App.post( urls.signup,
 				WebServer.Express.AuthenticationGate( false ),

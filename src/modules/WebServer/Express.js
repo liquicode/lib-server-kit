@@ -17,7 +17,8 @@ const LIB_EXPRESS_SESSION = require( 'express-session' );
 const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
 const LIB_CORS = require( 'cors' );
 // const LIB_HELMET = require( 'helmet' );
-
+const LIB_MEMORYSTORE = require( 'memorystore' );
+const LIB_SESSION_FILE_STORE = require( 'session-file-store' );
 
 //---------------------------------------------------------------------
 const SRC_AUTHENTICATION_PASSPORT_LOCAL = require( './Express/Authentication/Passport_Local.js' );
@@ -107,28 +108,57 @@ exports.Create =
 					&& WebServerSettings.Express.Authentication.enabled
 					&& RequiresAuthentication )
 				{
-					middleware =
+					middleware = // Authentication is required.
 						async function ( request, response, next )
 						{
-							if ( request.user ) { return next(); }
+							// If the user already exists and is not the Anonymous user, then continue next.
+							if ( request.user )
+							{
+								if ( request.user.user_id !== WebServerSettings.AnonymousUser.user_id ) 
+								{
+									// Server.Log.trace( `AuthenticationGate(1) is selecting the existing request.user [${request.user.user_id}].` );
+									return next();
+								}
+							}
+
+							// Store original url in our session.
 							if ( request.session )
 							{
 								// Remember this url so that a successful authentication can redirect to the originally requested url.
 								request.session.redirect_url_after_login = request.originalUrl;
 							}
-							// Redirect to the login page.
-							let url = `${Express.ServerPath()}${WebServerSettings.Express.Authentication.Pages.login_url}`;
-							response.redirect( url );
+
+							// Redirect user to the login page.
+							// Server.Log.trace( 'AuthenticationGate(1) is redirecting user to the login url.' );
+							let login_url = `${Express.ServerPath()}${WebServerSettings.Express.Authentication.Pages.login_url}`;
+							response.redirect( login_url );
 						};
 				}
 				else
 				{
-					middleware =
+					middleware = // Authentication is not required.
 						async function ( request, response, next )
 						{
-							if ( request.user ) { return next(); }
-							// Set the Anonymous user.
-							request.user = JSON.parse( JSON.stringify( WebServerSettings.Express.Authentication.AnonymousUser ) );
+							if ( typeof request.user === 'undefined' )
+							{
+								// If there is a user already loaded in the session then use it otherwise set the Anonymous user.
+								if ( request.session
+									&& request.session.passport
+									&& request.session.passport.user ) 
+								{
+									request.user = JSON.parse( JSON.stringify( request.session.passport.user ) );
+								}
+								else
+								{
+									// Set the Anonymous user.
+									// Server.Log.trace( 'AuthenticationGate(2) is selecting the Anonymous user.' );
+									request.user = JSON.parse( JSON.stringify( WebServerSettings.AnonymousUser ) );
+								}
+							}
+							else
+							{
+								// Server.Log.trace( `AuthenticationGate(2) is selecting the existing request.user [${request.user.user_id}].` );
+							}
 							return next();
 						};
 				}
@@ -158,7 +188,7 @@ exports.Create =
 					&& WebServerSettings.Express.Authentication.enabled
 					&& AllowedRoles.length )
 				{
-					middleware =
+					middleware = // Authorization is required.
 						async function ( request, response, next )
 						{
 							if ( !request.user ) { throw new Error( `request.user is null. Authentication must precede Authorization.` ); }
@@ -175,7 +205,7 @@ exports.Create =
 				}
 				else
 				{
-					middleware =
+					middleware = // Authorization is not required.
 						async function ( request, response, next )
 						{
 							if ( !request.user ) { throw new Error( `request.user is null. Authentication must precede Authorization.` ); }
@@ -387,7 +417,52 @@ exports.Initialize =
 		//=====================================================================
 		//=====================================================================
 		//
+		//		Client Support
+		//
+		//=====================================================================
+		//=====================================================================
+
+
+		if ( WebServerSettings.Express.ClientSupport
+			&& WebServerSettings.Express.ClientSupport.enabled )
+		{
+
+			//---------------------------------------------------------------------
+			// Serve views.
+			if ( WebServerSettings.Express.ClientSupport.Views
+				&& WebServerSettings.Express.ClientSupport.Views.view_engine )
+			{
+				let engine = WebServerSettings.Express.ClientSupport.Views.view_engine;
+				let path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.Views.view_files );
+				LIB_FS.mkdirSync( path, { recursive: true } );
+				WebServer.Express.App.set( 'view engine', engine );
+				WebServer.Express.App.set( 'views', path );
+				Server.Log.trace( `WebServer.Express.ClientSupport using '${engine}' views from folder [${path}].` );
+			}
+
+			//---------------------------------------------------------------------
+			// Generate client file.
+			if ( WebServerSettings.Express.ClientSupport.client_api_file )
+			{
+				// Generate the api client for javascript.
+				let code = SRC_EXPRESS_API_CLIENT.Generate( Server, WebServer, WebServerSettings );
+				let filename = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.client_api_file );
+				LIB_FS.writeFileSync( filename, code );
+				Server.Log.trace( `WebServer.Express.ClientSupport generated client file [${filename}].` );
+			}
+
+			Server.Log.trace( `WebServer.Express.ClientSupport is initialized.` );
+		}
+
+
+		//=====================================================================
+		//=====================================================================
+		//
 		//		Session
+		//
+		// `session-file-store` must be initialized after setting the
+		// ClientSupport.public_files static folder and before the adding
+		// of any routes.
 		//
 		//=====================================================================
 		//=====================================================================
@@ -396,15 +471,93 @@ exports.Initialize =
 		if ( WebServerSettings.Express.Session
 			&& WebServerSettings.Express.Session.enabled )
 		{
-			WebServer.Express.Session = LIB_EXPRESS_SESSION( WebServerSettings.Express.Session.Settings );
-			WebServer.Express.App.use( WebServer.Express.Session );
+			let session_settings = JSON.parse( JSON.stringify( WebServerSettings.Express.Session.Settings ) );
+
+			if ( WebServerSettings.Express.Session.storage_engine )
+			{
+				switch ( WebServerSettings.Express.Session.storage_engine )
+				{
+					case 'Memory_Storage':
+						let memory_store = LIB_MEMORYSTORE( LIB_EXPRESS_SESSION );
+						session_settings.store = new memory_store( WebServerSettings.Express.Session.Memory_Storage );
+						Server.Log.trace( `WebServer.Express.Session.Memory_Storage is being used.` );
+						break;
+					case 'File_Storage':
+						let file_storage_settings = JSON.parse( JSON.stringify( WebServerSettings.Express.Session.File_Storage.Settings ) );
+						file_storage_settings.path = Server.ResolveApplicationPath( file_storage_settings.path );
+						LIB_FS.mkdirSync( file_storage_settings.path, { recursive: true } );
+						let file_store = LIB_SESSION_FILE_STORE( LIB_EXPRESS_SESSION );
+						session_settings.store = new file_store( file_storage_settings );
+						Server.Log.trace( `WebServer.Express.Session.File_Storage is using path [${file_storage_settings.path}].` );
+						break;
+					case 'BetterSqlite3_Storage':
+						Server.Log.warn( `WebServer.Express.Session.BetterSqlite3_Storage is not implemented!` );
+						// Server.Log.trace( `WebServer.Express.Session.BetterSqlite3_Storage is being used.` );
+						break;
+					case '':
+					case 'Native_Storage':
+						Server.Log.trace( `WebServer.Express.Session.Native_Storage is being used.` );
+						break;
+				}
+			}
+
+			WebServer.Express.Session = LIB_EXPRESS_SESSION( session_settings );
 
 			if ( WebServerSettings.Express.Session.set_express_trust_proxy )
 			{
 				WebServer.Express.App.set( 'trust proxy', 1 );
 			}
 
+			WebServer.Express.App.use( WebServer.Express.Session );
 			Server.Log.trace( `WebServer.Express.Session is initialized.` );
+		}
+
+
+		//=====================================================================
+		//=====================================================================
+		//
+		//		Client Support (part 2)
+		//
+		//=====================================================================
+		//=====================================================================
+
+
+		if ( WebServerSettings.Express.ClientSupport
+			&& WebServerSettings.Express.ClientSupport.enabled )
+		{
+
+			//---------------------------------------------------------------------
+			// Serve public files.
+			if ( WebServerSettings.Express.ClientSupport.public_files )
+			{
+				let url_path = WebServer.Express.ServerPath() + WebServerSettings.Express.ClientSupport.public_url;
+				let folder_path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.public_files );
+				LIB_FS.mkdirSync( folder_path, { recursive: true } );
+				WebServer.Express.App.use( url_path, LIB_EXPRESS.static( folder_path ) );
+				Server.Log.trace( `WebServer.Express.ClientSupport mounted route [${url_path}] for static folder [${folder_path}].` );
+			}
+
+			//---------------------------------------------------------------------
+			// Mount root route.
+			if ( WebServerSettings.Express.ClientSupport.Views
+				&& WebServerSettings.Express.ClientSupport.Views.home_view )
+			{
+				let server_path = WebServer.Express.ServerPath();
+				let home_view = WebServerSettings.Express.ClientSupport.Views.home_view;
+				WebServer.Express.App.get( server_path,
+					WebServer.Express.AuthenticationGate( false ),
+					WebServer.Express.InvocationGate(
+						null, null,
+						async function ( request, response, next )
+						{
+							response.render( home_view, { Server: Server, User: request.user } );
+							return "OK";
+						}
+					),
+				);
+				Server.Log.trace( `WebServer.Express.ClientSupport mounted route [${server_path}] to view [${home_view}].` );
+			}
+
 		}
 
 
@@ -423,12 +576,12 @@ exports.Initialize =
 			if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Local' )
 			{
 				SRC_AUTHENTICATION_PASSPORT_LOCAL.Use( Server, WebServer, WebServerSettings );
-				Server.Log.trace( `WebServer.Express.Authentication is using[ Passport_Local ].` );
+				Server.Log.trace( `WebServer.Express.Authentication is using [Passport_Local].` );
 			}
 			else if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Auth0' )
 			{
 				SRC_AUTHENTICATION_PASSPORT_AUTH0.Use( Server, WebServer, WebServer.Express, WebServerSettings );
-				Server.Log.trace( `WebServer.Express.Authentication is using[ Passport_Auth0 ].` );
+				Server.Log.trace( `WebServer.Express.Authentication is using [Passport_Auth0].` );
 			}
 			else
 			{
@@ -438,80 +591,6 @@ exports.Initialize =
 					`Must be either 'Passport_Local' or 'Passport_Auth0'.` ) );
 			}
 			Server.Log.trace( `WebServer.Express.Authentication is initialized.` );
-		}
-
-
-		//=====================================================================
-		//=====================================================================
-		//
-		//		Client Support
-		//
-		//=====================================================================
-		//=====================================================================
-
-
-		if ( WebServerSettings.Express.ClientSupport
-			&& WebServerSettings.Express.ClientSupport.enabled )
-		{
-
-			//---------------------------------------------------------------------
-			// Serve public files.
-			if ( WebServerSettings.Express.ClientSupport.public_files )
-			{
-				let path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.public_files );
-				LIB_FS.mkdirSync( path, { recursive: true } );
-				WebServer.Express.App.use( WebServer.Express.ServerPath(), LIB_EXPRESS.static( path ) );
-				Server.Log.trace( `WebServer.Express.ClientSupport using public folder [ ${path} ].` );
-			}
-
-			//---------------------------------------------------------------------
-			// Serve views.
-			if ( WebServerSettings.Express.ClientSupport.Views
-				&& WebServerSettings.Express.ClientSupport.Views.view_engine )
-			{
-				let engine = WebServerSettings.Express.ClientSupport.Views.view_engine;
-				let path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.Views.view_files );
-				LIB_FS.mkdirSync( path, { recursive: true } );
-				WebServer.Express.App.set( 'view engine', engine );
-				WebServer.Express.App.set( 'views', path );
-				Server.Log.trace( `WebServer.Express.ClientSupport using '${engine}' views from folder[ ${path}].` );
-			}
-
-			//---------------------------------------------------------------------
-			// Generate client file.
-			if ( WebServerSettings.Express.ClientSupport.client_api_file )
-			{
-				// Generate the api client for javascript.
-				let code = SRC_EXPRESS_API_CLIENT.Generate( Server, WebServer, WebServerSettings );
-				let filename = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.client_api_file );
-				LIB_FS.writeFileSync( filename, code );
-				Server.Log.trace( `WebServer.Express.ClientSupport generated client file[ ${filename}].` );
-			}
-
-			//---------------------------------------------------------------------
-			// Install root route.
-			{
-				let server_path = WebServer.Express.ServerPath();
-				let home_view = WebServerSettings.Express.ClientSupport.Views.home_view;
-
-				//---------------------------------------------------------------------
-				// Default root route.
-				WebServer.Express.App.get( server_path,
-					WebServer.Express.AuthenticationGate( false ),
-					WebServer.Express.InvocationGate(
-						null, null,
-						async function ( request, response, next )
-						{
-							response.render( home_view, { Server: Server, User: request.user } );
-							return "OK";
-						}
-					),
-				);
-				Server.Log.trace( `WebServer.Express.ClientSupport mounted route '${server_path}' to view[ ${home_view}].` );
-
-			}
-
-			Server.Log.trace( `WebServer.Express.ClientSupport is initialized.` );
 		}
 
 
@@ -548,7 +627,7 @@ exports.Initialize =
 					),
 				);
 
-				Server.Log.trace( `WebServer.Express.Explorer mounted route[ ${route}] to view [${explorer_view}].` );
+				Server.Log.trace( `WebServer.Express.Explorer mounted route [${route}] to view [${explorer_view}].` );
 			}
 
 			Server.Log.trace( `WebServer.Express.Explorer is initialized.` );

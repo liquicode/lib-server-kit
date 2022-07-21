@@ -34,12 +34,12 @@ html
 		script( src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.1.0/uuidv4.min.js" )
 
 		//- Server APIs
-		script( type='text/javascript' src='/_express-api-client.js' )
-		script( type='text/javascript' src='/_socket-api-client.js' )
+		script( type='text/javascript' src='/public/_express-api-client.js' )
+		script( type='text/javascript' src='/public/_socket-api-client.js' )
 
 		//- Application Source
-		script( type='text/javascript' src='/app.js' )
-		link( rel='stylesheet' href='/application.css' )
+		script( type='text/javascript' src='/public/app.js' )
+		link( rel='stylesheet' href='/public/application.css' )
 
 
 body
@@ -47,7 +47,7 @@ body
 	div( ng-app='Application_Module', ng-cloak )
 
 		nav.w3-bar.w3-border.w3-light-grey( role="navigation" )
-			img.w3-bar-item.w3-image.w3-responsive.w3-opacity( src='/images/logo-24x24.png' )
+			img.w3-bar-item.w3-image.w3-responsive.w3-opacity( src='/public/images/logo-24x24.png' )
 			.w3-bar-item.w3-text-grey= locals.Server.Config.Settings.AppInfo.name
 			a.w3-bar-item.w3-button.w3-mobile( href="/" ) Home
 

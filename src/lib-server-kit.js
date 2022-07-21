@@ -126,6 +126,10 @@ exports.NewServer =
 											{
 												value = null;
 											}
+											else if ( value === '' )
+											{
+												value = null;
+											}
 											else
 											{
 												value = [ value ];
@@ -140,6 +144,10 @@ exports.NewServer =
 												value = JSON.parse( value );
 											}
 											else if ( value === 'null' )
+											{
+												value = null;
+											}
+											else if ( value === '' )
 											{
 												value = null;
 											}

@@ -24,6 +24,13 @@ exports.GetDefaults =
 				port: 80,
 			},
 
+			AnonymousUser: {
+				user_id: 'anonymous@server',
+				user_role: 'public',
+				user_name: 'Anonymous',
+				image_url: '',
+			},
+
 			//---------------------------------------------------------------------
 			// Express Transport: https://github.com/expressjs/express
 			//---------------------------------------------------------------------
@@ -41,8 +48,9 @@ exports.GetDefaults =
 				ClientSupport: {
 					enabled: false,
 					public_files: 'web/public',			// Local folder of public files.
+					public_url: 'public',				// Url path of the public files.
 					client_api_file: 'web/public/_express-api-client.js',
-					client_api_style: 'ajax',			// fetch, ajax, axios
+					client_api_style: 'ajax',			// fetch or ajax
 					Views: {
 						view_engine: 'pug',				// Only 'pug' is supported.
 						view_files: 'web/views',		// Local folder of view files.
@@ -133,22 +141,46 @@ exports.GetDefaults =
 				Session: {
 					enabled: false,
 					set_express_trust_proxy: false,
+					storage_engine: '',
 					Settings: { // https://github.com/expressjs/session
 						secret: 'CHANGE THIS TO A RANDOM SECRET',
-						name: 'connect.sid',
-						proxy: false,				// Use true if your application is behind a proxy (like on Heroku) or if you're encountering the error message: "Unable to verify authorization request state"
-						resave: false,
-						rolling: false,
-						saveUninitialized: true,
+						name: 'connect.sid',			// The name of the session ID cookie to set in the response (and read from in the request).
+						proxy: false,					// Trust the reverse proxy when setting secure cookies (via the "X-Forwarded-Proto" header). Use true if your application is behind a proxy or if you're encountering the error message: "Unable to verify authorization request state"
+						resave: false,					// Forces the session to be saved back to the session store, even if the session was never modified during the request.
+						rolling: false,					// Force the session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown.
+						saveUninitialized: true,		// Forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified.
 						cookie: {
-							path: '/',
-							httpOnly: true,
-							secure: false,			// Use secure cookies in production (requires SSL/TLS)
-							maxAge: null,
-							domain: null,
-							sameSite: false,
+							path: '/',					// Specifies the value for the Path Set-Cookie. By default, this is set to '/', which is the root path of the domain.
+							httpOnly: true,				// Specifies the boolean value for the HttpOnly Set-Cookie attribute. When truthy, the HttpOnly attribute is set, otherwise it is not. By default, the HttpOnly attribute is set. Note be careful when setting this to true, as compliant clients will not allow client-side JavaScript to see the cookie in document.cookie.
+							secure: false,				// Use secure cookies in production (requires SSL/TLS)
+							maxAge: null,				// Specifies the number (in milliseconds) to use when calculating the Expires Set-Cookie attribute.
+							domain: null,				// Specifies the value for the Domain Set-Cookie attribute. By default, no domain is set, and most clients will consider the cookie to apply to only the current domain.
+							sameSite: false,			// Specifies the boolean or string to be the value for the SameSite Set-Cookie attribute. By default, this is false.
 						},
 					},
+					Native_Storage: { /* No Settings */ },
+					Memory_Storage: {
+						Settings: { // https://www.npmjs.com/package/memorystore
+							checkPeriod: 3600 * 1000,	// Define how long MemoryStore will check for expired. The period is in ms.
+						},
+					},
+					File_Storage: {
+						Settings: { // https://www.npmjs.com/package/session-file-store
+							path: 'sessions',			// The directory where the session files will be stored. Defaults to ./sessions
+							fileExtension: '.json',		// File extension of saved files. Defaults to '.json'
+							secret: null,				// Enables transparent encryption support conforming to OWASP's Session Management best practices.
+							ttl: 3600,					// Session time to live in seconds. Defaults to 3600
+							retries: 5,					// The number of retries to get session data from a session file. Defaults to 5
+							factor: 1,					// The exponential factor to use for retry. Defaults to 1
+							minTimeout: 50,				// The number of milliseconds before starting the first retry. Defaults to 50
+							maxTimeout: 100,			// The maximum number of milliseconds between two retries. Defaults to 100
+							reapInterval: 3600,			// Interval to clear expired sessions in seconds or -1 if do not need. Defaults to 1 hour
+						},
+					},
+					// BetterSqlite3_Storage: {
+					// 	Settings: {
+					// 	},
+					// },
 				}, // ~ Session
 
 				//---------------------------------------------------------------------
@@ -166,13 +198,6 @@ exports.GetDefaults =
 						logout_view: 'auth/logout',
 						signup_url: 'auth/signup',
 						signup_view: 'auth/signup',
-					},
-
-					AnonymousUser: {
-						user_id: 'anonymous@server',
-						user_role: 'public',
-						user_name: 'Anonymous',
-						image_url: '',
 					},
 
 					//---------------------------------------------------------------------

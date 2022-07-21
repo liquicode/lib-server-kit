@@ -1,5 +1,7 @@
 
 
+const LIB_PATH = require( 'path' );
+
 // const LIB_SERVER_KIT = require( '@liquicode/lib-server-kit' );
 const LIB_SERVER_KIT = require( '../../src/lib-server-kit' );
 
@@ -33,6 +35,13 @@ let server_options = {
 						secret: 'fgHrHtvtnRB3mwVSRoFtuy9ZQPRW3N9X',
 						name: 'MathsServer.sid',
 					},
+					// storage_engine: 'Memory_Storage',
+					storage_engine: 'File_Storage',
+					File_Storage: {
+						Settings: {
+							path: '~data/sessions',
+						},
+					},
 				},
 				Authentication: {
 					enabled: true,
@@ -41,6 +50,19 @@ let server_options = {
 			SocketIO: {
 				enabled: true,
 			}
+		},
+		SystemUsers: {
+			Storage: {
+				JsonProvider: {
+					enabled: true,
+					collection_name: "SystemUsers",
+					// database_name: "~data",
+					database_name: LIB_PATH.join( __dirname, '~data' ),
+					clear_collection_on_start: false,
+					flush_on_update: true,
+					flush_every_ms: 0,
+				},
+			},
 		},
 		Log: {
 			Console: {

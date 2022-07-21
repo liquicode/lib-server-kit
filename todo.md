@@ -4,6 +4,7 @@
 - Server
 	- Update lib-json to support hjson. Go full lib-json.
 		- allow js syntax for user input
+	- **COMPLETED** Move `AnonymousUser` to the top, underneath `WebServer`.
 
 - Services
 	- **COMPLETED** Rename `Endpoints` to `Origins`
@@ -17,18 +18,18 @@
 
 - Express
 	- **COMPLETED** Develop `Express.AuthorizationGate` middleware to check user roles
-	- **COMPLETED** Convert `WebServer.RequestProcessor` to `Express.RequestProcessor`
-		- reimplement as middleware?
+	- **COMPLETED** Convert `WebServer.RequestProcessor` to `Express.InvocationGate`
 	- **COMPLETED** Fix: All Origin calls are being stringified.
 	- **COMPLETED** Fix: Origin socket call logs do not show the result. Because we are getting the result of the middleware and not the call itself.
 	- **COMPLETED** Fix: When an error occurs during an Express origin call, an eror string is returned rather than an ApiResult.
 
 	- Session
 		- Implement persistence strategies for sessions
-			- filesystem
-			- sqlite
-			- mongodb
-			- mysql
+			- **COMPLETED** [memorystore](https://www.npmjs.com/package/memorystore)
+			- **COMPLETED** [session-file-store](https://www.npmjs.com/package/session-file-store)
+			- [better-sqlite3-session-store](https://www.npmjs.com/package/better-sqlite3-session-store)
+			- [connect-mongo](https://www.npmjs.com/package/connect-mongo)
+			- [connect-session-sequelize](https://www.npmjs.com/package/connect-session-sequelize)
 
 	- ClientSupport
 		- Implement more view engines. (jade, ejs)

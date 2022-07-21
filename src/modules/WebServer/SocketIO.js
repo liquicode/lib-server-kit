@@ -73,7 +73,7 @@ exports.Initialize =
 						return async function socket_handler( Message ) 
 						{
 							// Get the session user.
-							if ( !SocketInstance.User )
+							if ( !SocketInstance.user )
 							{
 								if (
 									SocketInstance.handshake
@@ -88,7 +88,7 @@ exports.Initialize =
 								else
 								{
 									SocketInstance.user = JSON.parse( JSON.stringify(
-										WebServerSettings.Express.Authentication.AnonymousUser ) );
+										WebServerSettings.AnonymousUser ) );
 								}
 							}
 
