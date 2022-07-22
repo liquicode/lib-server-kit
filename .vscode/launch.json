@@ -84,7 +84,7 @@
 			"internalConsoleOptions": "openOnSessionStart",
 		},
 		{
-			"name": "Test: 021) SystemUsers Service Tests",
+			"name": "Test: 021) ServerAccounts Service Tests",
 			"type": "node",
 			"request": "launch",
 			"skipFiles": [
@@ -141,7 +141,7 @@
 			"internalConsoleOptions": "openOnSessionStart",
 		},
 		{
-			"name": "Test: 031) SystemUsers Express Tests",
+			"name": "Test: 031) ServerAccounts Express Tests",
 			"type": "node",
 			"request": "launch",
 			"skipFiles": [

@@ -64,12 +64,12 @@ exports.Use =
 				try
 				{
 					// Find or create this user.
-					let user = Server.SystemUsers.NewServiceObject();
+					let user = Server.ServerAccounts.NewServiceItem();
 					user.user_id = profile.emails[ 0 ].value.toLowerCase().trim();
 					user.user_name = profile.displayName;
 					user.user_role = 'user';
 					user.image_url = profile.picture;
-					let api_result = await Server.SystemUsers.FindOrCreateUser( user );
+					let api_result = await Server.ServerAccounts.FindOrCreateUser( user );
 					if ( api_result.error ) { throw new Error( api_result.error ); }
 					return done( null, api_result.object );
 				}

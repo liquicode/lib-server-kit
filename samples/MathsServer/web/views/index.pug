@@ -56,7 +56,7 @@ body
 
 				if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' )
 					//- a.w3-bar-item.w3-button.w3-mobile( href="/explorer" ) Server Explorer
-					a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/List" ) Server Accounts
+					a.w3-bar-item.w3-button.w3-mobile( href="/ServerAccounts/List" ) Server Accounts
 
 				.w3-dropdown-hover.w3-right.w3-mobile
 
@@ -70,13 +70,13 @@ body
 
 						if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' ) || ( locals.User.user_role === 'user' )
 							.w3-border-bottom.w3-border-top
-								a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/Item?ItemID=" + locals.User.__.id + "&PageOp=Update" ) My Account
+								a.w3-bar-item.w3-button.w3-mobile( href="/ServerAccounts/Item?ItemID=" + locals.User.__.id + "&PageOp=Update" ) My Account
 								a.w3-bar-item.w3-button.w3-mobile( href="/auth/logout" ) Log Out
 
 						if ( locals.User.user_role === 'admin' ) || ( locals.User.user_role === 'super' )
 							.w3-border-bottom.w3-border-top
 								a.w3-bar-item.w3-button.w3-mobile( href="/Explorer" ) Server Explorer
-								a.w3-bar-item.w3-button.w3-mobile( href="/SystemUsers/List" ) Server Accounts
+								a.w3-bar-item.w3-button.w3-mobile( href="/ServerAccounts/List" ) Server Accounts
 
 			else
 

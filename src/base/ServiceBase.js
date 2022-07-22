@@ -91,7 +91,7 @@ exports.NewService =
 
 		//---------------------------------------------------------------------
 		// Creates a new object based upon the service's ItemDefinition.
-		service.NewServiceObject =
+		service.NewServiceItem =
 			function ( Prototype ) 
 			{
 				let service_object = {};

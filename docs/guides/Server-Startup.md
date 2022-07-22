@@ -41,7 +41,7 @@ During the call to `NewServer`, the following initialization takes place:
 - The `WebServer` module is loaded and is now available as `Server.WebServer`.
 	A defaults block `Server.Config.Defaults.WebServer` is added containing default settings for `WebServer`.
 
-- All internal services are loaded (i.e. `SystemUsers`) and made available as `Server.{ServiceName}`.
+- All internal services are loaded (i.e. `ServerAccounts`) and made available as `Server.{ServiceName}`.
 	Each loaded service also gets a defaults block (`Server.Config.Defaults.{ServiceName}`) containing the
 	default settings for this service, obtained by calling the service's `GetDefaults` function.
 
@@ -70,7 +70,7 @@ Server = {
 	},
 	Log: { /* logging module functions */ },
 	WebServer: { /* web server module functions */ },
-	SystemUsers: { /* system users service functions */ },
+	ServerAccounts: { /* system users service functions */ },
 	// ... other application defined services
 }
 ```

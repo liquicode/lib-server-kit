@@ -103,7 +103,7 @@ exports.NewStorageService =
 		service.StorageCreateOne =
 			async function ( User, Prototype )
 			{
-				let data_object = service.NewServiceObject( Prototype );
+				let data_object = service.NewServiceItem( Prototype );
 				return await service.Storage.CreateOne( User, data_object );
 			};
 

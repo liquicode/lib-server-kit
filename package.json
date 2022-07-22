@@ -72,6 +72,7 @@
 	"devDependencies": {
 		"@vivaxy/here": "^3.4.1",
 		"mocha": "^9.1.2",
+		"pug-cli": "^1.0.0-alpha6",
 		"webpack": "^5.24.3",
 		"webpack-cli": "^4.5.0",
 		"webpack-node-externals": "^2.5.2"

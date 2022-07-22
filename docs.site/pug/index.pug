@@ -1,0 +1,104 @@
+doctype html
+html
+	head
+		title Server Kit
+
+		meta( name="viewport" content="width=device-width, initial-scale=1" )
+
+		//- Fonts
+		//- link( rel='stylesheet' href='https://fonts.googleapis.com/css?family=Righteous|Roboto' )
+		link( rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu' )
+		link( rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css' )
+
+		//- CSS/Framework
+		link( rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css' )
+		//- link( rel='stylesheet' href='https://www.w3schools.com/lib/w3-theme-indigo.css' )
+		link( rel='stylesheet' href='https://www.w3schools.com/lib/w3-theme-black.css' )
+		script( type='text/javascript' src='https://www.w3schools.com/lib/w3codecolor.js' )
+
+body.w3-theme
+
+	.w3-container.w3-padding.w3-theme-d4
+
+		.w3-section
+
+			.w3-cell
+
+				img(
+					src="https://blog.planview.com/wp-content/uploads/2020/01/Top-6-Software-Development-Methodologies.jpg"
+					style="max-width:50vw;"
+				).w3-image.w3-circle.w3-opacity
+
+			.w3-cell &nbsp; &nbsp; &nbsp;
+
+
+			.w3-cell
+				.w3-section.w3-center.w3-padding.w3-border.w3-round-large
+					h1.w3-center Server Kit
+					p
+						i.w3-center A different kind of web framework
+						.w3-tag.w3-right.w3-small For NodesJS
+
+		hr
+
+		.w3-section.w3-padding
+			.w3-theme.w3-padding.w3-border.w3-round-xxlarge
+				h5.w3-justify Many web frameworks require you to start with a massive amount of pre-generated and boiler-plate code. 
+					| Server Kit takes a "Your Code First" approach and puts your application code in charge, rather than the other way around.
+				hr
+				h5.w3-justify You want to build a web application or an api. 
+					| You don't want to spend your time figuring out how your application idea is going to fit into someone else's code.
+					| You want to spend your time developing your idea and configuring Server Kit to help make that happen.
+					| All Server Kit functionality is enabled through configuration settings found in files and/or in code.
+				hr
+				.w3-section.w3-padding
+					h3.w3-center Features Overview
+					ul 
+						li Start and stop the underlying Http server
+						li Load and initialize ExpressJS
+						li Loading and initialize ExpressJS middleware
+						li Connect Http endpoints to your application's functions
+						li Connect SocketIO events to your application's functions
+						li Authentication integration with PassportJS
+						li User Authorization on a per-function basis
+						li Support for peristent sessions (memory, file, database)
+						li Support for different view engines (pug, jade, ejs)
+						li Access to user info and application variables within view templates
+						li 100% client agnostic; you build your web pages however you want
+						li ... with every aspect controlled by configuration settings
+						li ... all with copious and verbose logging (also configurable)
+
+		.w3-section.w3-padding
+			.w3-cell.w3-theme-l4.w3-padding.w3-border.w3-round-xxlarge
+				h3.w3-center Server Kit is a NodeJS library
+				pre.w3-code
+					| > npm install --save @liquicode/lib-server-kit
+				h3.w3-center Your application code ...
+				pre.w3-code.jsHigh
+					| const LIB_SERVER_KIT = require( '@liquicode/lib-server-kit' );
+				h3.w3-center ... configures and creates a new server ...
+				pre.w3-code.jsHigh
+					| let server = LIB_SERVER_KIT.NewServer( 'AppServer', 'path/to/files' );
+					| server.Initialize(); // Your server is configured and ready to go.
+				h3.w3-center ... and starts it!
+				pre.w3-code.jsHigh
+					| server.StartWebServer();
+				h3.w3-center You can Stop/Restart your server at any time
+				pre.w3-code.jsHigh
+					| server.StopWebServer();
+				h3.w3-center Server Kit handles the details of initializing and running your server.
+
+		.w3-section.w3-padding
+			.w3-theme-l4.w3-padding.w3-border.w3-round-xxlarge.w3-right
+				p Integrates With
+				ul 
+					li ExpressJS 
+					li Express-Session
+					li Memory Session Store
+					li File Session Store
+					li SocketIO
+
+
+//- Application Source
+script( type='text/javascript' src='index.js' )
+

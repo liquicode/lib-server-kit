@@ -146,7 +146,7 @@ exports.GetDefaults =
 						secret: 'CHANGE THIS TO A RANDOM SECRET',
 						name: 'connect.sid',			// The name of the session ID cookie to set in the response (and read from in the request).
 						proxy: false,					// Trust the reverse proxy when setting secure cookies (via the "X-Forwarded-Proto" header). Use true if your application is behind a proxy or if you're encountering the error message: "Unable to verify authorization request state"
-						resave: false,					// Forces the session to be saved back to the session store, even if the session was never modified during the request.
+						resave: true,					// Forces the session to be saved back to the session store, even if the session was never modified during the request.
 						rolling: false,					// Force the session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown.
 						saveUninitialized: true,		// Forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified.
 						cookie: {

@@ -56,11 +56,11 @@ exports.Construct =
 
 		//---------------------------------------------------------------------
 		// Service Identity
-		service.ServiceDefinition.name = 'SystemUsers';
-		service.ServiceDefinition.title = 'System Users';
+		service.ServiceDefinition.name = 'ServerAccounts';
+		service.ServiceDefinition.title = 'Server Accounts';
 
 		//---------------------------------------------------------------------
-		// Restrict the permissions for SystemUsers.
+		// Restrict the permissions for ServerAccounts.
 		service.ServiceDefinition.Origins.StorageCount.allowed_roles = [ 'admin', 'super', 'user' ];
 		service.ServiceDefinition.Origins.StorageFindOne.allowed_roles = [ 'admin', 'super', 'user' ];
 		service.ServiceDefinition.Origins.StorageFindMany.allowed_roles = [ 'admin', 'super' ];
@@ -99,9 +99,9 @@ exports.Construct =
 
 		//---------------------------------------------------------------------
 		// Object Identity
-		service.ItemDefinition.name = 'SystemUser';
-		service.ItemDefinition.title = 'System User';
-		service.ItemDefinition.titles = 'System Users';
+		service.ItemDefinition.name = 'ServerAccount';
+		service.ItemDefinition.title = 'Server Account';
+		service.ItemDefinition.titles = 'Server Accounts';
 		service.ItemDefinition.shareable = false;
 
 		//---------------------------------------------------------------------
@@ -195,7 +195,7 @@ exports.Construct =
 				// Create a user object that is owned by that user.
 				async function create_user( ThisUserInfo )
 				{
-					let user_prototype = service.NewServiceObject( ThisUserInfo );
+					let user_prototype = service.NewServiceItem( ThisUserInfo );
 					let new_user = await service.Storage.CreateOne( LIB_USER_STORAGE.StorageAdministrator(), user_prototype );
 					let info = service.Storage.GetStorageInfo( new_user );
 					let count = await service.Storage.SetOwner( LIB_USER_STORAGE.StorageAdministrator(), ThisUserInfo.user_id, info.id ); // Users own their accounts.
@@ -214,7 +214,7 @@ exports.Construct =
 					if ( count === 0 )
 					{
 						// Create the first user as the admin user.
-						Server.Log.warn( `SystemUsers is empty, creating the first SystemUser as the admin user.` );
+						Server.Log.warn( `ServerAccounts is empty, creating the first SystemUser as the admin user.` );
 						UserInfo.user_role = 'admin';
 						found_user = await create_user( UserInfo );
 						Server.Log.debug( `Created a new admin SystemUser: (${found_user.user_id})` );

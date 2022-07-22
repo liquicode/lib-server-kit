@@ -21,12 +21,12 @@ const LIB_HTTPS = require( 'https' );
 exports.Construct =
 	function Construct_WebServer( Server )
 	{
-		let _module = SRC_MODULE_BASE.NewModule();
+		let WebServer = SRC_MODULE_BASE.NewModule();
 
 		// Initialized during StartWebServer()
-		_module.HttpServer = null;
-		_module.Express = null;
-		_module.SocketIO = null;
+		WebServer.HttpServer = null;
+		WebServer.Express = null;
+		WebServer.SocketIO = null;
 
 
 		const SRC_WEBSERVER_CONFIGURATION = require( './WebServer/Configuration.js' );
@@ -44,7 +44,7 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		_module.GetDefaults =
+		WebServer.GetDefaults =
 			function GetDefaults() 
 			{
 				let defaults = SRC_WEBSERVER_CONFIGURATION.GetDefaults();
@@ -53,12 +53,33 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		_module.Initialize =
+		WebServer.Initialize =
 			function Initialize()
 			{
 				// Analyze the application's Settings.
 				SRC_WEBSERVER_CONFIGURATION.AnalyzeSettings( Server );
 				return;
+			};
+
+
+		//=====================================================================
+		//=====================================================================
+		//
+		//		Utiltiy Functions
+		//
+		//=====================================================================
+		//=====================================================================
+
+
+		//---------------------------------------------------------------------
+		// Returns the server protocol, address, and port.
+		WebServer.ServerAddress =
+			function ServerAddress()
+			{
+				let url = WebServerSettings.HttpServer.protocol
+					+ '://' + WebServerSettings.HttpServer.address
+					+ ':' + WebServerSettings.HttpServer.port;
+				return url;
 			};
 
 
@@ -74,47 +95,47 @@ exports.Construct =
 		//=====================================================================
 
 
-		_module.StartWebServer =
+		WebServer.StartWebServer =
 			async function StartWebServer( Callbacks = null )
 			{
-				if ( _module.HttpServer ) { throw new Error( `HttpServer is already running. Call the StopWebServer() function.` ); }
-				if ( _module.Express ) { throw new Error( `Express is already running. Call the StopWebServer() function.` ); }
-				if ( _module.SocketIO ) { throw new Error( `SocketIO is already running. Call the StopWebServer() function.` ); }
+				if ( WebServer.HttpServer ) { throw new Error( `HttpServer is already running. Call the StopWebServer() function.` ); }
+				if ( WebServer.Express ) { throw new Error( `Express is already running. Call the StopWebServer() function.` ); }
+				if ( WebServer.SocketIO ) { throw new Error( `SocketIO is already running. Call the StopWebServer() function.` ); }
 
 				const WebServerSettings = Server.Config.Settings.WebServer;
-				_module.Express = null;
-				_module.SocketIO = null;
+				WebServer.Express = null;
+				WebServer.SocketIO = null;
 
 				//---------------------------------------------------------------------
 				// Create the Express Transport.
 				if ( WebServerSettings.Express
 					&& WebServerSettings.Express.enabled )
 				{
-					_module.Express = SRC_WEBSERVER_EXPRESS.Create( Server, _module, WebServerSettings );
+					WebServer.Express = SRC_WEBSERVER_EXPRESS.Create( Server, WebServer, WebServerSettings );
 				}
 
 				//---------------------------------------------------------------------
 				// Create the HTTP Server.
 				if ( WebServerSettings.HttpServer.protocol === 'http' )
 				{
-					if ( _module.Express )
+					if ( WebServer.Express )
 					{
-						_module.HttpServer = LIB_HTTP.createServer( _module.Express.App );
+						WebServer.HttpServer = LIB_HTTP.createServer( WebServer.Express.App );
 					}
 					else
 					{
-						_module.HttpServer = LIB_HTTP.createServer();
+						WebServer.HttpServer = LIB_HTTP.createServer();
 					}
 				}
 				else if ( WebServerSettings.HttpServer.protocol === 'https' )
 				{
-					if ( _module.Express )
+					if ( WebServer.Express )
 					{
-						_module.HttpServer = LIB_HTTPS.createServer( _module.Express.App );
+						WebServer.HttpServer = LIB_HTTPS.createServer( WebServer.Express.App );
 					}
 					else
 					{
-						_module.HttpServer = LIB_HTTPS.createServer();
+						WebServer.HttpServer = LIB_HTTPS.createServer();
 					}
 				}
 				else
@@ -131,20 +152,20 @@ exports.Construct =
 				if ( WebServerSettings.SocketIO
 					&& WebServerSettings.SocketIO.enabled )
 				{
-					_module.SocketIO = SRC_WEBSERVER_SOCKETIO.Create( Server, _module, WebServerSettings );
+					WebServer.SocketIO = SRC_WEBSERVER_SOCKETIO.Create( Server, WebServer, WebServerSettings );
 				}
 
 				//---------------------------------------------------------------------
 				// PreInitialize Callback
-				if ( Callbacks && Callbacks.PreInitialize ) { await Callbacks.PreInitialize( Server, _module, WebServerSettings ); }
+				if ( Callbacks && Callbacks.PreInitialize ) { await Callbacks.PreInitialize( Server, WebServer, WebServerSettings ); }
 
 				//---------------------------------------------------------------------
 				// Initialize the Express Transport.
 				if ( WebServerSettings.Express
 					&& WebServerSettings.Express.enabled
-					&& _module.Express )
+					&& WebServer.Express )
 				{
-					SRC_WEBSERVER_EXPRESS.Initialize( Server, _module, WebServerSettings );
+					SRC_WEBSERVER_EXPRESS.Initialize( Server, WebServer, WebServerSettings );
 					Server.Log.trace( `WebServer.Express is initialized.` );
 				}
 
@@ -152,22 +173,22 @@ exports.Construct =
 				// Initialize the SocketIO Transport.
 				if ( WebServerSettings.SocketIO
 					&& WebServerSettings.SocketIO.enabled
-					&& _module.SocketIO )
+					&& WebServer.SocketIO )
 				{
-					SRC_WEBSERVER_SOCKETIO.Initialize( Server, _module, WebServerSettings );
+					SRC_WEBSERVER_SOCKETIO.Initialize( Server, WebServer, WebServerSettings );
 					Server.Log.trace( `WebServer.SocketIO is initialized.` );
 				}
 
 				//---------------------------------------------------------------------
 				// PreStartup Callback
-				if ( Callbacks && Callbacks.PreStartup ) { await Callbacks.PreStartup( Server, _module, WebServerSettings ); }
+				if ( Callbacks && Callbacks.PreStartup ) { await Callbacks.PreStartup( Server, WebServer, WebServerSettings ); }
 
 				//---------------------------------------------------------------------
 				// Begin accepting connections.
 				await new Promise(
 					function ( resolve, reject )
 					{
-						_module.HttpServer.listen(
+						WebServer.HttpServer.listen(
 							WebServerSettings.HttpServer.port,
 							WebServerSettings.HttpServer.address,
 							function ( err ) 
@@ -176,16 +197,7 @@ exports.Construct =
 								else { resolve( true ); }
 							} );
 					} );
-				let address = _module.HttpServer.address();
-				Server.Log.trace( `WebServer.HttpServer is listening at [${address.address}:${address.port}].` );
-
-				// // Start the Socket Server.
-				// if ( _module.SocketIO )
-				// {
-				// 	// _module.SocketIO.IO.Listen();
-				// 	_module.SocketIO.IO.attach( _module.HttpServer );
-				// 	Server.Log.trace( `SocketIO has attached to the WebServer.` );
-				// }
+				Server.Log.trace( `WebServer.HttpServer is listening at [${WebServer.Express.ServerAddress()}]` );
 
 				// Return
 				return { ok: true };
@@ -202,31 +214,31 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		_module.StopWebServer =
+		WebServer.StopWebServer =
 			async function StopWebServer()
 			{
-				if ( _module.SocketIO )
+				if ( WebServer.SocketIO )
 				{
-					if ( _module.SocketIO.IO )
+					if ( WebServer.SocketIO.IO )
 					{
-						_module.SocketIO.IO.close();
+						WebServer.SocketIO.IO.close();
 					}
-					_module.SocketIO = null;
+					WebServer.SocketIO = null;
 					Server.Log.trace( `WebServer.SocketIO is stopped.` );
 				}
-				if ( _module.Express )
+				if ( WebServer.Express )
 				{
-					_module.Express = null;
+					WebServer.Express = null;
 					Server.Log.trace( `WebServer.Express is stopped.` );
 				}
-				if ( _module.HttpServer ) 
+				if ( WebServer.HttpServer ) 
 				{
-					if ( _module.HttpServer.listening ) 
+					if ( WebServer.HttpServer.listening ) 
 					{
 						await new Promise(
 							function ( resolve, reject )
 							{
-								_module.HttpServer.close(
+								WebServer.HttpServer.close(
 									function ( err ) 
 									{
 										if ( err ) { reject( err ); }
@@ -234,7 +246,7 @@ exports.Construct =
 									} );
 							} );
 					}
-					_module.HttpServer = null;
+					WebServer.HttpServer = null;
 					Server.Log.trace( `WebServer.HttpSerer is stopped.` );
 				}
 				return { ok: true };
@@ -242,7 +254,7 @@ exports.Construct =
 
 
 		//---------------------------------------------------------------------
-		return _module;
+		return WebServer;
 	};
 
 

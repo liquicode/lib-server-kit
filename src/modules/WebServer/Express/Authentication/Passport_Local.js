@@ -87,7 +87,7 @@ exports.Use =
 				user_name: username,
 				user_role: 'user',
 			};
-			let api_result = await Server.SystemUsers.FindOrCreateUser( user );
+			let api_result = await Server.ServerAccounts.FindOrCreateUser( user );
 			if ( !api_result.ok ) { throw new Error( api_result.error ); }
 
 			// Return the authenticated user.

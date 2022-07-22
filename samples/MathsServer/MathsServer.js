@@ -51,11 +51,11 @@ let server_options = {
 				enabled: true,
 			}
 		},
-		SystemUsers: {
+		ServerAccounts: {
 			Storage: {
 				JsonProvider: {
 					enabled: true,
-					collection_name: "SystemUsers",
+					collection_name: "ServerAccounts",
 					// database_name: "~data",
 					database_name: LIB_PATH.join( __dirname, '~data' ),
 					clear_collection_on_start: false,

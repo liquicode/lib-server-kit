@@ -2,26 +2,33 @@
 # TODO
 
 - Server
-	- Update lib-json to support hjson. Go full lib-json.
-		- allow js syntax for user input
-	- **COMPLETED** Move `AnonymousUser` to the top, underneath `WebServer`.
+	- Update lib-json to support hjson. Go full lib-json
+		- allow js-style syntax for user input
+	- Rename: `ModuleBase` to `ServerModule`
+	- Rename: `ServiceBase` to `ApplicationService`
 
 - Services
 	- **COMPLETED** Rename `Endpoints` to `Origins`
-	- Create an `Origins` namespace to implement functions.
-	- Rename `SystemUsers` to `ServerAccounts`
-	- Develop: `Authentication` service module.
+	- Create an `Origins` namespace to implement functions
+	- **COMPLETED** Rename `SystemUsers` to `ServerAccounts`
+	- Develop: `Authentication` service module
 		- Exports authentication pages: signup, login, logout
-		- Uses the `ServerAccounts` service to perform the signup and login functions.
+		- Uses the `ServerAccounts` service to perform the signup and login functions
 		- User authentication is still performed by Passport
 			- Can passport be abstracted enough to support other protocols?
+	- Reconcile: `Service.ItemDefinition.Fields` is a map, yet `Origin.parameters` and `Page.parameters` are arrays
+
+- WebServer
+	- **COMPLETED** Move `AnonymousUser` to the top, underneath `WebServer`
+	- Convert all configuration/initialization bits into functions that can be called in any order
 
 - Express
 	- **COMPLETED** Develop `Express.AuthorizationGate` middleware to check user roles
 	- **COMPLETED** Convert `WebServer.RequestProcessor` to `Express.InvocationGate`
-	- **COMPLETED** Fix: All Origin calls are being stringified.
-	- **COMPLETED** Fix: Origin socket call logs do not show the result. Because we are getting the result of the middleware and not the call itself.
-	- **COMPLETED** Fix: When an error occurs during an Express origin call, an eror string is returned rather than an ApiResult.
+	- **COMPLETED** Fix: All Origin calls are being stringified
+	- **COMPLETED** Fix: Origin socket call logs do not show the result. Because we are getting the result of the middleware and not the call itself
+	- **COMPLETED** Fix: When an error occurs during an Express origin call, an eror string is returned rather than an ApiResult
+	- Come up with a way for admin users and super users to impersonate another user
 
 	- Session
 		- Implement persistence strategies for sessions
@@ -35,11 +42,9 @@
 		- Implement more view engines. (jade, ejs)
 
 	- Explorer
-		- Select user to Invoke as
-		- **COMPLETED** Make 'Response' box resizable.
-		- **COMPLETED** Fix: The client-api implementation uses $.ajax which drops any empty array or object parameters.
-			The implication is that not all parameters are guaranteed to be transmitted to the server.
-			- Use [axios](https://github.com/axios/axios)
+		- Select user to Invoke As
+		- **COMPLETED** Make 'Response' box resizable
+		- **COMPLETED** Fix: The client-api implementation uses $.ajax which drops any empty array or object parameters
 
 	- Remove: Swagger *** Remove It! ***
 		- authorization

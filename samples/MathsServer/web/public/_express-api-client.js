@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Express Api Client File for: MathsServer
-// Generated:  2022-07-21T09:18:57.285Z
-//   Thu Jul 21 2022 05:18:57 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-22T06:44:44.417Z
+//   Fri Jul 22 2022 02:44:44 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var ExpressApi = {};    // Service Origins
@@ -70,29 +70,29 @@ function make_page_url( url, params_object )
 }
 
 //---------------------------------------------------------------------
-// SystemUsers Origins
-ExpressApi.SystemUsers = {};
-ExpressApi.SystemUsers.get_StorageCount = function ( Criteria, Callback ) { send_message( 'get', '/SystemUsers/StorageCount', { Criteria: Criteria }, Callback ); };
-ExpressApi.SystemUsers.post_StorageCount = function ( Criteria, Callback ) { send_message( 'post', '/SystemUsers/StorageCount', { Criteria: Criteria }, Callback ); };
-ExpressApi.SystemUsers.get_StorageFindOne = function ( Criteria, Callback ) { send_message( 'get', '/SystemUsers/StorageFindOne', { Criteria: Criteria }, Callback ); };
-ExpressApi.SystemUsers.post_StorageFindOne = function ( Criteria, Callback ) { send_message( 'post', '/SystemUsers/StorageFindOne', { Criteria: Criteria }, Callback ); };
-ExpressApi.SystemUsers.get_StorageFindMany = function ( Criteria, Callback ) { send_message( 'get', '/SystemUsers/StorageFindMany', { Criteria: Criteria }, Callback ); };
-ExpressApi.SystemUsers.post_StorageFindMany = function ( Criteria, Callback ) { send_message( 'post', '/SystemUsers/StorageFindMany', { Criteria: Criteria }, Callback ); };
-ExpressApi.SystemUsers.get_StorageCreateOne = function ( Prototype, Callback ) { send_message( 'get', '/SystemUsers/StorageCreateOne', { Prototype: Prototype }, Callback ); };
-ExpressApi.SystemUsers.post_StorageCreateOne = function ( Prototype, Callback ) { send_message( 'post', '/SystemUsers/StorageCreateOne', { Prototype: Prototype }, Callback ); };
-ExpressApi.SystemUsers.get_StorageWriteOne = function ( Criteria, DataObject, Callback ) { send_message( 'get', '/SystemUsers/StorageWriteOne', { Criteria: Criteria, DataObject: DataObject }, Callback ); };
-ExpressApi.SystemUsers.post_StorageWriteOne = function ( Criteria, DataObject, Callback ) { send_message( 'post', '/SystemUsers/StorageWriteOne', { Criteria: Criteria, DataObject: DataObject }, Callback ); };
-ExpressApi.SystemUsers.get_StorageDeleteOne = function ( Criteria, Callback ) { send_message( 'get', '/SystemUsers/StorageDeleteOne', { Criteria: Criteria }, Callback ); };
-ExpressApi.SystemUsers.post_StorageDeleteOne = function ( Criteria, Callback ) { send_message( 'post', '/SystemUsers/StorageDeleteOne', { Criteria: Criteria }, Callback ); };
-ExpressApi.SystemUsers.get_StorageDeleteMany = function ( Criteria, Callback ) { send_message( 'get', '/SystemUsers/StorageDeleteMany', { Criteria: Criteria }, Callback ); };
-ExpressApi.SystemUsers.post_StorageDeleteMany = function ( Criteria, Callback ) { send_message( 'post', '/SystemUsers/StorageDeleteMany', { Criteria: Criteria }, Callback ); };
+// ServerAccounts Origins
+ExpressApi.ServerAccounts = {};
+ExpressApi.ServerAccounts.get_StorageCount = function ( Criteria, Callback ) { send_message( 'get', '/ServerAccounts/StorageCount', { Criteria: Criteria }, Callback ); };
+ExpressApi.ServerAccounts.post_StorageCount = function ( Criteria, Callback ) { send_message( 'post', '/ServerAccounts/StorageCount', { Criteria: Criteria }, Callback ); };
+ExpressApi.ServerAccounts.get_StorageFindOne = function ( Criteria, Callback ) { send_message( 'get', '/ServerAccounts/StorageFindOne', { Criteria: Criteria }, Callback ); };
+ExpressApi.ServerAccounts.post_StorageFindOne = function ( Criteria, Callback ) { send_message( 'post', '/ServerAccounts/StorageFindOne', { Criteria: Criteria }, Callback ); };
+ExpressApi.ServerAccounts.get_StorageFindMany = function ( Criteria, Callback ) { send_message( 'get', '/ServerAccounts/StorageFindMany', { Criteria: Criteria }, Callback ); };
+ExpressApi.ServerAccounts.post_StorageFindMany = function ( Criteria, Callback ) { send_message( 'post', '/ServerAccounts/StorageFindMany', { Criteria: Criteria }, Callback ); };
+ExpressApi.ServerAccounts.get_StorageCreateOne = function ( Prototype, Callback ) { send_message( 'get', '/ServerAccounts/StorageCreateOne', { Prototype: Prototype }, Callback ); };
+ExpressApi.ServerAccounts.post_StorageCreateOne = function ( Prototype, Callback ) { send_message( 'post', '/ServerAccounts/StorageCreateOne', { Prototype: Prototype }, Callback ); };
+ExpressApi.ServerAccounts.get_StorageWriteOne = function ( Criteria, DataObject, Callback ) { send_message( 'get', '/ServerAccounts/StorageWriteOne', { Criteria: Criteria, DataObject: DataObject }, Callback ); };
+ExpressApi.ServerAccounts.post_StorageWriteOne = function ( Criteria, DataObject, Callback ) { send_message( 'post', '/ServerAccounts/StorageWriteOne', { Criteria: Criteria, DataObject: DataObject }, Callback ); };
+ExpressApi.ServerAccounts.get_StorageDeleteOne = function ( Criteria, Callback ) { send_message( 'get', '/ServerAccounts/StorageDeleteOne', { Criteria: Criteria }, Callback ); };
+ExpressApi.ServerAccounts.post_StorageDeleteOne = function ( Criteria, Callback ) { send_message( 'post', '/ServerAccounts/StorageDeleteOne', { Criteria: Criteria }, Callback ); };
+ExpressApi.ServerAccounts.get_StorageDeleteMany = function ( Criteria, Callback ) { send_message( 'get', '/ServerAccounts/StorageDeleteMany', { Criteria: Criteria }, Callback ); };
+ExpressApi.ServerAccounts.post_StorageDeleteMany = function ( Criteria, Callback ) { send_message( 'post', '/ServerAccounts/StorageDeleteMany', { Criteria: Criteria }, Callback ); };
 
 //---------------------------------------------------------------------
-// SystemUsers Pages
-ExpressPages.SystemUsers = {};
-ExpressPages.SystemUsers.visit_List = function ( Criteria ) { return make_page_url( '/SystemUsers/List', { Criteria: Criteria } ); };
-ExpressPages.SystemUsers.visit_Item = function ( ItemID, PageOp ) { return make_page_url( '/SystemUsers/Item', { ItemID: ItemID, PageOp: PageOp } ); };
-ExpressPages.SystemUsers.visit_Share = function ( ItemID ) { return make_page_url( '/SystemUsers/Share', { ItemID: ItemID } ); };
+// ServerAccounts Pages
+ExpressPages.ServerAccounts = {};
+ExpressPages.ServerAccounts.visit_List = function ( Criteria ) { return make_page_url( '/ServerAccounts/List', { Criteria: Criteria } ); };
+ExpressPages.ServerAccounts.visit_Item = function ( ItemID, PageOp ) { return make_page_url( '/ServerAccounts/Item', { ItemID: ItemID, PageOp: PageOp } ); };
+ExpressPages.ServerAccounts.visit_Share = function ( ItemID ) { return make_page_url( '/ServerAccounts/Share', { ItemID: ItemID } ); };
 
 //---------------------------------------------------------------------
 // Maths Origins
