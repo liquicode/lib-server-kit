@@ -23,7 +23,7 @@ const SRC_GENERATE_CLIENT = require( './SocketIO/SocketApiClient.js' );
 
 //---------------------------------------------------------------------
 exports.Create =
-	function Create( Server, WebServer, WebServerSettings )
+	function Create( Server, WebServer )
 	{
 		let SocketIO = {
 			IO: LIB_SOCKET_IO( WebServer.HttpServer ),
@@ -34,7 +34,7 @@ exports.Create =
 
 //---------------------------------------------------------------------
 exports.Initialize =
-	function Initialize( Server, WebServer, WebServerSettings )
+	function Initialize( Server, WebServer )
 	{
 
 
@@ -88,7 +88,7 @@ exports.Initialize =
 								else
 								{
 									SocketInstance.user = JSON.parse( JSON.stringify(
-										WebServerSettings.AnonymousUser ) );
+										WebServer.Settings.AnonymousUser ) );
 								}
 							}
 
@@ -186,7 +186,7 @@ exports.Initialize =
 		WebServer.SocketIO.IO.on( 'connection',
 			( SocketInstance ) =>
 			{
-				if ( WebServerSettings.SocketIO.trace_connections )
+				if ( WebServer.Settings.SocketIO.trace_connections )
 				{
 					Server.Log.trace( `SocketIO: New socket connection received.` );
 				}
@@ -196,7 +196,7 @@ exports.Initialize =
 				SocketInstance.on( 'disconnecting',
 					async function ( Reason )
 					{
-						if ( WebServerSettings.SocketIO.trace_connections )
+						if ( WebServer.Settings.SocketIO.trace_connections )
 						{
 							Server.Log.trace( `SocketIO: Socket is disconnecting because [${Reason}].` );
 						}
@@ -208,7 +208,7 @@ exports.Initialize =
 				SocketInstance.on( 'disconnect',
 					async function ( Reason )
 					{
-						if ( WebServerSettings.SocketIO.trace_connections )
+						if ( WebServer.Settings.SocketIO.trace_connections )
 						{
 							Server.Log.trace( `SocketIO: Socket has disconnected because [${Reason}].` );
 						}
@@ -220,7 +220,7 @@ exports.Initialize =
 				SocketInstance.on( 'connect',
 					async function ( Reason )
 					{
-						if ( WebServerSettings.SocketIO.trace_connections )
+						if ( WebServer.Settings.SocketIO.trace_connections )
 						{
 							Server.Log.trace( `SocketIO: Socket connected.` );
 						}
@@ -263,16 +263,16 @@ exports.Initialize =
 
 		//---------------------------------------------------------------------
 		// Socket API Client
-		if ( WebServerSettings.SocketIO.ClientSupport.socket_api_client )
+		if ( WebServer.Settings.SocketIO.ClientSupport.socket_api_client )
 		{
 			// Generate the api client for javascript.
-			let code = SRC_GENERATE_CLIENT.GenerateClient( Server, WebServerSettings );
-			let filename = Server.ResolveApplicationPath( WebServerSettings.SocketIO.ClientSupport.socket_api_client );
+			let code = SRC_GENERATE_CLIENT.GenerateClient( Server, WebServer.Settings );
+			let filename = Server.ResolveApplicationPath( WebServer.Settings.SocketIO.ClientSupport.socket_api_client );
 			LIB_FS.writeFileSync( filename, code );
-			Server.Log.trace( `WebServerSettings.SocketIO.ClientSupport generated client file: [${filename}]` );
+			Server.Log.trace( `WebServer.SocketIO.ClientSupport generated client file: [${filename}]` );
 		}
 
-		Server.Log.trace( `WebServerSettings.SocketIO.ClientSupport is initialized.` );
+		Server.Log.trace( `WebServer.SocketIO.ClientSupport is initialized.` );
 		return;
 	};
 

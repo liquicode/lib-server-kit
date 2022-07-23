@@ -12,6 +12,24 @@ const { Server } = require( 'socket.io' );
 //=====================================================================
 
 
+/*
+Basic Structure of WebServer Defaults:
+---------------------------------------------------------------------
+
+- HttpServer
+- AnonymousUser
+- Express
+	- ClientSupport
+	- DataHandling
+	- Security
+	- Session
+	- Authentication
+- SocketIO
+- Amqp
+
+*/
+
+
 //---------------------------------------------------------------------
 exports.GetDefaults =
 	function GetDefaults()
@@ -51,29 +69,19 @@ exports.GetDefaults =
 					public_url: 'public',				// Url path of the public files.
 					client_api_file: 'web/public/_express-api-client.js',
 					client_api_style: 'ajax',			// fetch or ajax
+					open_api_file: '',					// Swagger definitions file
 					Views: {
 						view_engine: 'pug',				// Only 'pug' is supported.
 						view_files: 'web/views',		// Local folder of view files.
 						home_view: 'home',				// Name of default view to use for root route.
+						Explorer: {
+							enabled: false,
+							explorer_path: 'Explorer',
+							explorer_view: 'explorer/explorer',
+							requires_login: false,
+						},
 					},
 				}, // ~ ClientSupport
-
-				//---------------------------------------------------------------------
-				// Explorer
-				//---------------------------------------------------------------------
-
-				Explorer: {
-					enabled: false,
-					explorer_path: 'Explorer',
-					explorer_view: 'explorer/explorer',
-					requires_login: false,
-				}, // ~ Explorer
-
-				// Swagger: {
-				// 	enabled: false,
-				// 	swagger_ui_path: 'swagger',
-				// 	open_api_file: '',
-				// }, // ~ Swagger
 
 				//---------------------------------------------------------------------
 				// Data Handling

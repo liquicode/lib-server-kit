@@ -10,8 +10,8 @@
 //=====================================================================
 
 
-exports.Use =
-	function Use( Server, WebServer, WebServerSettings )
+exports.Express_Services =
+	function Express_Services( CTX )
 	{
 
 
@@ -26,22 +26,22 @@ exports.Use =
 
 		//---------------------------------------------------------------------
 		// Add service origins.
-		let service_names = Object.keys( Server.Services );
+		let service_names = Object.keys( CTX.Server.Services );
 		for ( let index = 0; index < service_names.length; index++ )
 		{
 			let service_name = service_names[ index ];
-			let service = Server[ service_name ];
+			let service = CTX.Server[ service_name ];
 
-			let server_path = WebServer.Express.ServerPath();
-			let services_path = WebServer.Express.ServicesPath();
+			let server_path = CTX.WebServer.Express.ServerPath();
+			let services_path = CTX.WebServer.Express.ServicesPath();
 
-			// Add the service API
+			// Add the service origins
 			let origin_count = add_service_origins( service, `${services_path}${service.ServiceDefinition.name}` );
-			Server.Log.trace( `Added ${origin_count} express routes for [${services_path}${service.ServiceDefinition.name}] functions.` );
+			CTX.Server.Log.trace( `Added ${origin_count} Origins for service [${services_path}${service.ServiceDefinition.name}].` );
 
 			// Add the service pages
 			let page_count = add_service_pages( service, `${server_path}${service.ServiceDefinition.name}` );
-			Server.Log.trace( `Added ${page_count} express routes for [${server_path}${service.ServiceDefinition.name}] pages.` );
+			CTX.Server.Log.trace( `Added ${page_count} Pages for service [${server_path}${service.ServiceDefinition.name}].` );
 		}
 
 
@@ -111,37 +111,37 @@ exports.Use =
 				// Add routes for each http verb.
 				if ( origin.verbs.includes( 'get' ) )
 				{
-					WebServer.Express.App.get( `${ParentPath}/${origin.name}`,
-						WebServer.Express.AuthenticationGate( origin.requires_login ),
-						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
+					CTX.WebServer.Express.App.get( `${ParentPath}/${origin.name}`,
+						CTX.WebServer.Express.AuthenticationGate( origin.requires_login ),
+						CTX.WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+						CTX.WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
 					);
 					origin_count++;
 				}
 				if ( origin.verbs.includes( 'post' ) )
 				{
-					WebServer.Express.App.post( `${ParentPath}/${origin.name}`,
-						WebServer.Express.AuthenticationGate( origin.requires_login ),
-						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
+					CTX.WebServer.Express.App.post( `${ParentPath}/${origin.name}`,
+						CTX.WebServer.Express.AuthenticationGate( origin.requires_login ),
+						CTX.WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+						CTX.WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
 					);
 					origin_count++;
 				}
 				if ( origin.verbs.includes( 'put' ) )
 				{
-					WebServer.Express.App.put( `${ParentPath}/${origin.name}`,
-						WebServer.Express.AuthenticationGate( origin.requires_login ),
-						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
+					CTX.WebServer.Express.App.put( `${ParentPath}/${origin.name}`,
+						CTX.WebServer.Express.AuthenticationGate( origin.requires_login ),
+						CTX.WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+						CTX.WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
 					);
 					origin_count++;
 				}
 				if ( origin.verbs.includes( 'delete' ) )
 				{
-					WebServer.Express.App.delete( `${ParentPath}/${origin.name}`,
-						WebServer.Express.AuthenticationGate( origin.requires_login ),
-						WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-						WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
+					CTX.WebServer.Express.App.delete( `${ParentPath}/${origin.name}`,
+						CTX.WebServer.Express.AuthenticationGate( origin.requires_login ),
+						CTX.WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+						CTX.WebServer.Express.InvocationGate( Service, origin, express_origin_handler ),
 					);
 					origin_count++;
 				}
@@ -189,7 +189,7 @@ exports.Use =
 					try
 					{
 						response.render( origin.view, {
-							Server: Server,
+							Server: CTX.Server,
 							User: request.user,
 							ItemDefinition: Service.ItemDefinition,
 							ServiceDefinition: Service.ServiceDefinition,
@@ -210,10 +210,10 @@ exports.Use =
 
 				//---------------------------------------------------------------------
 				// Add route for http get.
-				WebServer.Express.App.get( `${ParentPath}/${origin.name}`,
-					WebServer.Express.AuthenticationGate( origin.requires_login ),
-					WebServer.Express.AuthorizationGate( origin.allowed_roles ),
-					WebServer.Express.InvocationGate( Service, origin, express_page_handler ),
+				CTX.WebServer.Express.App.get( `${ParentPath}/${origin.name}`,
+					CTX.WebServer.Express.AuthenticationGate( origin.requires_login ),
+					CTX.WebServer.Express.AuthorizationGate( origin.allowed_roles ),
+					CTX.WebServer.Express.InvocationGate( Service, origin, express_page_handler ),
 				);
 				origin_count++;
 

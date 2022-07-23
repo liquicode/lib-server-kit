@@ -73,7 +73,7 @@ exports.NewStorageService =
 		//---------------------------------------------------------------------
 		//---------------------------------------------------------------------
 		//
-		//	Storage Functions
+		//	Service Functions
 		//
 		//---------------------------------------------------------------------
 		//---------------------------------------------------------------------
@@ -173,7 +173,6 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			// parameters: [ 'Criteria' ],
 			parameters: [
 				{
 					name: 'Criteria',
@@ -182,7 +181,6 @@ exports.NewStorageService =
 					example: { foo: 'bar' },
 				},
 			],
-			// invoke: async function ( User, Criteria ) { return await service.StorageCount( User, Criteria ); },
 			invoke: service.StorageCount,
 		};
 
@@ -194,7 +192,6 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			// parameters: [ 'Criteria' ],
 			parameters: [
 				{
 					name: 'Criteria',
@@ -203,7 +200,6 @@ exports.NewStorageService =
 					example: { foo: 'bar' },
 				},
 			],
-			// invoke: async function ( User, Criteria ) { return await service.StorageFindOne( User, Criteria ); },
 			invoke: service.StorageFindOne,
 		};
 
@@ -215,7 +211,6 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			// parameters: [ 'Criteria' ],
 			parameters: [
 				{
 					name: 'Criteria',
@@ -224,7 +219,6 @@ exports.NewStorageService =
 					example: { foo: 'bar' },
 				},
 			],
-			// invoke: async function ( User, Criteria ) { return await service.StorageFindMany( User, Criteria ); },
 			invoke: service.StorageFindMany,
 		};
 
@@ -236,7 +230,6 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			// parameters: [ 'Prototype' ],
 			parameters: [
 				{
 					name: 'Prototype',
@@ -245,7 +238,6 @@ exports.NewStorageService =
 					example: { foo: 'bar' },
 				},
 			],
-			// invoke: async function ( User, Prototype ) { return await service.StorageCreateOne( User, Prototype ); },
 			invoke: service.StorageCreateOne,
 		};
 
@@ -257,7 +249,6 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			// parameters: [ 'Criteria', 'DataObject' ],
 			parameters: [
 				{
 					name: 'Criteria',
@@ -272,7 +263,6 @@ exports.NewStorageService =
 					example: { foo: 'bar' },
 				},
 			],
-			// invoke: async function ( User, Criteria, DataObject ) { return await service.StorageWriteOne( User, Criteria, DataObject ); },
 			invoke: service.StorageWriteOne,
 		};
 
@@ -284,7 +274,6 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			// parameters: [ 'Criteria' ],
 			parameters: [
 				{
 					name: 'Criteria',
@@ -293,7 +282,6 @@ exports.NewStorageService =
 					example: { foo: 'bar' },
 				},
 			],
-			// invoke: async function ( User, Criteria ) { return await service.StorageDeleteOne( User, Criteria ); },
 			invoke: service.StorageDeleteOne,
 		};
 
@@ -305,7 +293,6 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			// parameters: [ 'Criteria' ],
 			parameters: [
 				{
 					name: 'Criteria',
@@ -314,7 +301,6 @@ exports.NewStorageService =
 					example: { foo: 'bar' },
 				},
 			],
-			// invoke: async function ( User, Criteria ) { return await service.StorageDeleteMany( User, Criteria ); },
 			invoke: service.StorageDeleteMany,
 		};
 
@@ -326,7 +312,6 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			// parameters: [ 'Criteria', 'Readers', 'Writers', 'MakePublic' ],
 			parameters: [
 				{
 					name: 'Criteria',
@@ -353,7 +338,6 @@ exports.NewStorageService =
 					example: true,
 				},
 			],
-			// invoke: async function ( User, Criteria, Readers, Writers, MakePublic ) { return await StorageShare( User, Criteria, Readers, Writers, MakePublic ); },
 			invoke: service.StorageShare,
 		};
 
@@ -365,7 +349,6 @@ exports.NewStorageService =
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
 			verbs: [ 'call', 'get', 'post' ],
-			// parameters: [ 'Criteria', 'NotReaders', 'NotWriters', 'MakeUnpublic' ],
 			parameters: [
 				{
 					name: 'Criteria',
@@ -392,7 +375,6 @@ exports.NewStorageService =
 					example: true,
 				},
 			],
-			// invoke: async function ( User, Criteria, NotReaders, NotWriters, MakeUnpublic ) { return await service.StorageUnshare( User, Criteria, NotReaders, NotWriters, MakeUnpublic ); },
 			invoke: service.StorageUnshare,
 		};
 
@@ -412,14 +394,13 @@ exports.NewStorageService =
 			description: 'Lists all objects matching the given Criteria.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			// verbs: [ 'get' ],
-			// parameters: [ 'Criteria' ],
 			parameters: [
 				{
 					name: 'Criteria',
 					description: 'Criteria of objects to list.',
 					schema: { type: 'object' },
 					example: { foo: 'bar' },
+					required: false,
 				},
 			],
 			view: 'storage/list',
@@ -432,20 +413,20 @@ exports.NewStorageService =
 			description: 'Shows item detail and management functions.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			// verbs: [ 'get' ],
-			// parameters: [ 'ItemID', 'PageOp' ],
 			parameters: [
 				{
 					name: 'ItemID',
 					description: 'ItemID of object to work with.',
 					schema: { type: 'string' },
 					example: 'b88d6048-725f-4f21-a8b0-e6de2de262e0',
+					required: true,
 				},
 				{
 					name: 'PageOp',
 					description: 'Page operation: Create, Read, Update, or Delete',
 					schema: { type: 'string' },
 					example: 'Read',
+					required: false,
 				},
 			],
 			view: 'storage/item',
@@ -458,14 +439,13 @@ exports.NewStorageService =
 			description: 'Manage item sharing options.',
 			requires_login: true,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			// verbs: [ 'get' ],
-			// parameters: [ 'ItemID' ],
 			parameters: [
 				{
 					name: 'ItemID',
 					description: 'ItemID of object to work with.',
 					schema: { type: 'string' },
 					example: 'b88d6048-725f-4f21-a8b0-e6de2de262e0',
+					required: true,
 				},
 			],
 			view: 'storage/share',

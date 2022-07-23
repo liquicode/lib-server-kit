@@ -11,26 +11,26 @@
 
 
 //---------------------------------------------------------------------
-const LIB_FS = require( 'fs' );
+// const LIB_FS = require( 'fs' );
 const LIB_EXPRESS = require( 'express' );
 const LIB_EXPRESS_SESSION = require( 'express-session' );
-const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
-const LIB_CORS = require( 'cors' );
+// const LIB_EXPRESS_FILEUPLOAD = require( 'express-fileupload' );
+// const LIB_CORS = require( 'cors' );
 // const LIB_HELMET = require( 'helmet' );
-const LIB_MEMORYSTORE = require( 'memorystore' );
-const LIB_SESSION_FILE_STORE = require( 'session-file-store' );
+// const LIB_MEMORYSTORE = require( 'memorystore' );
+// const LIB_SESSION_FILE_STORE = require( 'session-file-store' );
 
 //---------------------------------------------------------------------
-const SRC_AUTHENTICATION_PASSPORT_LOCAL = require( './Express/Authentication/Passport_Local.js' );
-const SRC_AUTHENTICATION_PASSPORT_AUTH0 = require( './Express/Authentication/Passport_Auth0.js' );
-const SRC_EXPRESS_ROUTES = require( './Express/ExpressRoutes.js' );
-const SRC_EXPRESS_API_CLIENT = require( './Express/ExpressApiClient.js' );
+// const SRC_AUTHENTICATION_PASSPORT_LOCAL = require( './Express/Authentication/Passport_Local.js' );
+// const SRC_AUTHENTICATION_PASSPORT_AUTH0 = require( './Express/Authentication/Passport_Auth0.js' );
+// const SRC_EXPRESS_ROUTES = require( './Express/ExpressRoutes.js' );
+// const SRC_EXPRESS_API_CLIENT = require( './Express/ExpressApiClient.js' );
 // const SRC_GENERATE_CLIENT_SWAGGER = require( './Express/SwaggerDocument.js' );
 
 
 //---------------------------------------------------------------------
 exports.Create =
-	function Create( Server, WebServer, WebServerSettings )
+	function Create( Server, WebServer )
 	{
 		let Express = {
 			App: LIB_EXPRESS(),
@@ -49,14 +49,7 @@ exports.Create =
 
 		//---------------------------------------------------------------------
 		// Returns the server protocol, address, and port.
-		Express.ServerAddress =
-			function ServerAddress()
-			{
-				let url = WebServerSettings.HttpServer.protocol
-					+ '://' + WebServerSettings.HttpServer.address
-					+ ':' + WebServerSettings.HttpServer.port;
-				return url;
-			};
+		// Express.ServerAddress = WebServer.ServerAddress;
 
 
 		//---------------------------------------------------------------------
@@ -65,7 +58,7 @@ exports.Create =
 		Express.ServerPath =
 			function ServerPath()
 			{
-				let url = WebServerSettings.Express.server_path;
+				let url = WebServer.Settings.Express.server_path;
 				if ( !url.startsWith( '/' ) ) { url = '/' + url; }
 				if ( !url.endsWith( '/' ) ) { url += '/'; }
 				return url;
@@ -79,7 +72,7 @@ exports.Create =
 			function ServicesPath()
 			{
 				let url = Express.ServerPath();
-				url += WebServerSettings.Express.services_path;
+				url += WebServer.Settings.Express.services_path;
 				if ( !url.endsWith( '/' ) ) { url += '/'; }
 				return url;
 			};
@@ -104,8 +97,8 @@ exports.Create =
 			function AuthenticationGate( RequiresAuthentication )
 			{
 				let middleware = null;
-				if ( WebServerSettings.Express.Authentication
-					&& WebServerSettings.Express.Authentication.enabled
+				if ( WebServer.Settings.Express.Authentication
+					&& WebServer.Settings.Express.Authentication.enabled
 					&& RequiresAuthentication )
 				{
 					middleware = // Authentication is required.
@@ -114,7 +107,7 @@ exports.Create =
 							// If the user already exists and is not the Anonymous user, then continue next.
 							if ( request.user )
 							{
-								if ( request.user.user_id !== WebServerSettings.AnonymousUser.user_id ) 
+								if ( request.user.user_id !== WebServer.Settings.AnonymousUser.user_id ) 
 								{
 									// Server.Log.trace( `AuthenticationGate(1) is selecting the existing request.user [${request.user.user_id}].` );
 									return next();
@@ -130,7 +123,7 @@ exports.Create =
 
 							// Redirect user to the login page.
 							// Server.Log.trace( 'AuthenticationGate(1) is redirecting user to the login url.' );
-							let login_url = `${Express.ServerPath()}${WebServerSettings.Express.Authentication.Pages.login_url}`;
+							let login_url = `${Express.ServerPath()}${WebServer.Settings.Express.Authentication.Pages.login_url}`;
 							response.redirect( login_url );
 						};
 				}
@@ -152,7 +145,7 @@ exports.Create =
 								{
 									// Set the Anonymous user.
 									// Server.Log.trace( 'AuthenticationGate(2) is selecting the Anonymous user.' );
-									request.user = JSON.parse( JSON.stringify( WebServerSettings.AnonymousUser ) );
+									request.user = JSON.parse( JSON.stringify( WebServer.Settings.AnonymousUser ) );
 								}
 							}
 							else
@@ -184,8 +177,8 @@ exports.Create =
 			function AuthorizationGate( AllowedRoles )
 			{
 				let middleware = null;
-				if ( WebServerSettings.Express.Authentication
-					&& WebServerSettings.Express.Authentication.enabled
+				if ( WebServer.Settings.Express.Authentication
+					&& WebServer.Settings.Express.Authentication.enabled
 					&& AllowedRoles.length )
 				{
 					middleware = // Authorization is required.
@@ -348,303 +341,103 @@ exports.Create =
 
 
 exports.Initialize =
-	function Initialize( Server, WebServer, WebServerSettings )
+	function Initialize( Server, WebServer )
 	{
 
+		let component_context = {
+			Server: Server,
+			WebServer: WebServer,
+			WebServerSettings: WebServer.Settings,
+			LIB_EXPRESS: LIB_EXPRESS,
+			LIB_EXPRESS_SESSION: LIB_EXPRESS_SESSION,
+		};
+
+		let components = {};
+
 
 		//=====================================================================
 		//=====================================================================
 		//
-		//		Data Handling
+		//		Load Components
 		//
 		//=====================================================================
 		//=====================================================================
-
 
 		//---------------------------------------------------------------------
-		if ( WebServerSettings.Express.DataHandling.JsonBodyParser
-			&& WebServerSettings.Express.DataHandling.JsonBodyParser.enabled )
+		// Data Handling
 		{
-			WebServer.Express.App.use( LIB_EXPRESS.json( WebServerSettings.Express.DataHandling.JsonBodyParser.Settings ) );
-			Server.Log.trace( `WebServer.Express.DataHandling.JsonBodyParser is initialized.` );
+			let SRC = require( './Express/Express_DataHandling.js' );
+			components.Express_DataHandling_JsonBodyParser = SRC.Express_DataHandling_JsonBodyParser;
+			components.Express_DataHandling_UrlEncodedParser = SRC.Express_DataHandling_UrlEncodedParser;
+			components.Express_DataHandling_FileUpload = SRC.Express_DataHandling_FileUpload;
 		}
-
 
 		//---------------------------------------------------------------------
-		if ( WebServerSettings.Express.DataHandling.UrlEncodedParser
-			&& WebServerSettings.Express.DataHandling.UrlEncodedParser.enabled )
+		// Security
 		{
-			WebServer.Express.App.use( LIB_EXPRESS.urlencoded( WebServerSettings.Express.DataHandling.UrlEncodedParser.Settings ) );
-			Server.Log.trace( `WebServer.Express.DataHandling.UrlEncodedParser is initialized.` );
+			let SRC = require( './Express/Express_Security.js' );
+			components.Express_Security_Cors = SRC.Express_Security_Cors;
 		}
-
 
 		//---------------------------------------------------------------------
-		if ( WebServerSettings.Express.DataHandling.FileUpload
-			&& WebServerSettings.Express.DataHandling.FileUpload.enabled )
+		// Client Support
 		{
-			WebServer.Express.App.use( LIB_EXPRESS_FILEUPLOAD( WebServerSettings.Express.DataHandling.FileUpload.Settings ) );
-			Server.Log.trace( `WebServer.Express.DataHandling.FileUpload is initialized.` );
+			let SRC = require( './Express/Express_ClientSupport.js' );
+			components.Express_ClientSupport_ViewEngine = SRC.Express_ClientSupport_ViewEngine;
+			components.Express_ClientSupport_ClientApiFile = SRC.Express_ClientSupport_ClientApiFile;
+			components.Express_ClientSupport_OpenApiFile = SRC.Express_ClientSupport_OpenApiFile;
+			components.Express_ClientSupport_MountPublicFiles = SRC.Express_ClientSupport_MountPublicFiles;
+			components.Express_ClientSupport_MountRootRoute = SRC.Express_ClientSupport_MountRootRoute;
+			components.Express_ClientSupport_MountExplorerRoute = SRC.Express_ClientSupport_MountExplorerRoute;
 		}
-
-
-		//=====================================================================
-		//=====================================================================
-		//
-		//		Security
-		//
-		//=====================================================================
-		//=====================================================================
-
 
 		//---------------------------------------------------------------------
-		if ( WebServerSettings.Express.Security.Cors
-			&& WebServerSettings.Express.Security.Cors.enabled )
+		// Express Session
 		{
-			// - Enable CORS (see: https://medium.com/@alexishevia/using-cors-in-express-cac7e29b005b)
-			// WebServer.Express.App.use( LIB_CORS( { origin: '*' } ) );
-			WebServer.Express.App.use( LIB_CORS( WebServerSettings.Express.Security.Cors.Settings ) );
-			Server.Log.trace( `WebServer.Express.Security.Cors is initialized.` );
+			let SRC = require( './Express/Express_Session.js' );
+			components.Express_Session = SRC.Express_Session;
 		}
 
-		// if ( WebServerSettings.Helmet && WebServerSettings.Helmet.enabled )
-		// {
-		// 	WebServer.Express.App.use( LIB_HELMET( WebServerSettings.Helmet ) );
-		// 	Server.Log.trace( `WebServer - initialized Helmet` );
-		// }
-
-
-		//=====================================================================
-		//=====================================================================
-		//
-		//		Client Support
-		//
-		//=====================================================================
-		//=====================================================================
-
-
-		if ( WebServerSettings.Express.ClientSupport
-			&& WebServerSettings.Express.ClientSupport.enabled )
+		//---------------------------------------------------------------------
+		// Express Authentication
 		{
+			let SRC = require( './Express/Express_Authentication.js' );
+			components.Express_Authentication = SRC.Express_Authentication;
+		}
 
-			//---------------------------------------------------------------------
-			// Serve views.
-			if ( WebServerSettings.Express.ClientSupport.Views
-				&& WebServerSettings.Express.ClientSupport.Views.view_engine )
-			{
-				let engine = WebServerSettings.Express.ClientSupport.Views.view_engine;
-				let path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.Views.view_files );
-				LIB_FS.mkdirSync( path, { recursive: true } );
-				WebServer.Express.App.set( 'view engine', engine );
-				WebServer.Express.App.set( 'views', path );
-				Server.Log.trace( `WebServer.Express.ClientSupport using '${engine}' views from folder [${path}].` );
-			}
-
-			//---------------------------------------------------------------------
-			// Generate client file.
-			if ( WebServerSettings.Express.ClientSupport.client_api_file )
-			{
-				// Generate the api client for javascript.
-				let code = SRC_EXPRESS_API_CLIENT.Generate( Server, WebServer, WebServerSettings );
-				let filename = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.client_api_file );
-				LIB_FS.writeFileSync( filename, code );
-				Server.Log.trace( `WebServer.Express.ClientSupport generated client file [${filename}].` );
-			}
-
-			Server.Log.trace( `WebServer.Express.ClientSupport is initialized.` );
+		//---------------------------------------------------------------------
+		// Express Services
+		{
+			let SRC = require( './Express/Express_Services.js' );
+			components.Express_Services = SRC.Express_Services;
 		}
 
 
 		//=====================================================================
 		//=====================================================================
 		//
-		//		Session
+		//		Initialize Components
 		//
+		//=====================================================================
+		//=====================================================================
+
 		// `session-file-store` must be initialized after setting the
 		// ClientSupport.public_files static folder and before the adding
 		// of any routes.
-		//
-		//=====================================================================
-		//=====================================================================
 
-
-		if ( WebServerSettings.Express.Session
-			&& WebServerSettings.Express.Session.enabled )
-		{
-			let session_settings = JSON.parse( JSON.stringify( WebServerSettings.Express.Session.Settings ) );
-
-			if ( WebServerSettings.Express.Session.storage_engine )
-			{
-				switch ( WebServerSettings.Express.Session.storage_engine )
-				{
-					case 'Memory_Storage':
-						let memory_store = LIB_MEMORYSTORE( LIB_EXPRESS_SESSION );
-						session_settings.store = new memory_store( WebServerSettings.Express.Session.Memory_Storage );
-						Server.Log.trace( `WebServer.Express.Session.Memory_Storage is being used.` );
-						break;
-					case 'File_Storage':
-						let file_storage_settings = JSON.parse( JSON.stringify( WebServerSettings.Express.Session.File_Storage.Settings ) );
-						file_storage_settings.path = Server.ResolveApplicationPath( file_storage_settings.path );
-						LIB_FS.mkdirSync( file_storage_settings.path, { recursive: true } );
-						let file_store = LIB_SESSION_FILE_STORE( LIB_EXPRESS_SESSION );
-						session_settings.store = new file_store( file_storage_settings );
-						Server.Log.trace( `WebServer.Express.Session.File_Storage is using path [${file_storage_settings.path}].` );
-						break;
-					case 'BetterSqlite3_Storage':
-						Server.Log.warn( `WebServer.Express.Session.BetterSqlite3_Storage is not implemented!` );
-						// Server.Log.trace( `WebServer.Express.Session.BetterSqlite3_Storage is being used.` );
-						break;
-					case '':
-					case 'Native_Storage':
-						Server.Log.trace( `WebServer.Express.Session.Native_Storage is being used.` );
-						break;
-				}
-			}
-
-			WebServer.Express.Session = LIB_EXPRESS_SESSION( session_settings );
-
-			if ( WebServerSettings.Express.Session.set_express_trust_proxy )
-			{
-				WebServer.Express.App.set( 'trust proxy', 1 );
-			}
-
-			WebServer.Express.App.use( WebServer.Express.Session );
-			Server.Log.trace( `WebServer.Express.Session is initialized.` );
-		}
-
-
-		//=====================================================================
-		//=====================================================================
-		//
-		//		Client Support (part 2)
-		//
-		//=====================================================================
-		//=====================================================================
-
-
-		if ( WebServerSettings.Express.ClientSupport
-			&& WebServerSettings.Express.ClientSupport.enabled )
-		{
-
-			//---------------------------------------------------------------------
-			// Serve public files.
-			if ( WebServerSettings.Express.ClientSupport.public_files )
-			{
-				let url_path = WebServer.Express.ServerPath() + WebServerSettings.Express.ClientSupport.public_url;
-				let folder_path = Server.ResolveApplicationPath( WebServerSettings.Express.ClientSupport.public_files );
-				LIB_FS.mkdirSync( folder_path, { recursive: true } );
-				WebServer.Express.App.use( url_path, LIB_EXPRESS.static( folder_path ) );
-				Server.Log.trace( `WebServer.Express.ClientSupport mounted route [${url_path}] for static folder [${folder_path}].` );
-			}
-
-			//---------------------------------------------------------------------
-			// Mount root route.
-			if ( WebServerSettings.Express.ClientSupport.Views
-				&& WebServerSettings.Express.ClientSupport.Views.home_view )
-			{
-				let server_path = WebServer.Express.ServerPath();
-				let home_view = WebServerSettings.Express.ClientSupport.Views.home_view;
-				WebServer.Express.App.get( server_path,
-					WebServer.Express.AuthenticationGate( false ),
-					WebServer.Express.InvocationGate(
-						null, null,
-						async function ( request, response, next )
-						{
-							response.render( home_view, { Server: Server, User: request.user } );
-							return "OK";
-						}
-					),
-				);
-				Server.Log.trace( `WebServer.Express.ClientSupport mounted route [${server_path}] to view [${home_view}].` );
-			}
-
-		}
-
-
-		//=====================================================================
-		//=====================================================================
-		//
-		//		Authentication
-		//
-		//=====================================================================
-		//=====================================================================
-
-
-		if ( WebServerSettings.Express.Authentication
-			&& WebServerSettings.Express.Authentication.enabled )
-		{
-			if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Local' )
-			{
-				SRC_AUTHENTICATION_PASSPORT_LOCAL.Use( Server, WebServer, WebServerSettings );
-				Server.Log.trace( `WebServer.Express.Authentication is using [Passport_Local].` );
-			}
-			else if ( WebServerSettings.Express.Authentication.authentication_engine === 'Passport_Auth0' )
-			{
-				SRC_AUTHENTICATION_PASSPORT_AUTH0.Use( Server, WebServer, WebServer.Express, WebServerSettings );
-				Server.Log.trace( `WebServer.Express.Authentication is using [Passport_Auth0].` );
-			}
-			else
-			{
-				throw new Error( Server.Utility.invalid_parameter_value_message(
-					'Express.Authentication.authentication_engine',
-					WebServerSettings.Express.Authentication.authentication_engine,
-					`Must be either 'Passport_Local' or 'Passport_Auth0'.` ) );
-			}
-			Server.Log.trace( `WebServer.Express.Authentication is initialized.` );
-		}
-
-
-		//=====================================================================
-		//=====================================================================
-		//
-		//		Explorer
-		//
-		//=====================================================================
-		//=====================================================================
-
-
-		if ( WebServerSettings.Express.Explorer
-			&& WebServerSettings.Express.Explorer.enabled )
-		{
-
-
-			//---------------------------------------------------------------------
-			// Mount the explorer path.
-			if ( WebServerSettings.Express.Explorer.explorer_path )
-			{
-				let route = `${WebServer.Express.ServicesPath()}${WebServerSettings.Express.Explorer.explorer_path}`;
-				let explorer_view = WebServerSettings.Express.Explorer.explorer_view;
-
-				WebServer.Express.App.get( route,
-					WebServer.Express.AuthenticationGate( WebServerSettings.Express.Explorer.requires_login ),
-					WebServer.Express.InvocationGate(
-						null, null,
-						async function ( request, response, next )
-						{
-							response.render( explorer_view, { Server: Server, User: request.user } );
-							return "OK";
-						}
-					),
-				);
-
-				Server.Log.trace( `WebServer.Express.Explorer mounted route [${route}] to view [${explorer_view}].` );
-			}
-
-			Server.Log.trace( `WebServer.Express.Explorer is initialized.` );
-		}
-
-
-		//=====================================================================
-		//=====================================================================
-		//
-		//		Application Services
-		//
-		//=====================================================================
-		//=====================================================================
-
-
-		//---------------------------------------------------------------------
-		SRC_EXPRESS_ROUTES.Use( Server, WebServer, WebServerSettings );
+		components.Express_DataHandling_JsonBodyParser( component_context );
+		components.Express_DataHandling_UrlEncodedParser( component_context );
+		components.Express_DataHandling_FileUpload( component_context );
+		components.Express_Security_Cors( component_context );
+		components.Express_ClientSupport_ViewEngine( component_context );
+		components.Express_ClientSupport_ClientApiFile( component_context );
+		components.Express_ClientSupport_OpenApiFile( component_context );
+		components.Express_Session( component_context );
+		components.Express_ClientSupport_MountPublicFiles( component_context );
+		components.Express_ClientSupport_MountRootRoute( component_context );
+		components.Express_ClientSupport_MountExplorerRoute( component_context );
+		components.Express_Authentication( component_context );
+		components.Express_Services( component_context );
 
 
 		//=====================================================================
@@ -656,7 +449,7 @@ exports.Initialize =
 		//=====================================================================
 
 
-		if ( WebServerSettings.Express.report_routes )
+		if ( WebServer.Settings.Express.report_routes )
 		{
 			Server.Log.debug( 'Reporting express routes:' );
 			let stack = WebServer.Express.App._router.stack;

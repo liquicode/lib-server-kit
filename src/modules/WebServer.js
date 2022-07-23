@@ -76,9 +76,9 @@ exports.Construct =
 		WebServer.ServerAddress =
 			function ServerAddress()
 			{
-				let url = WebServerSettings.HttpServer.protocol
-					+ '://' + WebServerSettings.HttpServer.address
-					+ ':' + WebServerSettings.HttpServer.port;
+				let url = WebServer.Settings.HttpServer.protocol
+					+ '://' + WebServer.Settings.HttpServer.address
+					+ ':' + WebServer.Settings.HttpServer.port;
 				return url;
 			};
 
@@ -88,8 +88,8 @@ exports.Construct =
 		//
 		//		StartWebServer
 		//			- Callbacks: an optional object containing callback functions.
-		//				- PreInitialize( Server, Router ) : Called after Router is created but before any initialization.
-		//				- PreStartup( Server, Router ) : Called after all Router initialization but before starup.
+		//				- PreInitialize( Server, WebServer ) : Called after WebServer is created but before any initialization.
+		//				- PreStartup( Server, WebServer ) : Called after all WebServer initialization but before running.
 		//
 		//=====================================================================
 		//=====================================================================
@@ -102,21 +102,21 @@ exports.Construct =
 				if ( WebServer.Express ) { throw new Error( `Express is already running. Call the StopWebServer() function.` ); }
 				if ( WebServer.SocketIO ) { throw new Error( `SocketIO is already running. Call the StopWebServer() function.` ); }
 
-				const WebServerSettings = Server.Config.Settings.WebServer;
+				// const WebServer.Settings = Server.Config.Settings.WebServer;
 				WebServer.Express = null;
 				WebServer.SocketIO = null;
 
 				//---------------------------------------------------------------------
 				// Create the Express Transport.
-				if ( WebServerSettings.Express
-					&& WebServerSettings.Express.enabled )
+				if ( WebServer.Settings.Express
+					&& WebServer.Settings.Express.enabled )
 				{
-					WebServer.Express = SRC_WEBSERVER_EXPRESS.Create( Server, WebServer, WebServerSettings );
+					WebServer.Express = SRC_WEBSERVER_EXPRESS.Create( Server, WebServer );
 				}
 
 				//---------------------------------------------------------------------
 				// Create the HTTP Server.
-				if ( WebServerSettings.HttpServer.protocol === 'http' )
+				if ( WebServer.Settings.HttpServer.protocol === 'http' )
 				{
 					if ( WebServer.Express )
 					{
@@ -127,7 +127,7 @@ exports.Construct =
 						WebServer.HttpServer = LIB_HTTP.createServer();
 					}
 				}
-				else if ( WebServerSettings.HttpServer.protocol === 'https' )
+				else if ( WebServer.Settings.HttpServer.protocol === 'https' )
 				{
 					if ( WebServer.Express )
 					{
@@ -142,46 +142,46 @@ exports.Construct =
 				{
 					throw new Error( Server.Utility.invalid_parameter_value_message(
 						'HttpServer.protocol',
-						WebServerSettings.HttpServer.protocol,
+						WebServer.Settings.HttpServer.protocol,
 						`Must be either 'http' or 'https'.` ) );
 				}
 				Server.Log.trace( `WebServer.HttpServer is initialized.` );
 
 				//---------------------------------------------------------------------
 				// Create and Initialize the SocketIO Transport.
-				if ( WebServerSettings.SocketIO
-					&& WebServerSettings.SocketIO.enabled )
+				if ( WebServer.Settings.SocketIO
+					&& WebServer.Settings.SocketIO.enabled )
 				{
-					WebServer.SocketIO = SRC_WEBSERVER_SOCKETIO.Create( Server, WebServer, WebServerSettings );
+					WebServer.SocketIO = SRC_WEBSERVER_SOCKETIO.Create( Server, WebServer );
 				}
 
 				//---------------------------------------------------------------------
 				// PreInitialize Callback
-				if ( Callbacks && Callbacks.PreInitialize ) { await Callbacks.PreInitialize( Server, WebServer, WebServerSettings ); }
+				if ( Callbacks && Callbacks.PreInitialize ) { await Callbacks.PreInitialize( Server, WebServer ); }
 
 				//---------------------------------------------------------------------
 				// Initialize the Express Transport.
-				if ( WebServerSettings.Express
-					&& WebServerSettings.Express.enabled
+				if ( WebServer.Settings.Express
+					&& WebServer.Settings.Express.enabled
 					&& WebServer.Express )
 				{
-					SRC_WEBSERVER_EXPRESS.Initialize( Server, WebServer, WebServerSettings );
+					SRC_WEBSERVER_EXPRESS.Initialize( Server, WebServer );
 					Server.Log.trace( `WebServer.Express is initialized.` );
 				}
 
 				//---------------------------------------------------------------------
 				// Initialize the SocketIO Transport.
-				if ( WebServerSettings.SocketIO
-					&& WebServerSettings.SocketIO.enabled
+				if ( WebServer.Settings.SocketIO
+					&& WebServer.Settings.SocketIO.enabled
 					&& WebServer.SocketIO )
 				{
-					SRC_WEBSERVER_SOCKETIO.Initialize( Server, WebServer, WebServerSettings );
+					SRC_WEBSERVER_SOCKETIO.Initialize( Server, WebServer );
 					Server.Log.trace( `WebServer.SocketIO is initialized.` );
 				}
 
 				//---------------------------------------------------------------------
 				// PreStartup Callback
-				if ( Callbacks && Callbacks.PreStartup ) { await Callbacks.PreStartup( Server, WebServer, WebServerSettings ); }
+				if ( Callbacks && Callbacks.PreStartup ) { await Callbacks.PreStartup( Server, WebServer ); }
 
 				//---------------------------------------------------------------------
 				// Begin accepting connections.
@@ -189,15 +189,15 @@ exports.Construct =
 					function ( resolve, reject )
 					{
 						WebServer.HttpServer.listen(
-							WebServerSettings.HttpServer.port,
-							WebServerSettings.HttpServer.address,
+							WebServer.Settings.HttpServer.port,
+							WebServer.Settings.HttpServer.address,
 							function ( err ) 
 							{
 								if ( err ) { reject( err ); }
 								else { resolve( true ); }
 							} );
 					} );
-				Server.Log.trace( `WebServer.HttpServer is listening at [${WebServer.Express.ServerAddress()}]` );
+				Server.Log.trace( `WebServer.HttpServer is listening at [${WebServer.ServerAddress()}]` );
 
 				// Return
 				return { ok: true };
@@ -247,7 +247,7 @@ exports.Construct =
 							} );
 					}
 					WebServer.HttpServer = null;
-					Server.Log.trace( `WebServer.HttpSerer is stopped.` );
+					Server.Log.trace( `WebServer.HttpServer is stopped.` );
 				}
 				return { ok: true };
 			};

@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Socket Api Client File for: MathsServer
-// Generated:  2022-07-22T06:44:44.486Z
-//   Fri Jul 22 2022 02:44:44 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-23T09:02:10.734Z
+//   Sat Jul 23 2022 05:02:10 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var SocketApi = {};
@@ -47,6 +47,7 @@ SocketApi.NewSocket =
 		let socket = { __: { io: io() } };
 
 		socket.ServerAccounts = {};
+		socket.ServerAccounts.NewServiceItem = function ( Prototype, Callback ) { SocketApi.SocketMessage( socket, 'ServerAccounts.NewServiceItem', { Prototype: Prototype }, Callback ); }
 		socket.ServerAccounts.StorageCount = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'ServerAccounts.StorageCount', { Criteria: Criteria }, Callback ); }
 		socket.ServerAccounts.StorageFindOne = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'ServerAccounts.StorageFindOne', { Criteria: Criteria }, Callback ); }
 		socket.ServerAccounts.StorageFindMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'ServerAccounts.StorageFindMany', { Criteria: Criteria }, Callback ); }
@@ -56,6 +57,11 @@ SocketApi.NewSocket =
 		socket.ServerAccounts.StorageDeleteMany = function ( Criteria, Callback ) { SocketApi.SocketMessage( socket, 'ServerAccounts.StorageDeleteMany', { Criteria: Criteria }, Callback ); }
 
 		socket.Maths = {};
+		socket.Maths.NewServiceItem = function ( Prototype, Callback ) { SocketApi.SocketMessage( socket, 'Maths.NewServiceItem', { Prototype: Prototype }, Callback ); }
+		socket.Maths.Add = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Add', { A: A, B: B }, Callback ); }
+		socket.Maths.Subtract = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Subtract', { A: A, B: B }, Callback ); }
+		socket.Maths.Multiply = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Multiply', { A: A, B: B }, Callback ); }
+		socket.Maths.Divide = function ( A, B, Callback ) { SocketApi.SocketMessage( socket, 'Maths.Divide', { A: A, B: B }, Callback ); }
 
 		socket.__.io.on( 'connect',
 			() => 

@@ -50,7 +50,7 @@ exports.Construct =
 			description: 'Returns the sum of two numbers. (A + B)',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [
 				{
 					name: 'A',
@@ -79,7 +79,7 @@ exports.Construct =
 			description: 'Returns the difference of two numbers. (A - B)',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [
 				{
 					name: 'A',
@@ -108,7 +108,7 @@ exports.Construct =
 			description: 'Returns the product of two numbers. (A * B)',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [
 				{
 					name: 'A',
@@ -137,7 +137,7 @@ exports.Construct =
 			description: 'Returns the ratio of two numbers. (A / B)',
 			requires_login: false,
 			allowed_roles: [ 'admin', 'super', 'user' ],
-			verbs: [ 'get', 'post' ],
+			verbs: [ 'call', 'get', 'post' ],
 			parameters: [
 				{
 					name: 'A',

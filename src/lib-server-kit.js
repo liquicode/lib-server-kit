@@ -8,7 +8,7 @@ const LIB_PATH = require( 'path' );
 
 //---------------------------------------------------------------------
 const SRC_MODULE_BASE = require( LIB_PATH.join( __dirname, 'base', 'ModuleBase.js' ) );
-const SRC_SERVICE_BASE = require( LIB_PATH.join( __dirname, 'base', 'ServiceBase.js' ) );
+const SRC_APPLICATION_SERVICE = require( LIB_PATH.join( __dirname, 'base', 'ApplicationService.js' ) );
 const SRC_STORAGE_SERVICE = require( LIB_PATH.join( __dirname, 'base', 'StorageService.js' ) );
 
 const MODULES_PATH = LIB_PATH.join( __dirname, 'modules' );
@@ -43,7 +43,7 @@ exports.NewServer =
 		// Expose some construction functions.
 		{
 			server.NewModule = SRC_MODULE_BASE.NewModule;
-			server.NewService = SRC_SERVICE_BASE.NewService;
+			server.NewService = SRC_APPLICATION_SERVICE.NewService;
 			server.NewStorageService = SRC_STORAGE_SERVICE.NewStorageService;
 		}
 
@@ -291,7 +291,7 @@ exports.NewServer =
 				// Initialize Log Module.
 				server.Log.SetSettings( server.Config.Settings.Log );
 				server.Log.Initialize();
-				server.Log.trace( `Initialized module [Log].` );
+				server.Log.trace( `Server initialized module [Log].` );
 
 				// Report config initialization.
 				if ( ServerOptions.write_defaults )
@@ -317,12 +317,12 @@ exports.NewServer =
 				// Origins
 				server.Origins.SetSettings( server.Config.Settings.Origins );
 				server.Origins.Initialize();
-				server.Log.trace( `Initialized module [Origins].` );
+				server.Log.trace( `Server initialized module [Origins].` );
 
 				// WebServer
 				server.WebServer.SetSettings( server.Config.Settings.WebServer );
 				server.WebServer.Initialize();
-				server.Log.trace( `Initialized module [WebServer].` );
+				server.Log.trace( `Server initialized module [WebServer].` );
 
 				// Configure Services
 				{
@@ -341,7 +341,7 @@ exports.NewServer =
 					{
 						let service_name = service_names[ index ];
 						server[ service_name ].InitializeService();
-						server.Log.trace( `Initialized service [${service_name}].` );
+						server.Log.trace( `Server initialized service [${service_name}].` );
 					}
 				}
 

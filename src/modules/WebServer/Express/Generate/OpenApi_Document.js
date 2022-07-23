@@ -15,7 +15,7 @@ const { string } = require( 'yargs' );
 
 //---------------------------------------------------------------------
 exports.Generate =
-	function Generate( Server, WebServer, WebServerSettings )
+	function Generate( Server, WebServer )
 	{
 		let server_settings = Server.Config.Settings;
 		let service_names = Object.keys( Server.Services );
@@ -30,7 +30,7 @@ exports.Generate =
 			},
 			servers: [
 				{
-					url: `${WebServer.Express.ServerAddress()}${WebServer.Express.ServicesPath()}`,
+					url: `${WebServer.ServerAddress()}${WebServer.Express.ServicesPath()}`,
 					description: `${server_settings.AppInfo.environment} server`,
 				},
 			],

@@ -134,7 +134,7 @@ During startup, a server can also generate client side files containing function
 Making server calls is as easy as calling a typical function.
 A client api file can be generated for each of the available transports.
 
-- ### Kinda Swaggerish
+- ### Kinda Like Swagger
 
 If you are familiar with the [Swagger](https://swagger.io/) tools, you might see some similarities when defining item and function parameter schemas.
 A design decision was made to not go [Full Swagger](https://swagger.io/specification/) by requiring very strict and detailed schema for all functions and data.
@@ -162,6 +162,7 @@ Server Functionality
 - ... all with copious and verbose logging (also configurable)
 
 Application Development
+- Removes most, if not all, of the overhead concerning user management, authentication, etc.
 - Predefined user roles `admin`, `super`, `public`, and `anon`
 - A `StorageService` base class to handle the CRUD for user data
 	- Every data item is owned by a user so its like each user has their own database

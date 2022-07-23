@@ -1,8 +1,8 @@
 'use strict';
 //---------------------------------------------------------------------
 // Express Api Client File for: MathsServer
-// Generated:  2022-07-22T06:44:44.417Z
-//   Fri Jul 22 2022 02:44:44 GMT-0400 (Eastern Daylight Time)
+// Generated:  2022-07-23T09:02:10.675Z
+//   Sat Jul 23 2022 05:02:10 GMT-0400 (Eastern Daylight Time)
 //---------------------------------------------------------------------
 
 var ExpressApi = {};    // Service Origins
@@ -72,6 +72,8 @@ function make_page_url( url, params_object )
 //---------------------------------------------------------------------
 // ServerAccounts Origins
 ExpressApi.ServerAccounts = {};
+ExpressApi.ServerAccounts.get_NewServiceItem = function ( Prototype, Callback ) { send_message( 'get', '/ServerAccounts/NewServiceItem', { Prototype: Prototype }, Callback ); };
+ExpressApi.ServerAccounts.post_NewServiceItem = function ( Prototype, Callback ) { send_message( 'post', '/ServerAccounts/NewServiceItem', { Prototype: Prototype }, Callback ); };
 ExpressApi.ServerAccounts.get_StorageCount = function ( Criteria, Callback ) { send_message( 'get', '/ServerAccounts/StorageCount', { Criteria: Criteria }, Callback ); };
 ExpressApi.ServerAccounts.post_StorageCount = function ( Criteria, Callback ) { send_message( 'post', '/ServerAccounts/StorageCount', { Criteria: Criteria }, Callback ); };
 ExpressApi.ServerAccounts.get_StorageFindOne = function ( Criteria, Callback ) { send_message( 'get', '/ServerAccounts/StorageFindOne', { Criteria: Criteria }, Callback ); };
@@ -90,6 +92,7 @@ ExpressApi.ServerAccounts.post_StorageDeleteMany = function ( Criteria, Callback
 //---------------------------------------------------------------------
 // ServerAccounts Pages
 ExpressPages.ServerAccounts = {};
+ExpressPages.ServerAccounts.visit_Explore = function (  ) { return make_page_url( '/ServerAccounts/Explore', {  } ); };
 ExpressPages.ServerAccounts.visit_List = function ( Criteria ) { return make_page_url( '/ServerAccounts/List', { Criteria: Criteria } ); };
 ExpressPages.ServerAccounts.visit_Item = function ( ItemID, PageOp ) { return make_page_url( '/ServerAccounts/Item', { ItemID: ItemID, PageOp: PageOp } ); };
 ExpressPages.ServerAccounts.visit_Share = function ( ItemID ) { return make_page_url( '/ServerAccounts/Share', { ItemID: ItemID } ); };
@@ -97,6 +100,8 @@ ExpressPages.ServerAccounts.visit_Share = function ( ItemID ) { return make_page
 //---------------------------------------------------------------------
 // Maths Origins
 ExpressApi.Maths = {};
+ExpressApi.Maths.get_NewServiceItem = function ( Prototype, Callback ) { send_message( 'get', '/Maths/NewServiceItem', { Prototype: Prototype }, Callback ); };
+ExpressApi.Maths.post_NewServiceItem = function ( Prototype, Callback ) { send_message( 'post', '/Maths/NewServiceItem', { Prototype: Prototype }, Callback ); };
 ExpressApi.Maths.get_Add = function ( A, B, Callback ) { send_message( 'get', '/Maths/Add', { A: A, B: B }, Callback ); };
 ExpressApi.Maths.post_Add = function ( A, B, Callback ) { send_message( 'post', '/Maths/Add', { A: A, B: B }, Callback ); };
 ExpressApi.Maths.get_Subtract = function ( A, B, Callback ) { send_message( 'get', '/Maths/Subtract', { A: A, B: B }, Callback ); };
@@ -109,3 +114,4 @@ ExpressApi.Maths.post_Divide = function ( A, B, Callback ) { send_message( 'post
 //---------------------------------------------------------------------
 // Maths Pages
 ExpressPages.Maths = {};
+ExpressPages.Maths.visit_Explore = function (  ) { return make_page_url( '/Maths/Explore', {  } ); };

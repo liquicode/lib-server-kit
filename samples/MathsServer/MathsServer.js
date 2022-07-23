@@ -22,12 +22,14 @@ let server_options = {
 			},
 			Express: {
 				enabled: true,
-				report_routes: true,
+				report_routes: false,
 				ClientSupport: {
 					enabled: true,
-				},
-				Explorer: {
-					enabled: true,
+					Views: {
+						Explorer: {
+							enabled: true,
+						},
+					},
 				},
 				Session: {
 					enabled: true,

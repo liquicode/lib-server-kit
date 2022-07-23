@@ -20,13 +20,14 @@ html
 body
 {
 	/* margin: 0px; */
-	font-family: Righteous, Roboto, Arial, Helvetica, sans-serif;
+	/* font-family: Righteous, Roboto, Arial, Helvetica, sans-serif; */
+	font-family: Ubuntu, Arial, Helvetica, sans-serif;
 	/* font-family: Arial, Helvetica, sans-serif; */
 
 	/* color: rgb(167, 0, 0); */
 	/* color: crimson; */
 
-	/* background: url('http://omnimediagrowthcorp.com/img/omnimedia-image-05.jpg') no-repeat center center fixed; */
+	/* background: url('image-05.jpg') no-repeat center center fixed; */
 	/* background-repeat: no-repeat; */
 	/* background-size: cover; */
 
